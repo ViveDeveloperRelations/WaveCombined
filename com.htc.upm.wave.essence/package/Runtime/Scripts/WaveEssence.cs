@@ -204,6 +204,10 @@ namespace Wave.Essence
 			}
 		}
 
+		public bool IsConnected(WVR_DeviceType deviceType)
+		{
+			return m_Connected[deviceType];
+		}
 		private void UpdateDeviceConnections()
 		{
 			for (int i = 0; i < Enum.GetNames(typeof(WVR_DeviceType)).Length; i++)

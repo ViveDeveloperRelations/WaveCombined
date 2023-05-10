@@ -215,6 +215,11 @@ namespace Wave.Essence
 			}
 		}
 
+		public static bool IsConnected(WVR_DeviceType deviceType)
+		{
+			return WaveEssence.Instance.IsConnected(deviceType);
+		}
+
 		public static WVR_DeviceType GetRoleType(this XR_Device device, bool adaptiveHanded = false)
 		{
 			switch (device)
