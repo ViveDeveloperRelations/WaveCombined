@@ -1,0 +1,29 @@
+{
+  "name": "com.htc.upm.wave.native",
+  "displayName": "VIVE Wave XR Plugin - Native",
+  "version": "4.0.0-preview.1",
+  "unity": "2019.4",
+  "description": "Provides access to the VIVE Wave Native APIs.\nFor Wave Runtime version 4.0.0.",
+  "keywords": [
+    "vr",
+    "xr",
+    "reality"
+  ],
+  "author": {
+    "name": "HTC Corporation",
+    "email": "vivesoftware@htc.com",
+    "url": "https://www.htc.com"
+  },
+  "dependencies": {
+    "com.htc.upm.wave.xrsdk": "4.0.0-preview.1"
+  },
+  "samples": [
+    {
+      "displayName": "Native",
+      "description": "Basic sample showing how to use Wave Native.",
+      "path": "Samples~/Native/Native"
+    }
+  ],
+  "type": "library",
+  "hideInEditor": false
+}
