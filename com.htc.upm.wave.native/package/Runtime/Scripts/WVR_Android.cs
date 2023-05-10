@@ -673,10 +673,10 @@ namespace Wave.Native
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetSceneMeshBuffer", CallingConvention = CallingConvention.Cdecl)]
-		public static extern WVR_Result WVR_GetSceneMeshBuffer(UInt64 meshBufferId, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */);
-		public override WVR_Result GetSceneMeshBuffer(UInt64 meshBufferId, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
+		public static extern WVR_Result WVR_GetSceneMeshBuffer(UInt64 meshBufferId, WVR_PoseOriginModel originModel, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */);
+		public override WVR_Result GetSceneMeshBuffer(UInt64 meshBufferId, WVR_PoseOriginModel originModel, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
 		{
-			return WVR_GetSceneMeshBuffer(meshBufferId, ref sceneMeshBuffer);
+			return WVR_GetSceneMeshBuffer(meshBufferId, originModel, ref sceneMeshBuffer);
 		}
 
 		#endregion

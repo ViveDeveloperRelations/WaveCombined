@@ -26,10 +26,10 @@ namespace Wave.XR
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    [Preserve, InputControlLayout(displayName = "VIVE Focus 3 HMD", canRunInBackground = true)]
-    public class VIVEFocus3HMD : XRHMD
+    [Preserve, InputControlLayout(displayName = "VIVE HMD (Wave)", canRunInBackground = true)]
+    public class ViveWaveHMD : XRHMD
     {
-        const string LOG_TAG = "Wave.XR.VIVEFocus3HMD";
+        const string LOG_TAG = "Wave.XR.ViveWaveHMD";
         static void DEBUG(string msg) { Debug.Log(LOG_TAG + " " + msg); }
 
         const string kInterfaceName = XRUtilities.InterfaceMatchAnyVersion;
@@ -40,27 +40,25 @@ namespace Wave.XR
         const string kProducts = "^(" + kProductFocusHeadset + ")|^(" + kProductFocusPlus + ")|^(" + kProductFocus3 + ")";
 
         /// <summary>
-        /// Registers the <see cref="VIVEFocus3HMD"/> layout with the Input System.
+        /// Registers the <see cref="ViveWaveHMD"/> layout with the Input System.
         /// </summary>
-        static VIVEFocus3HMD()
+#if UNITY_EDITOR
+        static ViveWaveHMD()
         {
-#if !USE_VIVE_WAVE_XR_5_0_4
-			Debug.LogWarning(LOG_TAG + " VIVEFocus3HMD() Wave.XR.Loader.WaveXRLoader is NOT assigned.");
-			return;
-#else
-            DEBUG("VIVEFocus3HMD()");
-            InputSystem.RegisterLayout(
-                typeof(VIVEFocus3HMD),
-                matches: new InputDeviceMatcher()
-                        .WithInterface(kInterfaceName)
-                        .WithManufacturer(kManufacturer)
-                        .WithProduct(@kProducts));
-#endif
+            InitializeInPlayer();
         }
+#endif
 
         [RuntimeInitializeOnLoadMethod]
         private static void InitializeInPlayer()
         {
+            DEBUG("InitializeInPlayer()");
+            InputSystem.RegisterLayout(
+                typeof(ViveWaveHMD),
+                matches: new InputDeviceMatcher()
+                        .WithInterface(kInterfaceName)
+                        .WithManufacturer(kManufacturer)
+                        .WithProduct(@kProducts));
         }
 
         [Preserve, InputControl(alias = "HMDTrackingState")]

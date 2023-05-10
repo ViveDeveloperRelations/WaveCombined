@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.XR;
 using Wave.XR.Settings;
@@ -18,6 +19,9 @@ namespace Wave.OpenXR
 {
 	public static class InputDeviceHand
 	{
+		const string LOG_TAG = "Wave.OpenXR.InputDeviceHand";
+		static void DEBUG(string msg) { UnityEngine.Debug.Log(LOG_TAG + " " + msg); }
+
 		public enum TrackingStatus : UInt32
 		{
 			NOT_START = 0,
@@ -42,7 +46,15 @@ namespace Wave.OpenXR
 			if (settings != null && settings.EnableNaturalHand != active)
 			{
 				settings.EnableNaturalHand = active;
-				Debug.Log("InputDeviceHand::ActivateNaturalHand() " + (settings.EnableNaturalHand ? "Activate." : "Deactivate."));
+				string caller = "TBD";
+				var frame = new StackFrame(1, true);
+				if (frame != null)
+				{
+					var method = frame.GetMethod();
+					if (method != null)
+						caller = method.Name;
+				}
+				DEBUG("ActivateNaturalHand() " + (settings.EnableNaturalHand ? "Activate." : "Deactivate.") + " from " + caller);
 				SettingsHelper.SetBool(WaveXRSettings.EnableNaturalHandText, settings.EnableNaturalHand);
 			}
 		}
@@ -74,7 +86,17 @@ namespace Wave.OpenXR
 			if (settings != null && settings.EnableElectronicHand != active)
 			{
 				settings.EnableElectronicHand = active;
-				Debug.Log("InputDeviceHand::ActivateElectronicHand() " + (settings.EnableElectronicHand ? "Activate." : "Deactivate."));
+				string caller = "TBD";
+				var frame = new StackFrame(1, true);
+				if (frame != null)
+				{
+					var method = frame.GetMethod();
+					if (method != null)
+						caller = method.Name;
+					else
+						caller = "No method.";
+				}
+				DEBUG("ActivateElectronicHand() " + (settings.EnableElectronicHand ? "Activate." : "Deactivate.") + " from " + caller);
 				SettingsHelper.SetBool(WaveXRSettings.EnableElectronicHandText, settings.EnableElectronicHand);
 			}
 		}

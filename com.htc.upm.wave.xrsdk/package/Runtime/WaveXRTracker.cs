@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.XR;
 using Wave.XR.Settings;
@@ -19,6 +20,8 @@ namespace Wave.OpenXR
 	public static class InputDeviceTracker
 	{
 		const string LOG_TAG = "Wave.OpenXR.InputDeviceTracker";
+		static void DEBUG(string msg) { UnityEngine.Debug.Log(LOG_TAG + " " + msg); }
+
 		#region Wave XR Interface
 		public static void ActivateTracker(bool active)
 		{
@@ -26,7 +29,17 @@ namespace Wave.OpenXR
 			if (settings != null && settings.EnableTracker != active)
 			{
 				settings.EnableTracker = active;
-				Debug.Log(LOG_TAG + " ActivateTracker() " + (settings.EnableTracker ? "Activate." : "Deactivate."));
+				string caller = "TBD";
+				var frame = new StackFrame(1, true);
+				if (frame != null)
+				{
+					var method = frame.GetMethod();
+					if (method != null)
+						caller = method.Name;
+					else
+						caller = "No method.";
+				}
+				DEBUG("ActivateTracker() " + (settings.EnableTracker ? "Activate." : "Deactivate.") + " from " + caller);
 				SettingsHelper.SetBool(WaveXRSettings.EnableTrackerText, settings.EnableTracker);
 			}
 		}
@@ -300,10 +313,21 @@ namespace Wave.OpenXR
 				if (!IsTrackerDevice(s_InputDevices[i], trackerId)) { continue; }
 
 				float durationSec = durationMicroSec / 1000000;
-				Debug.Log(LOG_TAG + " HapticPulse() " + trackerId
+				string caller = "TBD";
+				var frame = new StackFrame(1, true);
+				if (frame != null)
+				{
+					var method = frame.GetMethod();
+					if (method != null)
+						caller = method.Name;
+					else
+						caller = "No method.";
+				}
+				DEBUG("HapticPulse() " + trackerId
 					+ "[" + trackerId.Name() + "]"
 					+ "[" + trackerId.SerialNumber() + "]"
-					+ ": " + durationSec.ToString() + ", " + amplitude);
+					+ ": " + durationSec.ToString() + ", " + amplitude
+					+ " from " + caller);
 				return s_InputDevices[i].SendHapticImpulse(0, amplitude, durationSec);
 			}
 

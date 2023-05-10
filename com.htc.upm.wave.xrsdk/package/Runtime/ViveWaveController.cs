@@ -26,10 +26,10 @@ namespace Wave.XR
 #if UNITY_EDITOR
 	[InitializeOnLoad]
 #endif
-	[Preserve, InputControlLayout(displayName = "VIVE Focus 3 Controller", commonUsages = new[] { "LeftHand", "RightHand" }, canRunInBackground = true)]
-	public class VIVEFocus3Controller : XRControllerWithRumble
+	[Preserve, InputControlLayout(displayName = "VIVE Controller (Wave)", commonUsages = new[] { "LeftHand", "RightHand" }, canRunInBackground = true)]
+	public class ViveWaveController : XRControllerWithRumble
 	{
-		const string LOG_TAG = "Wave.XR.VIVEFocus3Controller";
+		const string LOG_TAG = "Wave.XR.ViveWaveController";
 		static void DEBUG(string msg) { Debug.Log(LOG_TAG + " " + msg); }
 
 		const string kInterfaceName = XRUtilities.InterfaceMatchAnyVersion;
@@ -39,35 +39,33 @@ namespace Wave.XR
 		public const string kProductFocus3Right = "WVR_CR_Right_001";
 
 		/// <summary>
-		/// Registers the <see cref="VIVEFocus3Controller"/> layout with the Input System.
+		/// Registers the <see cref="ViveWaveController"/> layout with the Input System.
 		/// </summary>
-		static VIVEFocus3Controller()
+#if UNITY_EDITOR
+		static ViveWaveController()
 		{
-#if !USE_VIVE_WAVE_XR_5_0_4
-			Debug.LogWarning(LOG_TAG + " VIVEFocus3Controller() Wave.XR.Loader.WaveXRLoader is NOT assigned.");
-			return;
-#else
-			DEBUG("VIVEFocus3Controller() " + kProductFocus3Left);
+			InitializeInPlayer();
+		}
+#endif
+
+		[RuntimeInitializeOnLoadMethod]
+		private static void InitializeInPlayer()
+		{
+			DEBUG("InitializeInPlayer() " + kProductFocus3Left);
 			InputSystem.RegisterLayout(
-				typeof(VIVEFocus3Controller),
+				typeof(ViveWaveController),
 				matches: new InputDeviceMatcher()
 						.WithInterface(kInterfaceName)
 						.WithManufacturer(kManufacturer)
 						.WithProduct(kProductFocus3Left));
 
-			DEBUG("VIVEFocus3Controller() " + kProductFocus3Right);
+			DEBUG("InitializeInPlayer() " + kProductFocus3Right);
 			InputSystem.RegisterLayout(
-				typeof(VIVEFocus3Controller),
+				typeof(ViveWaveController),
 				matches: new InputDeviceMatcher()
 						.WithInterface(kInterfaceName)
 						.WithManufacturer(kManufacturer)
 						.WithProduct(kProductFocus3Right));
-#endif
-		}
-
-		[RuntimeInitializeOnLoadMethod]
-		private static void InitializeInPlayer()
-		{
 		}
 
 		/**

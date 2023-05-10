@@ -168,13 +168,17 @@ namespace Wave.Essence.Tracker
 		}
 
 		static List<InputDevice> s_InputDevices = new List<InputDevice>();
+		int logFrame = 0;
+		bool printIntervalLog = false;
 		private void Update()
 		{
-			Log.gpl.check();
+			logFrame++;
+			logFrame %= 300;
+			printIntervalLog = (logFrame == 0);
 
 			UpdateTrackerExtData();
 
-			if (Log.gpl.Print)
+			if (printIntervalLog)
 			{
 				DEBUG("Update() " + "use xr device: " + m_UseXRDevice + ", use xr data: " + UseXRData());
 				for (int i = 0; i < s_TrackerIds.Length; i++)
@@ -366,9 +370,17 @@ namespace Wave.Essence.Tracker
 		}
 		public void StartTracker()
 		{
-			//string caller = new StackFrame(1, true).GetMethod().Name;
 			m_TrackerRefCount++;
-			//Log.i(LOG_TAG, "StartTracker(" + m_TrackerRefCount + ") from " + caller, true);
+			string caller = "TBD";
+			var frame = new StackFrame(1, true);
+			if (frame != null)
+			{
+				var method = frame.GetMethod();
+				if (method != null)
+					caller = method.Name;
+				else
+					caller = "No method.";
+			}
 
 			if (!CanStartTracker())
 			{
@@ -418,7 +430,16 @@ namespace Wave.Essence.Tracker
 		}
 		public void StopTracker()
 		{
-			string caller = new StackFrame(1, true).GetMethod().Name;
+			string caller = "TBD";
+			var frame = new StackFrame(1, true);
+			if (frame != null)
+			{
+				var method = frame.GetMethod();
+				if (method != null)
+					caller = method.Name;
+				else
+					caller = "No method.";
+			}
 			m_TrackerRefCount--;
 			Log.i(LOG_TAG, "StopTracker(" + m_TrackerRefCount + ") from " + caller, true);
 			if (m_TrackerRefCount > 0) { return; }
@@ -692,8 +713,6 @@ namespace Wave.Essence.Tracker
 		/// <summary> Checks all buttons' states of a TrackerId. Do NOT call this function every frame. </summary>
 		private void CheckAllTrackerButtons(TrackerId trackerId)
 		{
-			if (!IsTrackerConnected(trackerId)) { return; }
-
 			CheckAllTrackerButton(trackerId, WVR_InputType.WVR_InputType_Button);
 			CheckAllTrackerButton(trackerId, WVR_InputType.WVR_InputType_Touch);
 			CheckAllTrackerButton(trackerId, WVR_InputType.WVR_InputType_Analog);
