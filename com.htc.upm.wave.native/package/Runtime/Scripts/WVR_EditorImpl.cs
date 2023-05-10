@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
 using System;
+using System.Text;
 
 namespace Wave.Native
 {
@@ -1620,7 +1621,7 @@ namespace Wave.Native
 		#endregion
 
 		#region Interaction Mode
-		private WVR_InteractionMode interactionMode = WVR_InteractionMode.WVR_InteractionMode_Controller;
+		private WVR_InteractionMode interactionMode = WVR_InteractionMode.WVR_InteractionMode_Hand;
 		[System.Obsolete("This is an obsolete function.", true)]
 		public bool SetInteractionMode(WVR_InteractionMode mode)
 		{
@@ -1875,41 +1876,32 @@ namespace Wave.Native
 		#region Hand
 		#region Gesture Core
 		private WVR_HandGestureType[] s_GestureTypes = new WVR_HandGestureType[] {
-		WVR_HandGestureType.WVR_HandGestureType_Invalid,
-		WVR_HandGestureType.WVR_HandGestureType_Unknown,
-		WVR_HandGestureType.WVR_HandGestureType_Fist,
-		WVR_HandGestureType.WVR_HandGestureType_Five,
-		WVR_HandGestureType.WVR_HandGestureType_OK,
-		WVR_HandGestureType.WVR_HandGestureType_ThumbUp,
-		WVR_HandGestureType.WVR_HandGestureType_IndexUp,
-		WVR_HandGestureType.WVR_HandGestureType_Inverse,
-	};
-		private enum GestureValue
-		{
-			INVALID = 0,
-			UNKNOWN = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_Unknown,
-			FIST = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_Fist,
-			FIVE = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_Five,
-			OK = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_OK,
-			THUMBUP = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_ThumbUp,
-			INDEXUP = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_IndexUp,
-			INVERSE = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_Inverse,
-		}
+			WVR_HandGestureType.WVR_HandGestureType_Invalid,
+			WVR_HandGestureType.WVR_HandGestureType_Unknown,
+			WVR_HandGestureType.WVR_HandGestureType_Fist,
+			WVR_HandGestureType.WVR_HandGestureType_Five,
+			WVR_HandGestureType.WVR_HandGestureType_OK,
+			WVR_HandGestureType.WVR_HandGestureType_ThumbUp,
+			WVR_HandGestureType.WVR_HandGestureType_IndexUp,
+			WVR_HandGestureType.WVR_HandGestureType_Palm_Pinch,
+			WVR_HandGestureType.WVR_HandGestureType_Yeah,
+		};
 		private ulong[] s_GestureValues =
 		{
-		(ulong)GestureValue.INVALID,
-		(ulong)GestureValue.UNKNOWN,
-		(ulong)GestureValue.FIST,
-		(ulong)GestureValue.FIVE,
-		(ulong)GestureValue.OK,
-		(ulong)GestureValue.THUMBUP,
-		(ulong)GestureValue.INDEXUP,
-		(ulong)GestureValue.INVERSE,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_Invalid,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_Unknown,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_Fist,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_Five,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_OK,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_ThumbUp,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_IndexUp,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_Palm_Pinch,
+			(ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_Yeah,
 		};
 
 		private int gestureTypeIndex = 0;
 		private float gestureChangeTime = 0;
-		private int gestureChangeDuration = 1;
+		private float gestureChangeDuration = .5f;
 
 		private void InitHandGesture()
 		{
@@ -1922,7 +1914,7 @@ namespace Wave.Native
 			{
 				gestureChangeTime = Time.unscaledTime;
 				int count = 0;
-				while (count <= s_GestureTypes.Length)
+				while (count < s_GestureTypes.Length)
 				{
 					count++;
 
@@ -2140,6 +2132,10 @@ namespace Wave.Native
 		private Quaternion leftYawOrientation = Quaternion.identity, rightYawOrientation = Quaternion.identity;
 		private int boneCount = 0, boneCountAdder = 1;
 		private float pinchStrengthLeft = 0, pinchStrengthRight = 0.5f;
+
+		private readonly Vector3 HAND_L_POS__FUSION_OFFSET = new Vector3(0, 0.1f, 0.2f);
+		private readonly Vector3 HAND_R_POS__FUSION_OFFSET = new Vector3(0, 0.1f, 0.2f);
+		private bool fusionBracelet = false;
 		private void UpdateBonesAndHandTrackingData()
 		{
 			// Move the bone position continuously.
@@ -2164,7 +2160,7 @@ namespace Wave.Native
 			Quaternion qua = Quaternion.identity;
 
 			// Calculate the left bone offset according to the origin.
-			Vector3 BONE_HAND_L_POS_OFFSET = HAND_L_POS_OFFSET;
+			Vector3 BONE_HAND_L_POS_OFFSET = fusionBracelet ? HAND_L_POS__FUSION_OFFSET : HAND_L_POS_OFFSET;
 			BONE_HAND_L_POS_OFFSET.y = handOrgin == WVR_PoseOriginModel.WVR_PoseOriginModel_OriginOnGround ? BONE_HAND_L_POS_OFFSET.y + 1.75f : BONE_HAND_L_POS_OFFSET.y;
 
 			// Left wrist.
@@ -2282,7 +2278,7 @@ namespace Wave.Native
 			leftBonesOrientation[(int)HandJointType.Pinky_Tip_L] = GetOpenGLQuaternion(qua);
 
 			// ----------------------------------
-			Vector3 BONE_HAND_R_POS_OFFSET = HAND_R_POS_OFFSET;
+			Vector3 BONE_HAND_R_POS_OFFSET = fusionBracelet ? HAND_R_POS__FUSION_OFFSET : HAND_R_POS_OFFSET;
 			BONE_HAND_R_POS_OFFSET.y = handOrgin == WVR_PoseOriginModel.WVR_PoseOriginModel_OriginOnGround ? BONE_HAND_R_POS_OFFSET.y + 1.75f : BONE_HAND_R_POS_OFFSET.y;
 
 			// Right wrist.
@@ -2405,14 +2401,15 @@ namespace Wave.Native
 
 		#region Hand Gesture
 		private ulong m_GestureSupportedMask = (ulong)(
-			(1 << (int)WVR_HandGestureType.WVR_HandGestureType_Invalid)
+			  (1 << (int)WVR_HandGestureType.WVR_HandGestureType_Invalid)
 			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_Unknown)
 			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_Fist)
 			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_Five)
 			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_OK)
 			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_ThumbUp)
 			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_IndexUp)
-			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_Inverse)
+			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_Palm_Pinch
+			| (1 << (int)WVR_HandGestureType.WVR_HandGestureType_Yeah))
 			);
 		public WVR_Result GetHandGestureInfo(ref WVR_HandGestureInfo_t info)
 		{
@@ -2490,7 +2487,7 @@ namespace Wave.Native
 		const ulong kModelTypeBitMask = (ulong)(WVR_HandModelType.WVR_HandModelType_WithoutController/* | WVR_HandModelType.WVR_HandModelType_WithController*/);
 		private WVR_HandJoint[] s_HandJoints;
 		private int[] s_intHandJoints;
-		const ulong kJointValidFlag = (ulong)(WVR_HandJointValidFlag.WVR_HandJointValidFlag_PositionValid/* | WVR_HandJointValidFlag.WVR_HandJointValidFlag_RotationValid*/);
+		const ulong kJointValidFlag = (ulong)(WVR_HandJointValidFlag.WVR_HandJointValidFlag_PositionValid | WVR_HandJointValidFlag.WVR_HandJointValidFlag_RotationValid);
 		private ulong[] s_HandJointsFlag;
 		private byte[] s_byteHandJointsFlag;
 		private void FillHandTrackerInfo(WVR_HandTrackerType tracker)
@@ -2620,48 +2617,96 @@ namespace Wave.Native
 			return WVR_Result.WVR_Success;
 		}
 
-		private WVR_Pose_t[] m_JointsPose;
+		private WVR_Pose_t[] m_JointsPose = new WVR_Pose_t[kJointCountNatural];
 		private void FillHandJointData(WVR_HandTrackerType tracker, ref WVR_HandJointData_t handJointData, bool isLeft)
 		{
 			handJointData.isValidPose = true;
 			handJointData.confidence = 0.8f;
 			handJointData.jointCount = GetJointCount(tracker);
+			handJointData.scale.v0 = .6f;
+			handJointData.scale.v1 = .6f;
+			handJointData.scale.v2 = -.6f;
+			handJointData.wristLinearVelocity.v0 = .05f;
+			handJointData.wristLinearVelocity.v1 = .05f;
+			handJointData.wristLinearVelocity.v2 = -.05f;
+			handJointData.wristAngularVelocity.v0 = .01f;
+			handJointData.wristAngularVelocity.v1 = .01f;
+			handJointData.wristAngularVelocity.v2 = -.01f;
 
 			WVR_Pose_t wvr_pose_type = default(WVR_Pose_t);
 			handJointData.joints = Marshal.AllocHGlobal(Marshal.SizeOf(wvr_pose_type) * (int)handJointData.jointCount);
 
-			m_JointsPose = new WVR_Pose_t[handJointData.jointCount];
+			if (m_JointsPose.Length != handJointData.jointCount)
+			{
+				m_JointsPose = new WVR_Pose_t[handJointData.jointCount];
+			}
 			if (isLeft)
 			{
 				m_JointsPose[0].position = leftBonesPosition[(int)HandJointType.Wrist_L];
 				m_JointsPose[0].rotation = leftBonesOrientation[(int)HandJointType.Wrist_L];
 
 				m_JointsPose[1].position = leftBonesPosition[(int)HandJointType.Thumb_Joint1_L];
+				m_JointsPose[1].rotation = leftBonesOrientation[(int)HandJointType.Thumb_Joint1_L];
+
 				m_JointsPose[2].position = leftBonesPosition[(int)HandJointType.Thumb_Joint2_L];
+				m_JointsPose[2].rotation = leftBonesOrientation[(int)HandJointType.Thumb_Joint2_L];
+
 				m_JointsPose[3].position = leftBonesPosition[(int)HandJointType.Thumb_Joint3_L];
+				m_JointsPose[3].rotation = leftBonesOrientation[(int)HandJointType.Thumb_Joint3_L];
+
 				m_JointsPose[4].position = leftBonesPosition[(int)HandJointType.Thumb_Tip_L];
+				m_JointsPose[4].rotation = leftBonesOrientation[(int)HandJointType.Thumb_Tip_L];
 
 				m_JointsPose[5].position = leftBonesPosition[(int)HandJointType.Index_Joint1_L];
+				m_JointsPose[5].rotation = leftBonesOrientation[(int)HandJointType.Index_Joint1_L];
+
 				m_JointsPose[6].position = leftBonesPosition[(int)HandJointType.Index_Joint2_L];
+				m_JointsPose[6].rotation = leftBonesOrientation[(int)HandJointType.Index_Joint2_L];
+
 				m_JointsPose[7].position = leftBonesPosition[(int)HandJointType.Index_Joint3_L];
+				m_JointsPose[7].rotation = leftBonesOrientation[(int)HandJointType.Index_Joint3_L];
+
 				m_JointsPose[8].position = leftBonesPosition[(int)HandJointType.Index_Tip_L];
+				m_JointsPose[8].rotation = leftBonesOrientation[(int)HandJointType.Index_Tip_L];
 
 				m_JointsPose[9].position = leftBonesPosition[(int)HandJointType.Middle_Joint1_L];
+				m_JointsPose[9].rotation = leftBonesOrientation[(int)HandJointType.Middle_Joint1_L];
+
 				m_JointsPose[10].position = leftBonesPosition[(int)HandJointType.Middle_Joint2_L];
+				m_JointsPose[10].rotation = leftBonesOrientation[(int)HandJointType.Middle_Joint2_L];
+
 				m_JointsPose[11].position = leftBonesPosition[(int)HandJointType.Middle_Joint3_L];
+				m_JointsPose[11].rotation = leftBonesOrientation[(int)HandJointType.Middle_Joint3_L];
+
 				m_JointsPose[12].position = leftBonesPosition[(int)HandJointType.Middle_Tip_L];
+				m_JointsPose[12].rotation = leftBonesOrientation[(int)HandJointType.Middle_Tip_L];
 
 				m_JointsPose[13].position = leftBonesPosition[(int)HandJointType.Ring_Joint1_L];
+				m_JointsPose[13].rotation = leftBonesOrientation[(int)HandJointType.Ring_Joint1_L];
+
 				m_JointsPose[14].position = leftBonesPosition[(int)HandJointType.Ring_Joint2_L];
+				m_JointsPose[14].rotation = leftBonesOrientation[(int)HandJointType.Ring_Joint2_L];
+
 				m_JointsPose[15].position = leftBonesPosition[(int)HandJointType.Ring_Joint3_L];
+				m_JointsPose[15].rotation = leftBonesOrientation[(int)HandJointType.Ring_Joint3_L];
+
 				m_JointsPose[16].position = leftBonesPosition[(int)HandJointType.Ring_Tip_L];
+				m_JointsPose[16].rotation = leftBonesOrientation[(int)HandJointType.Ring_Tip_L];
 
 				m_JointsPose[17].position = leftBonesPosition[(int)HandJointType.Pinky_Joint1_L];
+				m_JointsPose[17].rotation = leftBonesOrientation[(int)HandJointType.Pinky_Joint1_L];
+
 				m_JointsPose[18].position = leftBonesPosition[(int)HandJointType.Pinky_Joint2_L];
+				m_JointsPose[18].rotation = leftBonesOrientation[(int)HandJointType.Pinky_Joint2_L];
+
 				m_JointsPose[19].position = leftBonesPosition[(int)HandJointType.Pinky_Joint3_L];
+				m_JointsPose[19].rotation = leftBonesOrientation[(int)HandJointType.Pinky_Joint3_L];
+
 				m_JointsPose[20].position = leftBonesPosition[(int)HandJointType.Pinky_Tip_L];
+				m_JointsPose[20].rotation = leftBonesOrientation[(int)HandJointType.Pinky_Tip_L];
 
 				m_JointsPose[21].position = leftBonesPosition[(int)HandJointType.Palm_L];
+				m_JointsPose[21].rotation = leftBonesOrientation[(int)HandJointType.Palm_L];
 			}
 			else
 			{
@@ -2669,31 +2714,67 @@ namespace Wave.Native
 				m_JointsPose[0].rotation = rightBonesOrientation[(int)HandJointType.Wrist_R];
 
 				m_JointsPose[1].position = rightBonesPosition[(int)HandJointType.Thumb_Joint1_R];
+				m_JointsPose[1].rotation = rightBonesOrientation[(int)HandJointType.Thumb_Joint1_R];
+
 				m_JointsPose[2].position = rightBonesPosition[(int)HandJointType.Thumb_Joint2_R];
+				m_JointsPose[2].rotation = rightBonesOrientation[(int)HandJointType.Thumb_Joint2_R];
+
 				m_JointsPose[3].position = rightBonesPosition[(int)HandJointType.Thumb_Joint3_R];
+				m_JointsPose[3].rotation = rightBonesOrientation[(int)HandJointType.Thumb_Joint3_R];
+
 				m_JointsPose[4].position = rightBonesPosition[(int)HandJointType.Thumb_Tip_R];
+				m_JointsPose[4].rotation = rightBonesOrientation[(int)HandJointType.Thumb_Tip_R];
 
 				m_JointsPose[5].position = rightBonesPosition[(int)HandJointType.Index_Joint1_R];
+				m_JointsPose[5].rotation = rightBonesOrientation[(int)HandJointType.Index_Joint1_R];
+
 				m_JointsPose[6].position = rightBonesPosition[(int)HandJointType.Index_Joint2_R];
+				m_JointsPose[6].rotation = rightBonesOrientation[(int)HandJointType.Index_Joint2_R];
+
 				m_JointsPose[7].position = rightBonesPosition[(int)HandJointType.Index_Joint3_R];
+				m_JointsPose[7].rotation = rightBonesOrientation[(int)HandJointType.Index_Joint3_R];
+
 				m_JointsPose[8].position = rightBonesPosition[(int)HandJointType.Index_Tip_R];
+				m_JointsPose[8].rotation = rightBonesOrientation[(int)HandJointType.Index_Tip_R];
 
 				m_JointsPose[9].position = rightBonesPosition[(int)HandJointType.Middle_Joint1_R];
+				m_JointsPose[9].rotation = rightBonesOrientation[(int)HandJointType.Middle_Joint1_R];
+
 				m_JointsPose[10].position = rightBonesPosition[(int)HandJointType.Middle_Joint2_R];
+				m_JointsPose[10].rotation = rightBonesOrientation[(int)HandJointType.Middle_Joint2_R];
+
 				m_JointsPose[11].position = rightBonesPosition[(int)HandJointType.Middle_Joint3_R];
+				m_JointsPose[11].rotation = rightBonesOrientation[(int)HandJointType.Middle_Joint3_R];
+
 				m_JointsPose[12].position = rightBonesPosition[(int)HandJointType.Middle_Tip_R];
+				m_JointsPose[12].rotation = rightBonesOrientation[(int)HandJointType.Middle_Tip_R];
 
 				m_JointsPose[13].position = rightBonesPosition[(int)HandJointType.Ring_Joint1_R];
+				m_JointsPose[13].rotation = rightBonesOrientation[(int)HandJointType.Ring_Joint1_R];
+
 				m_JointsPose[14].position = rightBonesPosition[(int)HandJointType.Ring_Joint2_R];
+				m_JointsPose[14].rotation = rightBonesOrientation[(int)HandJointType.Ring_Joint2_R];
+
 				m_JointsPose[15].position = rightBonesPosition[(int)HandJointType.Ring_Joint3_R];
+				m_JointsPose[15].rotation = rightBonesOrientation[(int)HandJointType.Ring_Joint3_R];
+
 				m_JointsPose[16].position = rightBonesPosition[(int)HandJointType.Ring_Tip_R];
+				m_JointsPose[16].rotation = rightBonesOrientation[(int)HandJointType.Ring_Tip_R];
 
 				m_JointsPose[17].position = rightBonesPosition[(int)HandJointType.Pinky_Joint1_R];
+				m_JointsPose[17].rotation = rightBonesOrientation[(int)HandJointType.Pinky_Joint1_R];
+
 				m_JointsPose[18].position = rightBonesPosition[(int)HandJointType.Pinky_Joint2_R];
+				m_JointsPose[18].rotation = rightBonesOrientation[(int)HandJointType.Pinky_Joint2_R];
+
 				m_JointsPose[19].position = rightBonesPosition[(int)HandJointType.Pinky_Joint3_R];
+				m_JointsPose[19].rotation = rightBonesOrientation[(int)HandJointType.Pinky_Joint3_R];
+
 				m_JointsPose[20].position = rightBonesPosition[(int)HandJointType.Pinky_Tip_R];
+				m_JointsPose[20].rotation = rightBonesOrientation[(int)HandJointType.Pinky_Tip_R];
 
 				m_JointsPose[21].position = rightBonesPosition[(int)HandJointType.Palm_R];
+				m_JointsPose[21].rotation = rightBonesOrientation[(int)HandJointType.Palm_R];
 			}
 
 			long offset = 0;
@@ -2794,13 +2875,16 @@ namespace Wave.Native
 			handTrackerData = m_HandTrackerData;
 
 			/// Fills WVR_HandPoseData_t
-			FillHandPoseData(WVR_HandPoseType.WVR_HandPoseType_Hold);
+			FillHandPoseData(WVR_HandPoseType.WVR_HandPoseType_Pinch);
 			handPoseData = m_HandPoseData;
 
 			return WVR_Result.WVR_Success;
 		}
 
 		public bool ControllerSupportElectronicHand() { return true; }
+
+		public void EnhanceHandStable(bool wear) { fusionBracelet = wear; }
+		public bool IsEnhanceHandStable() { return fusionBracelet; }
 		#endregion
 		#endregion
 
@@ -3173,6 +3257,28 @@ namespace Wave.Native
 			}
 
 			return WVR_Result.WVR_Error_FeatureNotSupport;
+		}
+
+		const int kTrackerExtDataTypeSize = 4;
+		Int32[] s_Tracker0ExtData = new Int32[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		Int32[] s_Tracker1ExtData = new Int32[] { 1, 1, 1, 1, 1, 1 };
+		public IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize)
+		{
+			exDataSize = (trackerId == WVR_TrackerId.WVR_TrackerId_0 ?
+				s_Tracker0ExtData.Length : s_Tracker1ExtData.Length
+			);
+
+			IntPtr exData = Marshal.AllocHGlobal(exDataSize * kTrackerExtDataTypeSize);
+			for (int i = 0; i < exDataSize; i++)
+			{
+				Marshal.WriteInt32(
+					exData,
+					i * kTrackerExtDataTypeSize,
+					(trackerId == WVR_TrackerId.WVR_TrackerId_0 ? s_Tracker0ExtData[i] : s_Tracker1ExtData[i])
+				);
+			}
+
+			return exData;
 		}
 		#endregion
 

@@ -95,13 +95,16 @@ namespace Wave.XR.Loader
             StartSubsystem<XRInputSubsystem>();
             StartSubsystem<XRMeshSubsystem>();
 #if UNITY_EDITOR
-			#if UNITY_2020_1_OR_NEWER
-			displaySubsystem.textureLayout = XRDisplaySubsystem.TextureLayout.SeparateTexture2Ds;
-			#else
-			displaySubsystem.singlePassRenderingDisabled = true;
-			#endif
+            #if UNITY_2020_1_OR_NEWER
+            displaySubsystem.textureLayout = XRDisplaySubsystem.TextureLayout.SeparateTexture2Ds;
+            #else
+            displaySubsystem.singlePassRenderingDisabled = true;
+            #endif
+#else
+            SettingsHelper.CheckSinglePass();
 #endif
-			return true;
+
+            return true;
         }
 
         public override bool Stop()

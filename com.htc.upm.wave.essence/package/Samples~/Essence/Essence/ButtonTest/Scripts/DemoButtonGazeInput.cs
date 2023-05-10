@@ -204,6 +204,12 @@ namespace Wave.Essence.Samples.ButtonTest
 					}
 
 					m_Camera = gazePointer.gameObject.GetComponent<Camera>();
+					if (m_Camera != null)
+					{
+						m_Camera.stereoTargetEye = StereoTargetEyeMask.None;
+						m_Camera.nearClipPlane = 0.01f;
+						m_Camera.enabled = false;
+					}
 					DEBUG("OnEnable() Found event camera " + (m_Camera != null ? m_Camera.gameObject.name : "null"));
 					physicsRaycaster = gazePointer.gameObject.GetComponent<PhysicsRaycaster>();
 					DEBUG("OnEnable() Found physicsRaycaster " + (physicsRaycaster != null ? physicsRaycaster.gameObject.name : "null"));

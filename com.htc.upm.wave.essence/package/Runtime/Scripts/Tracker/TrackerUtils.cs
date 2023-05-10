@@ -9,6 +9,7 @@
 // specifications, and documentation provided by HTC to You."
 
 using Wave.Native;
+using Wave.OpenXR;
 
 namespace Wave.Essence.Tracker
 {
@@ -48,15 +49,14 @@ namespace Wave.Essence.Tracker
 
 	public static class TrackerUtils
 	{
-		public static int Num(this WVR_TrackerId trackerId)
+		public static TrackerId[] s_TrackerIds = new TrackerId[]
 		{
-			if (trackerId == WVR_TrackerId.WVR_TrackerId_0) { return 0; }
-			if (trackerId == WVR_TrackerId.WVR_TrackerId_1) { return 1; }
-			if (trackerId == WVR_TrackerId.WVR_TrackerId_2) { return 2; }
-			if (trackerId == WVR_TrackerId.WVR_TrackerId_3) { return 3; }
+			TrackerId.Tracker0,
+			TrackerId.Tracker1,
+			TrackerId.Tracker2,
+			TrackerId.Tracker3,
+		};
 
-			return 0;
-		}
 		public static TrackerId Id(this WVR_TrackerId trackerId)
 		{
 			if (trackerId == WVR_TrackerId.WVR_TrackerId_0) { return TrackerId.Tracker0; }
@@ -66,49 +66,47 @@ namespace Wave.Essence.Tracker
 
 			return TrackerId.Tracker0;
 		}
-
-		public static int Num(this TrackerId trackerId)
-		{
-			return ((WVR_TrackerId)trackerId).Num();
-		}
 		public static WVR_TrackerId Id(this TrackerId trackerId)
 		{
 			return (WVR_TrackerId)trackerId;
 		}
 
-		#region Unity XR Tracker definitions
-		const string kTracker0Name = "Wave Tracker0";
-		const string kTracker1Name = "Wave Tracker1";
-		const string kTracker2Name = "Wave Tracker2";
-		const string kTracker3Name = "Wave Tracker3";
-
-		const string kTracker0SN = "HTC-211012-Tracker0";
-		const string kTracker1SN = "HTC-211012-Tracker1";
-		const string kTracker2SN = "HTC-211012-Tracker2";
-		const string kTracker3SN = "HTC-211012-Tracker3";
-
-		public static string Name(this TrackerId trackerId)
+		public static int Num(this TrackerId trackerId)
 		{
-			if (trackerId == TrackerId.Tracker0) { return kTracker0Name; }
-			if (trackerId == TrackerId.Tracker1) { return kTracker1Name; }
-			if (trackerId == TrackerId.Tracker2) { return kTracker2Name; }
-			if (trackerId == TrackerId.Tracker3) { return kTracker3Name; }
-			return kTracker0Name;
+			if (trackerId == TrackerId.Tracker0) { return 0; }
+			if (trackerId == TrackerId.Tracker1) { return 1; }
+			if (trackerId == TrackerId.Tracker2) { return 2; }
+			if (trackerId == TrackerId.Tracker3) { return 3; }
+
+			return 0;
 		}
-		public static string SerialNumber(this TrackerId trackerId)
+		public static InputDeviceTracker.TrackerId InputDevice(this TrackerId id)
 		{
-			if (trackerId == TrackerId.Tracker0) { return kTracker0SN; }
-			if (trackerId == TrackerId.Tracker1) { return kTracker1SN; }
-			if (trackerId == TrackerId.Tracker2) { return kTracker2SN; }
-			if (trackerId == TrackerId.Tracker3) { return kTracker3SN; }
-			return kTracker0SN;
-		}
-		#endregion
+			if (id == TrackerId.Tracker0) { return InputDeviceTracker.TrackerId.Tracker0; }
+			if (id == TrackerId.Tracker1) { return InputDeviceTracker.TrackerId.Tracker1; }
+			if (id == TrackerId.Tracker2) { return InputDeviceTracker.TrackerId.Tracker2; }
+			if (id == TrackerId.Tracker3) { return InputDeviceTracker.TrackerId.Tracker3; }
 
-		public static int Num(this WVR_InputId id)
+			return InputDeviceTracker.TrackerId.Tracker0;
+		}
+
+		public static InputDeviceTracker.TrackerRole InputDevice(this TrackerRole role)
 		{
-			if (id == WVR_InputId.WVR_InputId_Max) { return 0; }
-			return (int)id;
+			if (role == TrackerRole.Undefined) { return InputDeviceTracker.TrackerRole.Undefined; }
+			if (role == TrackerRole.Standalone) { return InputDeviceTracker.TrackerRole.Standalone; }
+			if (role == TrackerRole.Pair1_Left) { return InputDeviceTracker.TrackerRole.Pair1_Left; }
+			if (role == TrackerRole.Pair1_Right) { return InputDeviceTracker.TrackerRole.Pair1_Right; }
+
+			return InputDeviceTracker.TrackerRole.Undefined;
+		}
+		public static TrackerRole Role(this InputDeviceTracker.TrackerRole role)
+		{
+			if (role == InputDeviceTracker.TrackerRole.Undefined) { return TrackerRole.Undefined; }
+			if (role == InputDeviceTracker.TrackerRole.Standalone) { return TrackerRole.Standalone; }
+			if (role == InputDeviceTracker.TrackerRole.Pair1_Left) { return TrackerRole.Pair1_Left; }
+			if (role == InputDeviceTracker.TrackerRole.Pair1_Right) { return TrackerRole.Pair1_Right; }
+
+			return TrackerRole.Undefined;
 		}
 
 		public static int Num(this TrackerButton button)
@@ -136,6 +134,20 @@ namespace Wave.Essence.Tracker
 			return WVR_InputId.WVR_InputId_Alias1_System;
 		}
 
+		#region Native
+		public static bool ValidWVRInputId(this uint id)
+		{
+			if (id >= (uint)WVR_InputId.WVR_InputId_0 && id <= (uint)WVR_InputId.WVR_InputId_19)
+				return true;
+
+			return false;
+		}
+		public static int ArrayIndex(this WVR_InputId id)
+		{
+			if (id == WVR_InputId.WVR_InputId_Max) { return 0; } // prevent overflow
+			return (int)id;
+		}
+
 		public static AxisType Id(this WVR_AnalogType analog)
 		{
 			if (analog == WVR_AnalogType.WVR_AnalogType_None) { return AxisType.None; }
@@ -154,5 +166,6 @@ namespace Wave.Essence.Tracker
 
 			return TrackerRole.Undefined;
 		}
+		#endregion
 	}
 }

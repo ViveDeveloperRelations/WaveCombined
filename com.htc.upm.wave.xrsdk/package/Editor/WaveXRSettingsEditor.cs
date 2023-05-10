@@ -157,7 +157,19 @@ namespace Wave.XR.Settings
         static string PropertyName_AMCModeConfirm = "amcModeConfirm";
         SerializedProperty Property_AMCModeConfirm;
 
-		static string PropertyName_SupportedFPS = "supportedFPS";
+        static string PropertyName_FadeOut = "fadeOut";
+        static GUIContent Label_FadeOut = new GUIContent("Enable FadeOut", "Default is off.  Before you enable this option, please see online document \"FadeOut effect\" chapter first.");
+        SerializedProperty Property_FadeOut;
+
+        static string PropertyName_EnableFSE = "enableFSE";
+        static GUIContent Label_EnableFSE = new GUIContent("Enable FSE", "Disabled by default. Enable this option to enable the Frame Sharpness Enhancement feature.\nWhen enabled, the final image will be sharpened which can improve things like text sharpness.");
+        SerializedProperty Property_EnableFSE;
+
+        static string PropertyName_FSELevel = "FSE_Level";
+        static GUIContent Label_FSELevel = new GUIContent("FSE Level", "Set the enhancement level of the Frame Sharpness Enhancement feature.\nThe higher the level, the stronger the sharpening effect.");
+        SerializedProperty Property_FSELevel;
+
+        static string PropertyName_SupportedFPS = "supportedFPS";
 		static GUIContent Label_SupportedFPS = new GUIContent("Supported FPS");
 		SerializedProperty Property_SupportedFPS;
 
@@ -249,7 +261,12 @@ namespace Wave.XR.Settings
             if (Property_AMCMode == null) Property_AMCMode = serializedObject.FindProperty(PropertyName_AMCMode);
             if (Property_AMCModeConfirm == null) Property_AMCModeConfirm = serializedObject.FindProperty(PropertyName_AMCModeConfirm);
 
-			if (Property_SupportedFPS == null) Property_SupportedFPS = serializedObject.FindProperty(PropertyName_SupportedFPS);
+            if (Property_FadeOut == null) Property_FadeOut = serializedObject.FindProperty(PropertyName_FadeOut);
+
+            if (Property_EnableFSE == null) Property_EnableFSE = serializedObject.FindProperty(PropertyName_EnableFSE);
+            if (Property_FSELevel == null) Property_FSELevel = serializedObject.FindProperty(PropertyName_FSELevel);
+
+            if (Property_SupportedFPS == null) Property_SupportedFPS = serializedObject.FindProperty(PropertyName_SupportedFPS);
 			if (Property_WaveXRFolder == null) Property_WaveXRFolder = serializedObject.FindProperty(PropertyName_WaveXRFolder);
 			if (Property_WaveEssenceFolder == null) Property_WaveEssenceFolder = serializedObject.FindProperty(PropertyName_WaveEssenceFolder);
 
@@ -313,9 +330,14 @@ namespace Wave.XR.Settings
                 AMCGUI();
 
 				GUI.enabled = true;
-				//EditorGUILayout.PropertyField(Property_SupportedFPS, Label_SupportedFPS);
+                EditorGUILayout.PropertyField(Property_FadeOut, Label_FadeOut);
+                EditorGUILayout.PropertyField(Property_EnableFSE, Label_EnableFSE);
 
-				GUI.enabled = false;
+                FSEGUI();
+
+                //EditorGUILayout.PropertyField(Property_SupportedFPS, Label_SupportedFPS);
+
+                GUI.enabled = false;
 				EditorGUILayout.PropertyField(Property_WaveXRFolder, Label_WaveXRFolder);
 				EditorGUILayout.PropertyField(Property_WaveEssenceFolder, Label_WaveEssenceFolder);
 
@@ -485,6 +507,20 @@ namespace Wave.XR.Settings
             if (hasEssencePackage)
             {
                 EditorGUILayout.PropertyField(Property_EnableAutoFallbackForMultiLayer, Label_EnableAutoFallbackForMultiLayer);
+                serializedObject.ApplyModifiedProperties();
+            }
+        }
+
+        void FSEGUI()
+		{
+            bool hasEssencePackage = false;
+#if WAVE_ESSENCE
+            hasEssencePackage = true;
+#endif
+
+            if (hasEssencePackage && Property_EnableFSE.boolValue)
+            {
+                EditorGUILayout.PropertyField(Property_FSELevel, Label_FSELevel);
                 serializedObject.ApplyModifiedProperties();
             }
         }

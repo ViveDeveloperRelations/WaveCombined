@@ -439,6 +439,7 @@ namespace Wave.Essence.Samples.ButtonTest
 				{
 					press_text.text = "WVR_InputId_Alias1_Trigger";
 					DEBUG("UpdatePressText() WVR_InputId_Alias1_Trigger is pressed.");
+					TriggerVibration(this.DeviceType, 0.9f, 0.5f);
 				}
 				if (WXRDevice.ButtonRelease((WVR_DeviceType)this.DeviceType, WVR_InputId.WVR_InputId_Alias1_Trigger))
 				{
@@ -508,11 +509,13 @@ namespace Wave.Essence.Samples.ButtonTest
 				{
 					press_text.text = "WVR_InputId_Alias1_A";
 					DEBUG("UpdatePressText() WVR_InputId_Alias1_A is pressed.");
+					TriggerVibration(this.DeviceType, 0.1f, 0.5f);
 				}
 				if (WXRDevice.ButtonPress((WVR_DeviceType)this.DeviceType, WVR_InputId.WVR_InputId_Alias1_X))
 				{
 					press_text.text = "WVR_InputId_Alias1_X";
 					DEBUG("UpdatePressText() WVR_InputId_Alias1_X is pressed.");
+					TriggerVibration(this.DeviceType, 0.1f, 0.5f);
 				}
 				if (WXRDevice.ButtonRelease((WVR_DeviceType)this.DeviceType, WVR_InputId.WVR_InputId_Alias1_A))
 				{
@@ -553,11 +556,13 @@ namespace Wave.Essence.Samples.ButtonTest
 				{
 					press_text.text = "WVR_InputId_Alias1_B";
 					DEBUG("UpdatePressText() WVR_InputId_Alias1_B is pressed.");
+					TriggerVibration(this.DeviceType, 0.5f, 0.5f);
 				}
 				if (WXRDevice.ButtonPress((WVR_DeviceType)this.DeviceType, WVR_InputId.WVR_InputId_Alias1_Y))
 				{
 					press_text.text = "WVR_InputId_Alias1_Y";
 					DEBUG("UpdatePressText() WVR_InputId_Alias1_Y is pressed.");
+					TriggerVibration(this.DeviceType, 0.5f, 0.5f);
 				}
 				if (WXRDevice.ButtonRelease((WVR_DeviceType)this.DeviceType, WVR_InputId.WVR_InputId_Alias1_B))
 				{
@@ -659,6 +664,12 @@ namespace Wave.Essence.Samples.ButtonTest
 		{
 			DEBUG("TriggerVibration() " + device + ", amplitude: " + amplitude + ", duration: " + duration);
 			WXRDevice.SendHapticImpulse(device, amplitude, duration);
+#if UNITY_EDITOR
+			if (device == XR_Device.Right)
+				Interop.WVR_TriggerVibration(WVR_DeviceType.WVR_DeviceType_Controller_Right, WVR_InputId.WVR_InputId_Alias1_Touchpad, (uint)(duration * 1000000), 1, WVR_Intensity.WVR_Intensity_Strong);
+			if (device == XR_Device.Left)
+				Interop.WVR_TriggerVibration(WVR_DeviceType.WVR_DeviceType_Controller_Left, WVR_InputId.WVR_InputId_Alias1_Touchpad, (uint)(duration * 1000000), 1, WVR_Intensity.WVR_Intensity_Strong);
+#endif
 		}
 	}
 }

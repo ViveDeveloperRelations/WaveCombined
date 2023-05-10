@@ -1,4 +1,4 @@
-﻿// "Wave SDK 
+// "Wave SDK 
 // © 2020 HTC Corporation. All Rights Reserved.
 //
 // Unless otherwise required by copyright law and practice,
@@ -44,6 +44,7 @@ namespace Wave.Essence
 		private float m_CameraYOffset = 1;
 		public float CameraYOffset { get { return m_CameraYOffset; } set { m_CameraYOffset = value; } }
 
+#if !UNITY_EDITOR && UNITY_ANDROID
 		XRInputSubsystem m_InputSystem = null;
 		private void Awake()
 		{
@@ -93,5 +94,6 @@ namespace Wave.Essence
 				m_CameraOffset.transform.localPosition = cameraPosOffset;
 			}
 		}
+#endif
 	}
 }

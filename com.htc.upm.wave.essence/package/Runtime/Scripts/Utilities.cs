@@ -9,32 +9,30 @@
 // specifications, and documentation provided by HTC to You."
 
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.XR;
 using Wave.Native;
+using Wave.OpenXR;
 using Wave.XR;
 using Wave.XR.Function;
 using System.Collections.Generic;
 using UnityEngine.Profiling;
-
-#if UNITY_EDITOR
-using Wave.Essence.Editor;
-#endif
 
 namespace Wave.Essence
 {
 	public static class ClientInterface
 	{
 		const string LOG_TAG = "Wave.Essence.ClientInterface";
-		static List<InputDevice> m_Devices = new List<InputDevice>();
+		static List<UnityEngine.XR.InputDevice> m_Devices = new List<UnityEngine.XR.InputDevice>();
 		public static void DeviceInfo()
 		{
 			InputDevices.GetDevices(m_Devices);
 			foreach (var dev in m_Devices)
 			{
 				bool connected = false;
-				if (dev.TryGetFeatureValue(UnityEngine.XR.CommonUsages.isTracked, out bool value))
+				if (dev.TryGetFeatureValue(XR_Feature.ValidPose, out bool value))
 					connected = value;
 				Log.d(LOG_TAG, "DeviceInfo() dev: " + dev.name + ", valid? " + dev.isValid + ", connected? " + connected, true);
 			}
@@ -221,51 +219,47 @@ namespace Wave.Essence
 		{
 			return WaveEssence.Instance.IsConnected(deviceType);
 		}
-		/// <summary> Wave Head Mounted Device Characteristics </summary>
-		const InputDeviceCharacteristics kHMDCharacteristics = (
-			InputDeviceCharacteristics.HeadMounted |
-			InputDeviceCharacteristics.Camera |
-			InputDeviceCharacteristics.TrackedDevice
-		);
-		/// <summary> Wave Left Controller Characteristics </summary>
-		const InputDeviceCharacteristics kControllerLeftCharacteristics = (
-			InputDeviceCharacteristics.Left |
-			InputDeviceCharacteristics.TrackedDevice |
-			InputDeviceCharacteristics.Controller |
-			InputDeviceCharacteristics.HeldInHand
-		);
-		/// <summary> Wave Right Controller Characteristics </summary>
-		const InputDeviceCharacteristics kControllerRightCharacteristics = (
-			InputDeviceCharacteristics.Right |
-			InputDeviceCharacteristics.TrackedDevice |
-			InputDeviceCharacteristics.Controller |
-			InputDeviceCharacteristics.HeldInHand
-		);
-		public static bool IsConnected(XR_Device device, bool adaptiveHanded = false)
+		private static XR_Device GetAdaptiveDevice(XR_Device device, bool adaptiveHanded = false)
 		{
-			bool connected = false;
-#if UNITY_EDITOR
-			if (Application.isEditor)
-				return true;
-			else
-#endif
+			if (adaptiveHanded)
 			{
-				var inputDevices = new List<InputDevice>();
-				InputDevices.GetDevices(inputDevices);
-
-				foreach (InputDevice id in inputDevices)
+				if (device == XR_Device.Left)
 				{
-					if ((device == XR_Device.Head && id.characteristics.Equals(kHMDCharacteristics)) ||
-						(device == XR_Device.Right && id.characteristics.Equals(kControllerRightCharacteristics)) ||
-						(device == XR_Device.Left && id.characteristics.Equals(kControllerLeftCharacteristics)))
-					{
-						connected = true;
-						break;
-					}
+					return (IsLeftHanded ? XR_Device.Right : XR_Device.Left);
+				}
+				if (device == XR_Device.Right)
+				{
+					return (IsLeftHanded ? XR_Device.Left : XR_Device.Right);
 				}
 			}
 
-			return connected;
+			return device;
+		}
+		public static bool IsConnected(XR_Device device, bool adaptiveHanded = false)
+		{
+#if UNITY_EDITOR
+			if (Application.isEditor)
+				return true;
+#endif
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			if (device == XR_Device.Head) { return InputDeviceControl.IsConnected(InputDeviceControl.kHMDCharacteristics); }
+			if (device == XR_Device.Left) { return InputDeviceControl.IsConnected(InputDeviceControl.kControllerLeftCharacteristics); }
+			if (device == XR_Device.Right) { return InputDeviceControl.IsConnected(InputDeviceControl.kControllerRightCharacteristics); }
+
+			return false;
+		}
+		public static bool IsTracked(XR_Device device, bool adaptiveHanded = false)
+		{
+#if UNITY_EDITOR
+			if (Application.isEditor)
+				return true;
+#endif
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			if (device == XR_Device.Head) { return InputDeviceControl.IsTracked(InputDeviceControl.kHMDCharacteristics); }
+			if (device == XR_Device.Left) { return InputDeviceControl.IsTracked(InputDeviceControl.kControllerLeftCharacteristics); }
+			if (device == XR_Device.Right) { return InputDeviceControl.IsTracked(InputDeviceControl.kControllerRightCharacteristics); }
+
+			return false;
 		}
 
 		public static WVR_DeviceType GetRoleType(this XR_Device device, bool adaptiveHanded = false)
@@ -291,7 +285,7 @@ namespace Wave.Essence
 			return WVR_DeviceType.WVR_DeviceType_Invalid;
 		}
 
-		public static InputDevice GetRoleDevice(XR_Device device, bool adaptiveHanded = false)
+		public static UnityEngine.XR.InputDevice GetRoleDevice(XR_Device device, bool adaptiveHanded = false)
 		{
 			if (device == XR_Device.Dominant)
 			{
@@ -326,15 +320,12 @@ namespace Wave.Essence
 		#region Unity XR Buttons
 		public static bool KeyDown(XR_Device device, InputFeatureUsage<bool> button, bool adaptiveHanded = false)
 		{
-			bool isDown = false;
-			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-			if (input_device.isValid)
-			{
-				if (input_device.TryGetFeatureValue(button, out bool value))
-					isDown = value;
-			}
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			if (device == XR_Device.Head) { return InputDeviceControl.KeyDown(InputDeviceControl.kHMDCharacteristics, button); }
+			if (device == XR_Device.Left) { return InputDeviceControl.KeyDown(InputDeviceControl.kControllerLeftCharacteristics, button); }
+			if (device == XR_Device.Right) { return InputDeviceControl.KeyDown(InputDeviceControl.kControllerRightCharacteristics, button); }
 
-			return isDown;
+			return false;
 		}
 		public static float KeyAxis1D(XR_Device device, InputFeatureUsage<float> button, bool adaptiveHanded = false)
 		{
@@ -346,17 +337,13 @@ namespace Wave.Essence
 		}
 		public static bool KeyAxis1D(XR_Device device, InputFeatureUsage<float> button, out float axis1d, bool adaptiveHanded = false)
 		{
-			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-			if (input_device.isValid)
-			{
-				if (input_device.TryGetFeatureValue(button, out float value))
-				{
-					axis1d = value;
-					return true;
-				}
-			}
-
 			axis1d = 0;
+
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			if (device == XR_Device.Head) { return InputDeviceControl.KeyAxis1D(InputDeviceControl.kHMDCharacteristics, button, out axis1d); }
+			if (device == XR_Device.Left) { return InputDeviceControl.KeyAxis1D(InputDeviceControl.kControllerLeftCharacteristics, button, out axis1d); }
+			if (device == XR_Device.Right) { return InputDeviceControl.KeyAxis1D(InputDeviceControl.kControllerRightCharacteristics, button, out axis1d); }
+
 			return false;
 		}
 		public static Vector2 KeyAxis2D(XR_Device device, InputFeatureUsage<Vector2> button, bool adaptiveHanded = false)
@@ -369,17 +356,13 @@ namespace Wave.Essence
 		}
 		public static bool KeyAxis2D(XR_Device device, InputFeatureUsage<Vector2> button, out Vector2 axis2d, bool adaptiveHanded = false)
 		{
-			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-			if (input_device.isValid)
-			{
-				if (input_device.TryGetFeatureValue(button, out Vector2 value))
-				{
-					axis2d = value;
-					return true;
-				}
-			}
-
 			axis2d = Vector2.zero;
+
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			if (device == XR_Device.Head) { return InputDeviceControl.KeyAxis2D(InputDeviceControl.kHMDCharacteristics, button, out axis2d); }
+			if (device == XR_Device.Left) { return InputDeviceControl.KeyAxis2D(InputDeviceControl.kControllerLeftCharacteristics, button, out axis2d); }
+			if (device == XR_Device.Right) { return InputDeviceControl.KeyAxis2D(InputDeviceControl.kControllerRightCharacteristics, button, out axis2d); }
+
 			return false;
 		}
 		#endregion
@@ -427,9 +410,10 @@ namespace Wave.Essence
 		{
 			hapticCaps = emptyHapticCapabilities;
 
-			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-			if (input_device.isValid)
-				return input_device.TryGetHapticCapabilities(out hapticCaps);
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			if (device == XR_Device.Head) { return InputDeviceControl.TryGetHapticCapabilities(InputDeviceControl.kHMDCharacteristics, out hapticCaps); }
+			if (device == XR_Device.Left) { return InputDeviceControl.TryGetHapticCapabilities(InputDeviceControl.kControllerLeftCharacteristics, out hapticCaps); }
+			if (device == XR_Device.Right) { return InputDeviceControl.TryGetHapticCapabilities(InputDeviceControl.kControllerRightCharacteristics, out hapticCaps); }
 
 			return false;
 		}
@@ -437,44 +421,67 @@ namespace Wave.Essence
 		static HapticCapabilities m_HapticCaps = new HapticCapabilities();
 		public static bool SendHapticImpulse(XR_Device device, float amplitude, float duration, bool adaptiveHanded = false)
 		{
-			if (TryGetHapticCapabilities(device, out m_HapticCaps, adaptiveHanded))
-			{
-				if (m_HapticCaps.supportsImpulse)
-				{
-					InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-					if (input_device.isValid)
-					{
-						amplitude = Mathf.Clamp(amplitude, 0, 1);
-						return input_device.SendHapticImpulse(0, amplitude, duration);
-					}
-				}
-			}
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			if (device == XR_Device.Head) { return InputDeviceControl.SendHapticImpulse(InputDeviceControl.kHMDCharacteristics, amplitude, duration); }
+			if (device == XR_Device.Left) { return InputDeviceControl.SendHapticImpulse(InputDeviceControl.kControllerLeftCharacteristics, amplitude, duration); }
+			if (device == XR_Device.Right) { return InputDeviceControl.SendHapticImpulse(InputDeviceControl.kControllerRightCharacteristics, amplitude, duration); }
 
 			return false;
 		}
 		#endregion
 
-		public static bool IsTracked(XR_Device device, bool adaptiveHanded = false)
+		public static bool GetPosition(XR_Device device, ref Vector3 position, bool adaptiveHanded = false)
 		{
-#if UNITY_EDITOR
-			if (Application.isEditor)
-				return true;
-			else
-#endif
+			if (device == XR_Device.Head)
 			{
-				bool tracked = false;
+				if (!IsTracked(device, adaptiveHanded))
+					return false;
 
-				InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-				if (input_device.isValid)
+#if UNITY_EDITOR
+				if (Application.isEditor)
 				{
-					if (input_device.TryGetFeatureValue(XR_Feature.ValidPose, out bool value))
-						tracked = value;
+					position = WaveEssence.Instance.GetPosition(WVR_DeviceType.WVR_DeviceType_HMD);
+					return true;
 				}
-
-				return tracked;
+				else
+#endif
+				{
+					return InputDeviceControl.GetPosition(InputDeviceControl.kHMDCharacteristics, out position);
+				}
 			}
-		}
+			if (device == XR_Device.Right)
+				return GetControllerPosition(XR_Hand.Right, ref position, adaptiveHanded);
+			if (device == XR_Device.Left)
+				return GetControllerPosition(XR_Hand.Left, ref position, adaptiveHanded);
 
+			return false;
+		}
+		public static bool GetRotation(XR_Device device, ref Quaternion rotation, bool adaptiveHanded = false)
+		{
+			if (device == XR_Device.Head)
+			{
+				if (!IsTracked(device, adaptiveHanded))
+					return false;
+
+#if UNITY_EDITOR
+				if (Application.isEditor)
+				{
+					rotation = WaveEssence.Instance.GetRotation(WVR_DeviceType.WVR_DeviceType_HMD);
+					return true;
+				}
+				else
+#endif
+				{
+					return InputDeviceControl.GetRotation(InputDeviceControl.kHMDCharacteristics, out rotation);
+				}
+			}
+			if (device == XR_Device.Right)
+				return GetControllerRotation(XR_Hand.Right, ref rotation, adaptiveHanded);
+			if (device == XR_Device.Left)
+				return GetControllerRotation(XR_Hand.Left, ref rotation, adaptiveHanded);
+
+			return false;
+		}
 		#region Controller Pose Mode
 		static int[,] positionFrame = new int[Enum.GetNames(typeof(WVR_DeviceType)).Length, Enum.GetNames(typeof(WVR_ControllerPoseMode)).Length];
 		static bool AllowGetPosition(XR_Hand hand, XR_ControllerPoseMode mode)
@@ -501,30 +508,38 @@ namespace Wave.Essence
 		static Quaternion triggerRot_L = Quaternion.identity, panelRot_L = Quaternion.identity, handleRot_L = Quaternion.identity;
 		static Vector3 triggerPos_R = Vector3.zero, panelPos_R = Vector3.zero, handlePos_R = Vector3.zero;
 		static Quaternion triggerRot_R = Quaternion.identity, panelRot_R = Quaternion.identity, handleRot_R = Quaternion.identity;
+		public static bool GetControllerPosition(XR_Hand hand, ref Vector3 position, bool adaptiveHanded = false)
+		{
+			return GetControllerPosition(hand, XR_ControllerPoseMode.Panel, ref position, adaptiveHanded);
+		}
 		public static bool GetControllerPosition(XR_Hand hand, XR_ControllerPoseMode mode, ref Vector3 position, bool adaptiveHanded = false)
 		{
 			if (!IsTracked((XR_Device)hand, adaptiveHanded))
 				return false;
 
 			Vector3 pos = Vector3.zero;
+
 #if UNITY_EDITOR
 			if (Application.isEditor)
 			{
-				pos = DummyPose.GetPosition(GetRoleDevice((WVR_DeviceType)hand));
+				pos = WaveEssence.Instance.GetPosition(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded));
 			} else
 #endif
 			{
-				InputDevice input_device = GetRoleDevice((XR_Device)hand, adaptiveHanded);
-				if (!input_device.isValid)
-					return false;
-
-				if (input_device.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 value))
+				var device = GetAdaptiveDevice((XR_Device)hand, adaptiveHanded);
+				if (device == XR_Device.Left)
 				{
-					pos = value;
+					if (InputDeviceControl.GetPosition(InputDeviceControl.kControllerLeftCharacteristics, out Vector3 value))
+						pos = value;
+				}
+				if (device == XR_Device.Right)
+				{
+					if (InputDeviceControl.GetPosition(InputDeviceControl.kControllerRightCharacteristics, out Vector3 value))
+						pos = value;
 				}
 			}
 
-			Vector3 offset = WaveEssence.Instance.GetControllerPositionOffset(GetRoleDevice((WVR_DeviceType)hand), (WVR_ControllerPoseMode)mode);
+			Vector3 offset = WaveEssence.Instance.GetControllerPositionOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
 
 			if (AllowGetPosition(hand, mode))
 			{
@@ -572,6 +587,10 @@ namespace Wave.Essence
 
 			return true;
 		}
+		public static bool GetControllerRotation(XR_Hand hand, ref Quaternion rotation, bool adaptiveHanded = false)
+		{
+			return GetControllerRotation(hand, XR_ControllerPoseMode.Panel, ref rotation, adaptiveHanded);
+		}
 		public static bool GetControllerRotation(XR_Hand hand, XR_ControllerPoseMode mode, ref Quaternion rotation, bool adaptiveHanded = false)
 		{
 			if (!IsTracked((XR_Device)hand, adaptiveHanded))
@@ -582,22 +601,25 @@ namespace Wave.Essence
 #if UNITY_EDITOR
 			if (Application.isEditor)
 			{
-				rot = DummyPose.GetRotation(GetRoleDevice((WVR_DeviceType)hand));
+				rot = WaveEssence.Instance.GetRotation(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded));
 			}
 			else
 #endif
 			{
-				InputDevice input_device = GetRoleDevice((XR_Device)hand, adaptiveHanded);
-				if (!input_device.isValid)
-					return false;
-
-				if (input_device.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion value))
+				var device = GetAdaptiveDevice((XR_Device)hand, adaptiveHanded);
+				if (device == XR_Device.Left)
 				{
-					rot = value;
+					if (InputDeviceControl.GetRotation(InputDeviceControl.kControllerLeftCharacteristics, out Quaternion value))
+						rot = value;
+				}
+				if (device == XR_Device.Right)
+				{
+					if (InputDeviceControl.GetRotation(InputDeviceControl.kControllerRightCharacteristics, out Quaternion value))
+						rot = value;
 				}
 			}
 
-			Quaternion offset = WaveEssence.Instance.GetControllerRotationOffset(GetRoleDevice((WVR_DeviceType)hand), (WVR_ControllerPoseMode)mode);
+			Quaternion offset = WaveEssence.Instance.GetControllerRotationOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
 
 			if (AllowGetRotation(hand, mode))
 			{
@@ -652,18 +674,12 @@ namespace Wave.Essence
 		/// </summary>
 		public static float GetBatteryLevel(XR_Device device, bool adaptiveHanded = false)
 		{
-			float level = 0;
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			if (device == XR_Device.Head) { return InputDeviceControl.GetBatteryLevel(InputDeviceControl.kHMDCharacteristics); }
+			if (device == XR_Device.Left) { return InputDeviceControl.GetBatteryLevel(InputDeviceControl.kControllerLeftCharacteristics); }
+			if (device == XR_Device.Right) { return InputDeviceControl.GetBatteryLevel(InputDeviceControl.kControllerRightCharacteristics); }
 
-			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-			if (input_device.isValid)
-			{
-				if (input_device.TryGetFeatureValue(XR_Feature.batteryLevel, out float value))
-				{
-					level = value;
-				}
-			}
-
-			return level;
+			return 0;
 		}
 
 		/// <summary>
@@ -671,17 +687,7 @@ namespace Wave.Essence
 		/// </summary>
 		public static bool IsUserPresence()
 		{
-			bool userPresence = false;
-
-			InputDevice input_device = GetRoleDevice(XR_Device.Head);
-			if (input_device.isValid)
-			{
-				if (input_device.TryGetFeatureValue(XR_Feature.userPresence, out bool value))
-				{
-					userPresence = value;
-				}
-			}
-			return userPresence;
+			return InputDeviceControl.IsUserPresence();
 		}
 	} // class WXRDevice
 

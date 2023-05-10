@@ -50,8 +50,8 @@ namespace Wave.XR.DirectPreview.Editor
 		//[UnityEditor.MenuItem("Wave/DirectPreview/Stop Device APK", priority = 803)]
         public static void StopSimulator()
 		{
-			StopSimulatorInner();
-			KillSimulatorInner();
+			StopSimulatorInner2();
+			//KillSimulatorInner();
 		}
 
 		public static void UninstallSimulatorInner()
@@ -150,6 +150,31 @@ namespace Wave.XR.DirectPreview.Editor
 				else
 				{
 					UnityEngine.Debug.LogWarning("Kill Direct Preview device APK process failed.");
+				}
+			}
+			catch (Exception e)
+			{
+				UnityEngine.Debug.LogError(e);
+			}
+		}
+
+		public static void StopSimulatorInner2()
+		{
+			try
+			{
+				Process myProcess = new Process();
+				myProcess.StartInfo.FileName = "C:\\Windows\\system32\\cmd.exe";
+				myProcess.StartInfo.Arguments = "/c adb shell am broadcast -a com.htc.vr.directpreview.agent.SHUTDOWN";
+				myProcess.Start();
+				myProcess.WaitForExit();
+				int ExitCode = myProcess.ExitCode;
+				if (ExitCode == 0)
+				{
+					UnityEngine.Debug.Log("Stop Direct Preview device APK succeeded.(2)");
+				}
+				else
+				{
+					UnityEngine.Debug.LogWarning("Stop Direct Preview device APK failed.(2)");
 				}
 			}
 			catch (Exception e)

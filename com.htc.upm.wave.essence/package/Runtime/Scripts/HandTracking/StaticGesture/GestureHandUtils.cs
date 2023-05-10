@@ -131,6 +131,8 @@ namespace Wave.Essence.Hand.StaticGesture
 					return GestureType.OK;
 				case HandManager.GestureType.ThumbUp:
 					return GestureType.Like;
+				case HandManager.GestureType.Yeah:
+					return GestureType.Victory;
 				default:
 					break;
 			}
@@ -227,17 +229,25 @@ namespace Wave.Essence.Hand.StaticGesture
 		/// <summary> Retrieves SDK or custom defined left or right hand gesture types. </summary>
 		public static string GetSingleHandGesture(bool isLeftHand)
 		{
-			// 1. Checks the engine and SDK pre-defined gesture.
-			GestureType gesture = GetGesture(isLeftHand);
-			if (gesture != GestureType.Unknown) { return gesture.ToString(); }
+			string gesture = "Unknown";
 
-			// 2. No pre-defined gesture, checks the SDK custom gesture.
-			if (CustomGestureProvider.Current != null)
+			// 1. Checks the engine and SDK pre-defined gesture.
+			if (HandManager.Instance != null &&
+				HandManager.Instance.GetHandGestureStatus() == HandManager.GestureStatus.Available)
 			{
-				return CustomGestureProvider.Current.GetCustomGesture(isLeftHand);
+				// Checks the engine pre-defined gesture.
+				gesture = HandManager.Instance.GetHandGesture(isLeftHand).ToString();
 			}
 
-			return GestureType.Unknown.ToString();
+			// 2. No pre-defined gesture, checks the SDK custom gesture.
+			if ((CustomGestureProvider.Current != null) &&
+				(gesture.Equals(HandManager.GestureType.Unknown.ToString()) || gesture.Equals(HandManager.GestureType.Invalid.ToString()))
+				)
+			{
+				gesture = CustomGestureProvider.Current.GetCustomGesture(isLeftHand);
+			}
+
+			return gesture;
 		}
 		/// <summary> Retrieves custom defined dual hand gesture types. </summary>
 		public static string GetDualHandGesture()

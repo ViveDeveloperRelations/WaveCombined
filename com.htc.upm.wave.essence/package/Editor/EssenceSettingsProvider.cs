@@ -193,6 +193,7 @@ namespace Wave.Essence.Editor
 			"Interaction",
 			"CompositorLayer",
 			"XR",
+			"Tracker",
 		};
 
 		internal static UnityEditor.PackageManager.PackageInfo pi = null;
@@ -230,6 +231,8 @@ namespace Wave.Essence.Editor
 		internal const string kBundlePreviewPackage = "wave_essence_bundlepreview.unitypackage";
 		internal const string kRenderDocPath = "/RenderDoc/";
 		internal const string kRenderDocPackage = "wave_essence_renderdoc.unitypackage";
+		internal const string kTrackerModelPath = "/Tracker/Model";
+		internal const string kTrackerModelPackage = "wave_essence_tracker_model.unitypackage";
 
 		internal static bool featureControllerModelImported = false;
 		internal static bool featureInputModuleImported = false;
@@ -240,6 +243,7 @@ namespace Wave.Essence.Editor
 		internal static bool featureCompositorLayerImported = false;
 		internal static bool featureBundlePreviewImported = false;
 		internal static bool featureRenderDocImported = false;
+		internal static bool featureTrackerModelImported = false;
 
 		internal static bool featureControllerModelNeedUpdate = false;
 		internal static bool featureInputModuleNeedUpdate = false;
@@ -250,6 +254,7 @@ namespace Wave.Essence.Editor
 		internal static bool featureCompositorLayerNeedUpdate = false;
 		internal static bool featureBundlePreviewNeedUpdate = false;
 		internal static bool featureRenderDocNeedUpdate = false;
+		internal static bool featureTrackerModelNeedUpdate = false;
 
 		internal static bool hasFeatureNeedUpdate = false;
 
@@ -264,6 +269,10 @@ namespace Wave.Essence.Editor
 			featureCompositorLayerImported = Directory.Exists(WaveEssencePath + kCompositorLayerPath);
 			featureBundlePreviewImported = Directory.Exists(WaveEssencePath + kBundlePreviewPath);
 			featureRenderDocImported = Directory.Exists(WaveEssencePath + kRenderDocPath);
+			featureTrackerModelImported = Directory.Exists(WaveEssencePath + kTrackerModelPath);
+
+			if (pi == null)
+				return false;
 
 			featureControllerModelNeedUpdate = featureControllerModelImported && !Directory.Exists(WaveEssencePath + kControllerModelPath + "/" + pi.version) &&
 				!Directory.Exists(WaveEssencePath + kControllerModelPath + "/" + FAKE_VERSION);
@@ -283,6 +292,8 @@ namespace Wave.Essence.Editor
 				!Directory.Exists(WaveEssencePath + kBundlePreviewPath + "/" + FAKE_VERSION);
 			featureRenderDocNeedUpdate = featureRenderDocImported && !Directory.Exists(WaveEssencePath + kRenderDocPath + "/" + pi.version) &&
 				!Directory.Exists(WaveEssencePath + kRenderDocPath + "/" + FAKE_VERSION);
+			featureTrackerModelNeedUpdate = featureTrackerModelImported && !Directory.Exists(WaveEssencePath + kTrackerModelPath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kTrackerModelPath + "/" + FAKE_VERSION);
 
 			hasFeatureNeedUpdate = featureControllerModelNeedUpdate || featureInputModuleNeedUpdate || featureHandModelNeedUpdate || featureInteractionModeNeedUpdate || featureInteractionToolkitNeedUpdate ||
 				featureCameraTextureNeedUpdate || featureCompositorLayerNeedUpdate || featureBundlePreviewNeedUpdate || featureRenderDocNeedUpdate;
@@ -311,6 +322,8 @@ namespace Wave.Essence.Editor
 				UpdateModule(WaveEssencePath + kRenderDocPath, kRenderDocPackage);
 			if (featureInteractionToolkitNeedUpdate)
 				UpdateModule(WaveEssencePath + kInteractionToolkitPath, kInteractionToolkitPackage);
+			if (featureTrackerModelNeedUpdate)
+				UpdateModule(WaveEssencePath + kTrackerModelPath, kTrackerModelPackage);
 		}
 
 		public override void OnGUI(string searchContext)
@@ -325,6 +338,7 @@ namespace Wave.Essence.Editor
 			bool showBundlePreview = false;
 			bool showRenderDoc = searchContext.Contains("RenderDoc");
 			bool showInteractionToolkit = searchContext.Contains("Interaction");
+			bool showTrackerModel = searchContext.Contains("Tracker");
 
 			if (showControllerModel ||
 				showInputModule ||
@@ -334,7 +348,8 @@ namespace Wave.Essence.Editor
 				showCompositorLayer ||
 				showBundlePreview ||
 				showRenderDoc ||
-				showInteractionToolkit)
+				showInteractionToolkit ||
+				showTrackerModel)
 			{
 				hasKeyword = true;
 			}
@@ -350,6 +365,7 @@ namespace Wave.Essence.Editor
 			 * 7. BundlePreview
              * 8. RenderDoc
              * 9. Interaction Toolkit
+             * 10. Tracker Model
             **/
 
 			checkFeaturePackages();
@@ -618,6 +634,33 @@ namespace Wave.Essence.Editor
 						if (GUILayout.Button("Import Feature - Interaction Toolkit", GUILayout.ExpandWidth(false)))
 							ImportModule(kInteractionToolkitPackage);
 					}
+					GUILayout.Space(5f);
+					GUI.enabled = true;
+				}
+				GUILayout.EndVertical();
+			}
+
+			if (showTrackerModel || !hasKeyword)
+			{
+				GUILayout.BeginVertical(EditorStyles.helpBox);
+				{
+					GUILayout.Label("Tracker Model", EditorStyles.boldLabel);
+					GUILayout.Label("The Tracker Model package provides the sample and model of Tracker feature.", new GUIStyle(EditorStyles.label) { wordWrap = true });
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/Tracker/Model.", EditorStyles.label);
+					GUILayout.Space(5f);
+					GUI.enabled = !featureTrackerModelImported || featureTrackerModelNeedUpdate;
+
+					if (featureTrackerModelNeedUpdate)
+					{
+						if (GUILayout.Button("Update Feature - Tracker Model", GUILayout.ExpandWidth(false)))
+							UpdateModule(WaveEssencePath + kTrackerModelPath, kTrackerModelPackage);
+					}
+					else
+					{
+						if (GUILayout.Button("Import Feature - Tracker Model", GUILayout.ExpandWidth(false)))
+							ImportModule(kTrackerModelPackage);
+					}
+
 					GUILayout.Space(5f);
 					GUI.enabled = true;
 				}

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.XR;
 using Wave.XR.Loader;
 using static Wave.XR.Constants;
 
@@ -7,6 +8,57 @@ namespace Wave.XR.Settings
 {
     public class SettingsHelper
     {
+        internal static void CheckSinglePass()
+        {
+            WaveXRSettings appSettings = WaveXRSettings.GetInstance();
+#if UNITY_2020_1_OR_NEWER
+            Utils.DisplaySubsystem.textureLayout =
+                appSettings.preferedStereoRenderingPath == WaveXRSettings.StereoRenderingPath.MultiPass ?
+                XRDisplaySubsystem.TextureLayout.SeparateTexture2Ds : XRDisplaySubsystem.TextureLayout.Texture2DArray;
+#else
+            Utils.DisplaySubsystem.singlePassRenderingDisabled = appSettings.preferedStereoRenderingPath == WaveXRSettings.StereoRenderingPath.MultiPass;
+#endif
+        }
+
+        // If you want to modify the values here, please make sure you know what it is.
+        // For cross platform, we don't use enum of WVR.
+        internal static void ProcessRenderConfig(WaveXRSettings appSettings)
+        {
+            if (appSettings == null)
+                return;
+
+            bool allowAMC = appSettings.amcMode != WaveXRSettings.AMCMode.Off && appSettings.amcModeConfirm != 0;
+            ulong config = 0;
+            if (allowAMC)
+            {
+                switch (appSettings.amcMode)
+                {
+                    case WaveXRSettings.AMCMode.Auto:
+                        config |= (1 << 6) | (1 << 7);
+                        break;
+                    case WaveXRSettings.AMCMode.Force_UMC:
+                        config |= 1 << 6;
+                        break;
+                    case WaveXRSettings.AMCMode.Force_PMC:
+                        config |= 1 << 7;
+                        break;
+                }
+            }
+
+            if (appSettings.fadeOut)
+                config |= (1 << 5);
+
+            if (appSettings.enableFSE)
+			{
+                config |= (1 << 8);
+			}
+
+            uint highBytes = (uint)((config >> 32) & 0xFFFFFFFF);
+            uint lowBytes = (uint)(config & 0xFFFFFFFF);
+            SetInt("renderConfigH", highBytes);
+            SetInt("renderConfigL", lowBytes);
+        }
+
         internal static void Process(WaveXRLoader loader)
         {
 #if UNITY_EDITOR
@@ -29,7 +81,7 @@ namespace Wave.XR.Settings
             #endregion common
 
             #region rendering
-            loader.displaySubsystem.singlePassRenderingDisabled = appSettings.preferedStereoRenderingPath == WaveXRSettings.StereoRenderingPath.MultiPass;
+            CheckSinglePass();
 
             SetBool("sRGB", QualitySettings.activeColorSpace == ColorSpace.Linear);
             SetInt("qsMSAA", (uint) QualitySettings.antiAliasing);
@@ -55,6 +107,8 @@ namespace Wave.XR.Settings
             SetInt("amcMode", (uint)appSettings.amcMode);
             SetInt("amcModeConfirm", (uint)appSettings.amcModeConfirm);
 
+            ProcessRenderConfig(appSettings);
+
             for (int i = 0; i < 4; i++)
             {
                 WaveXRSettings.DisplayGamut gamut = WaveXRSettings.DisplayGamut.Native;
@@ -67,6 +121,11 @@ namespace Wave.XR.Settings
 
 			#region Tracker
 			SetBool(WaveXRSettings.EnableTrackerText, appSettings.EnableTracker);
+			#endregion
+
+			#region Hand
+			SetBool(WaveXRSettings.EnableNaturalHandText, appSettings.EnableNaturalHand);
+			SetBool(WaveXRSettings.EnableElectronicHandText, appSettings.EnableElectronicHand);
 			#endregion
 		}
 
