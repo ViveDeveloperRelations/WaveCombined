@@ -586,7 +586,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Pull the trigger to switch on or off "Pass Through Overlay".
+  m_Text: "Press the A, X buttons to switch on or off \"Pass Through Overlay\", \nB,Y
+    to change Alpha."
 --- !u!222 &1003923999
 CanvasRenderer:
   m_ObjectHideFlags: 0

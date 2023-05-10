@@ -42,12 +42,24 @@ namespace Wave.XR.BuildCheck
 			if (settings != null)
 				WaveXRPath = settings.waveXRFolder;
 
-			if (File.Exists(AndroidManifestPathDest)) 
+			if (File.Exists(AndroidManifestPathDest))
+			{
 				if (!checkHandtrackingFeature(AndroidManifestPathDest))
-					appendFile(AndroidManifestPathDest, true);
+				{
+					appendFile(
+						filename: AndroidManifestPathDest,
+						handtracking: true);
+				}
+			}
 			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+			{
 				if (!checkHandtrackingFeature(WaveXRPath + CustomAndroidManifestPathSrc))
-					appendFile(WaveXRPath + CustomAndroidManifestPathSrc, true);
+				{
+					appendFile(
+						filename: WaveXRPath + CustomAndroidManifestPathSrc,
+						handtracking: true);
+				}
+			}
 		}
 
 		internal static void AddTrackerAndroidManifest()
@@ -58,11 +70,50 @@ namespace Wave.XR.BuildCheck
 				WaveXRPath = settings.waveXRFolder;
 
 			if (File.Exists(AndroidManifestPathDest))
+			{
 				if (!checkTrackerFeature(AndroidManifestPathDest))
-					appendFile(AndroidManifestPathDest, false, WaveXRSettings.SupportedFPS.HMD_Default, true);
+				{
+					appendFile(
+						filename: AndroidManifestPathDest,
+						tracker: true);
+				}
+			}
 			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+			{
 				if (!checkTrackerFeature(WaveXRPath + CustomAndroidManifestPathSrc))
-					appendFile(WaveXRPath + CustomAndroidManifestPathSrc, false, WaveXRSettings.SupportedFPS.HMD_Default, true);
+				{
+					appendFile(
+						filename: WaveXRPath + CustomAndroidManifestPathSrc,
+						tracker: true);
+				}
+			}
+		}
+
+		internal static void AddSimultaneousInteractionAndroidManifest()
+		{
+			WaveXRSettings settings;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+				WaveXRPath = settings.waveXRFolder;
+
+			if (File.Exists(AndroidManifestPathDest))
+			{
+				if (!checkSimultaneousInteractionFeature(AndroidManifestPathDest))
+				{
+					appendFile(
+						filename: AndroidManifestPathDest,
+						simultaneous_interaction: true);
+				}
+			}
+			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+			{
+				if (!checkSimultaneousInteractionFeature(WaveXRPath + CustomAndroidManifestPathSrc))
+				{
+					appendFile(
+						filename: WaveXRPath + CustomAndroidManifestPathSrc,
+						simultaneous_interaction: true);
+				}
+			}
 		}
 
 		static void CopyAndroidManifest()
@@ -81,7 +132,9 @@ namespace Wave.XR.BuildCheck
 				Debug.Log("Using the Android Manifest at Assets/Plugins/Android");
 				if (settings != null && settings.supportedFPS != WaveXRSettings.SupportedFPS.HMD_Default && !checkDefSupportedFPS(AndroidManifestPathDest))
 				{
-					appendFile(AndroidManifestPathDest, false, settings.supportedFPS);
+					appendFile(
+						filename: AndroidManifestPathDest,
+						supportedFPS: settings.supportedFPS);
 				}
 				return; // not to overwrite existed AndroidManifest.xml
 			}
@@ -96,24 +149,24 @@ namespace Wave.XR.BuildCheck
 				Debug.Log("Using the Android Manifest at Packages/com.htc.upm.wave.xrsdk/Runtime/Android");
 				File.Copy(AndroidManifestPathSrc, AndroidManifestPathDest, false);
 			}
-			
-			if (EditorPrefs.GetBool(CheckIfHandTrackingEnabled.MENU_NAME, false) && !checkHandtrackingFeature(AndroidManifestPathDest))
-			{
-				if (EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false) && !checkTrackerFeature(AndroidManifestPathDest))
-					appendFile(AndroidManifestPathDest, true, settings.supportedFPS, true);
-				else
-					appendFile(AndroidManifestPathDest, true, settings.supportedFPS, false);
-			}
-			else if (settings != null && settings.supportedFPS != WaveXRSettings.SupportedFPS.HMD_Default)
-			{
-				if (EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false) && !checkTrackerFeature(AndroidManifestPathDest))
-					appendFile(AndroidManifestPathDest, false, settings.supportedFPS, true);
-				else
-					appendFile(AndroidManifestPathDest, false, settings.supportedFPS, false);
-			}
+
+			bool addHandTracking = (EditorPrefs.GetBool(CheckIfHandTrackingEnabled.MENU_NAME, false) && !checkHandtrackingFeature(AndroidManifestPathDest));
+			bool addTracker	     = (EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false)      && !checkTrackerFeature(AndroidManifestPathDest));
+			bool addSimultaneousInteraction      = (EditorPrefs.GetBool(CheckIfSimultaneousInteractionEnabled.MENU_NAME, false)      && !checkSimultaneousInteractionFeature(AndroidManifestPathDest));
+
+			appendFile(
+				filename: AndroidManifestPathDest,
+				handtracking: addHandTracking,
+				settings.supportedFPS,
+				tracker: addTracker,
+				simultaneous_interaction: addSimultaneousInteraction);
 		}
 
-		static void appendFile(string filename, bool handtracking = false, WaveXRSettings.SupportedFPS supportedFPS = WaveXRSettings.SupportedFPS.HMD_Default, bool tracker = false)
+		static void appendFile(string filename
+			, bool handtracking = false
+			, WaveXRSettings.SupportedFPS supportedFPS = WaveXRSettings.SupportedFPS.HMD_Default
+			, bool tracker = false
+			, bool simultaneous_interaction = false)
 		{
 			string line;
 
@@ -134,6 +187,10 @@ namespace Wave.XR.BuildCheck
 				if (line.Contains("</manifest>") && tracker)
 				{
 					file2.WriteLine("	<uses-feature android:name=\"wave.feature.tracker\" android:required=\"true\" />");
+				}
+				if (line.Contains("</manifest>") && simultaneous_interaction)
+				{
+					file2.WriteLine("	<uses-feature android:name=\"wave.feature.simultaneous_interaction\" android:required=\"true\" />");
 				}
 				file2.WriteLine(line);
 			}
@@ -158,6 +215,26 @@ namespace Wave.XR.BuildCheck
 					string required = metadataNode.Attributes["android:required"].Value;
 
 					if (name.Equals("wave.feature.handtracking"))
+						return true;
+				}
+			}
+			return false;
+		}
+
+		static bool checkSimultaneousInteractionFeature(string filename)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(filename);
+			XmlNodeList metadataNodeList = doc.SelectNodes("/manifest/uses-feature");
+
+			if (metadataNodeList != null)
+			{
+				foreach (XmlNode metadataNode in metadataNodeList)
+				{
+					string name = metadataNode.Attributes["android:name"].Value;
+					string required = metadataNode.Attributes["android:required"].Value;
+
+					if (name.Equals("wave.feature.simultaneous_interaction"))
 						return true;
 				}
 			}
@@ -230,26 +307,26 @@ namespace Wave.XR.BuildCheck
 			return didAssign;
 		}
 
-	static bool CheckIsBuildingWave()
-        {
-            var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
-            if (androidGenericSettings == null)
-                return false;
+		static bool CheckIsBuildingWave()
+		{
+			var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
+			if (androidGenericSettings == null)
+				return false;
 
-            var androidXRMSettings = androidGenericSettings.AssignedSettings;
-            if (androidXRMSettings == null)
-                return false;
+			var androidXRMSettings = androidGenericSettings.AssignedSettings;
+			if (androidXRMSettings == null)
+				return false;
 
-            var loaders = androidXRMSettings.loaders;
-            foreach (var loader in loaders)
-            {
-                if (loader.GetType() == typeof(WaveXRLoader))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+			var loaders = androidXRMSettings.loaders;
+			foreach (var loader in loaders)
+			{
+				if (loader.GetType() == typeof(WaveXRLoader))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 
 		private class CustomPreprocessor : IPreprocessBuildWithReport
         {
@@ -295,7 +372,7 @@ namespace Wave.XR.BuildCheck
 	[InitializeOnLoad]
 	public static class CheckIfHandTrackingEnabled
 	{
-		internal const string MENU_NAME = "Wave/HandTracking/EnableHandTracking";
+		internal const string MENU_NAME = "Wave/Hand Tracking/Enable Hand Tracking";
 
 		private static bool enabled_;
 		static CheckIfHandTrackingEnabled()
@@ -341,7 +418,7 @@ namespace Wave.XR.BuildCheck
 	[InitializeOnLoad]
 	public static class CheckIfTrackerEnabled
 	{
-		internal const string MENU_NAME = "Wave/Tracker/EnableTracker";
+		internal const string MENU_NAME = "Wave/Tracker/Enable Tracker";
 
 		private static bool enabled_;
 		static CheckIfTrackerEnabled()
@@ -380,6 +457,52 @@ namespace Wave.XR.BuildCheck
 		public static bool ValidateEnabled()
 		{
 			Menu.SetChecked(CheckIfTrackerEnabled.MENU_NAME, enabled_);
+			return true;
+		}
+	}
+
+	[InitializeOnLoad]
+	public static class CheckIfSimultaneousInteractionEnabled
+	{
+		internal const string MENU_NAME = "Wave/Interaction Mode/Enable Simultaneous Interaction";
+
+		private static bool enabled_;
+		static CheckIfSimultaneousInteractionEnabled()
+		{
+			CheckIfSimultaneousInteractionEnabled.enabled_ = EditorPrefs.GetBool(CheckIfSimultaneousInteractionEnabled.MENU_NAME, false);
+
+			/// Delaying until first editor tick so that the menu
+			/// will be populated before setting check state, and
+			/// re-apply correct action
+			EditorApplication.delayCall += () =>
+			{
+				PerformAction(CheckIfSimultaneousInteractionEnabled.enabled_);
+			};
+		}
+
+		[MenuItem(CheckIfSimultaneousInteractionEnabled.MENU_NAME, priority = 603)]
+		private static void ToggleAction()
+		{
+			/// Toggling action
+			PerformAction(!CheckIfSimultaneousInteractionEnabled.enabled_);
+		}
+
+		public static void PerformAction(bool enabled)
+		{
+			/// Set checkmark on menu item
+			Menu.SetChecked(CheckIfSimultaneousInteractionEnabled.MENU_NAME, enabled);
+			if (enabled)
+				CustomBuildProcessor.AddSimultaneousInteractionAndroidManifest();
+			/// Saving editor state
+			EditorPrefs.SetBool(CheckIfSimultaneousInteractionEnabled.MENU_NAME, enabled);
+
+			CheckIfSimultaneousInteractionEnabled.enabled_ = enabled;
+		}
+
+		[MenuItem(CheckIfSimultaneousInteractionEnabled.MENU_NAME, validate = true, priority = 603)]
+		public static bool ValidateEnabled()
+		{
+			Menu.SetChecked(CheckIfSimultaneousInteractionEnabled.MENU_NAME, enabled_);
 			return true;
 		}
 	}

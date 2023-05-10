@@ -190,57 +190,16 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'InputSystemUIInput Description
-
-    -------------------------------------
-
-    Note:
-    Only the right controller is used.
-
-
-    You can use only the Trigger key for
-    interaction.
-
-    When you half-press the Trigger key, the pointer will be sticky
-    and the ray will become bendy.
-
-
-    Top-left scrollview:
-
-    1. Try to drag
-    the side bar of left scrollview.
-
-    2. Check / uncheck the "Toggle" checkbox
-    to change the dropmenu color.
-
-
-    Top-center "Event Bar":
-
-    1. When casting:
-    Show the text "Enter".
-
-    2. When leaving: Show the text "Exit".
-
-    3. When
-    clicked: Show the text "Down" -> "Click".
-
-    4. When holding: Show the text
-    "Down".
-
-    5. Release after holding: Show the text "Click".
-
-
-    Top-right
-    dropdown list:
-
-    1. Try to select the option.
-
-
-    The left side buttons
-    control the cube.
-
-
-    The cube changes the color when being clicked.'
+  m_Text: "Raycast Tests\n--------------------\nYou can click on the \"Mixed Mode\"
+    button to enable/disable the Mixed Mode.\n\nYou can click on the \"Hide Static\"
+    button to hide/show the idle controller.\n\n\"Unmix Mode\" situation: When a
+    controller is idle, the controller model and beam will disappear.\n\n\"Mixed
+    Mode\" situation:\n  1. When \"Hide Static\": When a controller is idle, you
+    can still see the controller model but no beam.\n  2. When \"Show Static\": You
+    can see the idle controller's model and beam.\n\nTop-center \"Event Bar\" behavior:\n1.
+    When casting: Show the text \"Enter\".\n2. When leaving: Show the text \"Exit\".\n3.
+    When clicked: Show the text \"Down\" -> \"Click\".\n4. When holding: Show the
+    text \"Down\".\n5. Release after holding: Show the text \"Click\"."
 --- !u!222 &39757416
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -794,12 +753,12 @@ GameObject:
   - component: {fileID: 411186760}
   - component: {fileID: 411186759}
   m_Layer: 5
-  m_Name: ShowButton
+  m_Name: MixedMode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &411186758
 RectTransform:
   m_ObjectHideFlags: 0
@@ -863,8 +822,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1932342751}
-        m_MethodName: OnShowCube
+      - m_Target: {fileID: 592295752}
+        m_MethodName: SetMixMode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1333,7 +1292,7 @@ GameObject:
   - component: {fileID: 584856205}
   - component: {fileID: 584856204}
   m_Layer: 5
-  m_Name: HideButton
+  m_Name: TableStatic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1402,8 +1361,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1932342751}
-        m_MethodName: OnHideCube
+      - m_Target: {fileID: 1000386881}
+        m_MethodName: HideIdleController
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1461,6 +1420,7 @@ GameObject:
   - component: {fileID: 592295749}
   - component: {fileID: 592295751}
   - component: {fileID: 592295750}
+  - component: {fileID: 592295752}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -1519,7 +1479,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Show Cube
+  m_Text: Mixed Mode
 --- !u!222 &592295751
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1528,6 +1488,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 592295748}
   m_CullTransparentMesh: 0
+--- !u!114 &592295752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592295748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4e8bdc6eeb722e45a448826d7dd0994, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &597200195 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7471202952708050064, guid: be3d9716d14868d42a47f740f224b521,
@@ -1635,6 +1607,7 @@ MonoBehaviour:
       ThumbUp: 0
       IndexUp: 0
       Palm_Pinch: 0
+      Yeah: 0
   m_TrackerOptions:
     Tracker: 1
     Natural:
@@ -1946,6 +1919,7 @@ MonoBehaviour:
     m_TriggerButton: 1
     State: 
     StateEx: 
+  m_HideWhenIdle: 1
   m_AlwaysEnable: 0
 --- !u!120 &985792516
 LineRenderer:
@@ -2169,6 +2143,7 @@ MonoBehaviour:
     m_TriggerButton: 1
     State: 
     StateEx: 
+  m_HideWhenIdle: 1
   m_AlwaysEnable: 0
 --- !u!120 &986101921
 LineRenderer:
@@ -2355,6 +2330,7 @@ GameObject:
   - component: {fileID: 1000386878}
   - component: {fileID: 1000386880}
   - component: {fileID: 1000386879}
+  - component: {fileID: 1000386881}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -2413,7 +2389,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Hide Cube
+  m_Text: Show Static
 --- !u!222 &1000386880
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2422,6 +2398,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1000386877}
   m_CullTransparentMesh: 0
+--- !u!114 &1000386881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000386877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 228a87f42c834b94c855f09bbd102751, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CRPLeft: {fileID: 986101920}
+  CRPRight: {fileID: 985792515}
 --- !u!1 &1022505877
 GameObject:
   m_ObjectHideFlags: 0
@@ -3542,7 +3532,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1682689536
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5943,8 +5933,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114305613345136316}
   m_HandleRect: {fileID: 224225765845599858}
   m_Direction: 2
-  m_Value: -0.0000016706704
-  m_Size: 0.54331505
+  m_Value: -0.0000013365362
+  m_Size: 0.52909935
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6595,7 +6585,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000006788732, y: 137.00021}
+  m_AnchoredPosition: {x: 0.000006788732, y: 137.00017}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224701558979040588

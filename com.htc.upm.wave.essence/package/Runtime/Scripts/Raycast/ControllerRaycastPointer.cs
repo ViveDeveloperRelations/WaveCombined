@@ -10,6 +10,7 @@
 
 using UnityEngine;
 using Wave.Native;
+using Wave.Essence.Events;
 using UnityEngine.XR;
 using System;
 using System.Collections.Generic;
@@ -76,17 +77,27 @@ namespace Wave.Essence.Raycast
 			}
 		}
 
+		#region Inspector
+		[Tooltip("The type of controller.")]
 		[SerializeField]
 		private XR_Hand m_Controller = XR_Hand.Right;
 		public XR_Hand Controller { get { return m_Controller; } set { m_Controller = value; } }
 
+		[Tooltip("Buttons to controller the raycast.")]
 		[SerializeField]
 		private ButtonOption m_ControlKey = new ButtonOption();
 		public ButtonOption ControlKey { get { return m_ControlKey; } set { m_ControlKey = value; } }
 
+		[Tooltip("To hide the ray when the controller is idle.")]
+		[SerializeField]
+		private bool m_HideWhenIdle = true;
+		public bool HideWhenIdle { get { return m_HideWhenIdle; } set { m_HideWhenIdle = value; } }
+
+		[Tooltip("To show the ray anymore.")]
 		[SerializeField]
 		private bool m_AlwaysEnable = false;
 		public bool AlwaysEnable { get { return m_AlwaysEnable; } set { m_AlwaysEnable = value; } }
+		#endregion
 
 		#region MonoBehaviour overrides
 		protected override void Awake()
@@ -99,6 +110,24 @@ namespace Wave.Essence.Raycast
 				DEBUG("Awake() m_ControlKey[" + i + "] = " + m_ControlKey.OptionList[i].name);
 			}
 		}
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+
+			SystemEvent.Listen(WVR_EventType.WVR_EventType_DeviceTableStaticLocked, OnTableStaticLocked);
+			SystemEvent.Listen(WVR_EventType.WVR_EventType_DeviceTableStaticUnlocked, OnTableStaticUnocked);
+			SystemEvent.Listen(WVR_EventType.WVR_EventType_DeviceConnected, OnDeviceConnected);
+			SystemEvent.Listen(WVR_EventType.WVR_EventType_DeviceDisconnected, OnDeviceDisconnected);
+		}
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+
+			SystemEvent.Remove(WVR_EventType.WVR_EventType_DeviceTableStaticLocked, OnTableStaticLocked);
+			SystemEvent.Remove(WVR_EventType.WVR_EventType_DeviceTableStaticUnlocked, OnTableStaticUnocked);
+			SystemEvent.Remove(WVR_EventType.WVR_EventType_DeviceConnected, OnDeviceConnected);
+			SystemEvent.Remove(WVR_EventType.WVR_EventType_DeviceDisconnected, OnDeviceDisconnected);
+		}
 		protected override void Update()
 		{
 			base.Update();
@@ -107,19 +136,81 @@ namespace Wave.Essence.Raycast
 
 			UpdateButtonStates();
 		}
+		protected override void Start()
+		{
+			base.Start();
+
+			m_TableStatic = Interop.WVR_IsDeviceTableStatic((WVR_DeviceType)m_Controller);
+			DEBUG("Start() m_TableStatic = " + m_TableStatic);
+		}
+		private void OnApplicationPause(bool pause)
+		{
+			DEBUG("OnApplicationPause() " + pause);
+			if (!pause)
+			{
+				m_TableStatic = Interop.WVR_IsDeviceTableStatic((WVR_DeviceType)m_Controller);
+				DEBUG("Resume, m_TableStatic = " + m_TableStatic);
+			}
+		}
 		#endregion
+
+		private bool m_TableStatic = false;
+		private void OnTableStaticLocked(WVR_Event_t systemEvent)
+		{
+			var deviceType = systemEvent.device.type;
+			if (deviceType == (WVR_DeviceType)m_Controller)
+			{
+				m_TableStatic = Interop.WVR_IsDeviceTableStatic(deviceType);
+				DEBUG("OnTableStaticLocked() m_TableStatic = " + m_TableStatic);
+			}
+		}
+		private void OnTableStaticUnocked(WVR_Event_t systemEvent)
+		{
+			var deviceType = systemEvent.device.type;
+			if (deviceType == (WVR_DeviceType)m_Controller)
+			{
+				m_TableStatic = Interop.WVR_IsDeviceTableStatic(deviceType);
+				DEBUG("OnTableStaticUnocked() m_TableStatic = " + m_TableStatic);
+			}
+		}
+		private void OnDeviceConnected(WVR_Event_t systemEvent)
+		{
+			var deviceType = systemEvent.device.type;
+			if (deviceType == (WVR_DeviceType)m_Controller)
+			{
+				m_TableStatic = false;
+				DEBUG("OnDeviceConnected() set m_TableStatic to false.");
+			}
+		}
+		private void OnDeviceDisconnected(WVR_Event_t systemEvent)
+		{
+			var deviceType = systemEvent.device.type;
+			if (deviceType == (WVR_DeviceType)m_Controller)
+			{
+				m_TableStatic = false;
+				DEBUG("OnDeviceDisconnected() set m_TableStatic to false.");
+			}
+		}
 
 		private bool IsInteractable()
 		{
 			bool enabled = RaycastSwitch.Controller.Enabled;
 			bool validPose = WXRDevice.IsTracked((XR_Device)m_Controller);
 			bool hasFocus = ClientInterface.IsFocused;
+			bool hideWhenIdle = m_HideWhenIdle && m_TableStatic;
 
-			m_Interactable = m_AlwaysEnable || (enabled && validPose && hasFocus);
+			m_Interactable = m_AlwaysEnable || (enabled && validPose && hasFocus && (!hideWhenIdle));
 
 			if (Log.gpl.Print)
 			{
-				DEBUG("IsInteractable() enabled: " + enabled + ", validPose: " + validPose + ", hasFocus: " + hasFocus + ", m_AlwaysEnable: " + m_AlwaysEnable);
+				DEBUG("IsInteractable() enabled: " + enabled
+					+ ", validPose: " + validPose
+					+ ", hasFocus: " + hasFocus
+					+ ", m_HideWhenIdle: " + m_HideWhenIdle
+					+ ", m_TableStatic: " + m_TableStatic
+					+ ", hideWhenIdle: " + hideWhenIdle
+					+ ", m_AlwaysEnable: " + m_AlwaysEnable
+					+ ", m_Interactable: " + m_Interactable);
 			}
 
 			return m_Interactable;

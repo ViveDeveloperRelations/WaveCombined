@@ -78,6 +78,12 @@ namespace Wave.XR.Settings
                 appSettings.debugLogFlagForNative : (uint)DebugLogFlag.Default;
             SetInt(NameDebugLogFlagForNative, logFlagForNative);
             GetInt(NameDebugLogFlagForUnity, ref appSettings.debugLogFlagForUnity);
+            //Debug.Log("WaveXRSettingsHelper: Process development build: " + Debug.isDebugBuild);
+            if (Debug.isDebugBuild)
+            {
+                SetBool(NameUseCMPChecker, appSettings.useCMPChecker);
+                Debug.Log("WaveXRSettingsHelper: useCMPChecker " + appSettings.useCMPChecker);
+            }
             #endregion common
 
             #region rendering
@@ -147,6 +153,7 @@ namespace Wave.XR.Settings
                
         public const string NameDebugLogFlagForNative = "debugLogFlagForNative";
         public const string NameDebugLogFlagForUnity = "debugLogFlagForUnity";
+        public const string NameUseCMPChecker = "useCMPChecker";
 
         // Set
         [DllImport("wvrunityxr", EntryPoint = "SettingsSetBool")]

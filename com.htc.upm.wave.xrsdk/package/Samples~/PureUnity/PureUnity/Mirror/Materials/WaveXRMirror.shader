@@ -12,7 +12,7 @@ Shader "Wave/XRMirror"
 
 		SubShader
 	{
-		Tags { "RenderType" = "Opaque"  }
+		Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
 		LOD 100
 
 		ZWrite Off
@@ -70,7 +70,7 @@ Shader "Wave/XRMirror"
 				else  refl = tex2Dproj(_ReflectionTexRight, UNITY_PROJ_COORD(i.refl));
 
 				fixed4 col = tex2D(_MainTex, i.uv);
-				return col * refl;
+				return fixed4((col * refl).xyz, _Transparency);
 			}
 			ENDCG
 		}

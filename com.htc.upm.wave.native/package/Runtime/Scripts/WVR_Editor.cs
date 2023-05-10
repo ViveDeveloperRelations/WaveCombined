@@ -226,6 +226,11 @@ namespace Wave.Native
 		public override bool ControllerSupportElectronicHand() { return system.ControllerSupportElectronicHand(); }
 		public override void EnhanceHandStable(bool wear) { system.EnhanceHandStable(wear); }
 		public override bool IsEnhanceHandStable() { return system.IsEnhanceHandStable(); }
+
+		public override void SetMixMode(bool enable)
+		{
+			system.SetMixMode(enable);
+		}
 		#endregion
 
 		#region Controller Pose Mode
@@ -320,6 +325,11 @@ namespace Wave.Native
 		public override ulong GetSupportedFeatures()
 		{
 			return system.GetSupportedFeatures();
+		}
+
+		public override bool IsDeviceTableStatic(WVR_DeviceType type)
+		{
+			return system.IsDeviceTableStatic(type);
 		}
 	}
 #endif

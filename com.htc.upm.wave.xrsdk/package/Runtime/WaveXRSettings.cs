@@ -53,11 +53,11 @@ namespace Wave.XR.Settings
             DisplayP3
         }
 
-		public enum SupportedFPS
-		{
-			HMD_Default,
-			_120
-		}
+        public enum SupportedFPS
+        {
+            HMD_Default,
+            _120
+        }
 
         [SerializeField, Tooltip("In URP, only SinglePass can be used.")]
         public StereoRenderingPath preferedStereoRenderingPath = StereoRenderingPath.SinglePass;
@@ -137,8 +137,13 @@ namespace Wave.XR.Settings
         [SerializeField, Tooltip("Debug log flag which Unity Player should follow.")]
         public uint debugLogFlagForUnity = (uint)(DebugLogFlag.BasicMask | DebugLogFlag.LifecycleMask | DebugLogFlag.RenderMask | DebugLogFlag.InputMask);
 
+        #region common
         [SerializeField, Tooltip("Override the LogFlag for native.")]
         public bool overrideLogFlagForNative = false;
+
+        [SerializeField, Tooltip("Enable Compatibility Checker in development build.")]
+        public bool useCMPChecker = false;
+        #endregion
 
         [SerializeField, Tooltip("Set the mode of Adaptive Motion Compensator (AMC).  You can choose to force enable one of Universal Motion Compensator (UMC) and Positional Motion Compensator (PMC).  Or use auto UMC.  Default is off")]
         public AMCMode amcMode = AMCMode.Off;
@@ -157,34 +162,43 @@ namespace Wave.XR.Settings
         public float FSE_Level = 0.5f;
 
         [SerializeField, Tooltip("Set the App supported FPS. (Experimental function)\nHMD Default:\nApp will run with HMD default FPS.\n120 FPS:\nDeclare the App can support up to 120 FPS and the HMD display will switch to 120 FPS to run your App if it can support.\nNotice : You must to tune your App to make it suitable for running at 120FPS, or App might get worse rendering performance and cause jitter phenomenon.")]
-		public SupportedFPS supportedFPS = SupportedFPS.HMD_Default;
+        public SupportedFPS supportedFPS = SupportedFPS.HMD_Default;
 
-		[SerializeField, Tooltip("Wave XR Feature Package folder location")]
-		public string waveXRFolder = "Assets/Wave/XR";
+        [SerializeField, Tooltip("Wave XR Feature Package folder location")]
+        public string waveXRFolder = "Assets/Wave/XR";
 
-		[SerializeField, Tooltip("Wave Essence Feature Package folder location")]
-		public string waveEssenceFolder = "Assets/Wave/Essence";
+        [SerializeField, Tooltip("Wave Essence Feature Package folder location")]
+        public string waveEssenceFolder = "Assets/Wave/Essence";
 
-		[SerializeField, Tooltip("Display gamut preferences.  Wave will try to apply gamut from the top of the list.  When the earier gamut is accepted, Wave will not try the next.  Not all gamut preference here can be accepted.  It's depended on device.  The sRGB is default acceptable for all device.")]
+        [SerializeField, Tooltip("Display gamut preferences.  Wave will try to apply gamut from the top of the list.  When the earier gamut is accepted, Wave will not try the next.  Not all gamut preference here can be accepted.  It's depended on device.  The sRGB is default acceptable for all device.")]
         public List<DisplayGamut> displayGamutPreferences = new List<DisplayGamut>() { DisplayGamut.Native, DisplayGamut.sRGB, DisplayGamut.DisplayP3 };
 
         [SerializeField, Tooltip("Select to enable auto fallback when using Multi-Layer (i.e. Layers that exceed the maximum layer count will be rendered in-game).")]
         private bool enableAutoFallbackForMultiLayer = true;
 
-		#region Tracker
-		[SerializeField, Tooltip("Select to enable the Tracker feature when AP starts.")]
-		public bool EnableTracker = false;
-		public const string EnableTrackerText = "EnableTracker";
-		#endregion
+        #region Tracker
+        [SerializeField, Tooltip("Select to enable the Tracker feature when AP starts.")]
+        public bool EnableTracker = false;
+        public const string EnableTrackerText = "EnableTracker";
+        #endregion
 
-		#region Hand
-		public bool EnableNaturalHand = false;
-		public const string EnableNaturalHandText = "EnableNaturalHand";
-		public bool EnableElectronicHand = false;
-		public const string EnableElectronicHandText = "EnableElectronicHand";
-		#endregion
+        #region Hand
+        [SerializeField, Tooltip("Select to enable the Natural Hand feature when AP starts.")]
+        public bool EnableNaturalHand = false;
+        public const string EnableNaturalHandText = "EnableNaturalHand";
 
-		public bool enableAutoFallbackForMultiLayerProperty
+        [SerializeField, Tooltip("Select to enable the Electronic Hand feature when AP starts.")]
+        public bool EnableElectronicHand = false;
+        public const string EnableElectronicHandText = "EnableElectronicHand";
+        #endregion
+
+        #region Lip Expression
+        [SerializeField, Tooltip("Select to enable the Lip Expression feature when AP starts.")]
+        public bool EnableLipExp = false;
+        public const string EnableLipExpText = "EnableLipExp";
+        #endregion
+
+        public bool enableAutoFallbackForMultiLayerProperty
         {
             get
             {

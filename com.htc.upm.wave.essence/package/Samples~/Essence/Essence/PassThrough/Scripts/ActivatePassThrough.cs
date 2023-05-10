@@ -62,7 +62,6 @@ namespace Wave.Essence.Samples.PassThrough
 			}
 		}
 
-		private HandManager.GestureType m_HandGesture = HandManager.GestureType.Invalid;
 		private void OnStaticGesture(params object[] args)
 		{
 			var hand = (HandManager.HandType)args[0];

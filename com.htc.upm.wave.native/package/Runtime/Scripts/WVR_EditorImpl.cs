@@ -2885,6 +2885,11 @@ namespace Wave.Native
 
 		public void EnhanceHandStable(bool wear) { fusionBracelet = wear; }
 		public bool IsEnhanceHandStable() { return fusionBracelet; }
+
+		public void SetMixMode(bool enable)
+		{
+			DEBUG("SetMixMode() " + enable);
+		}
 		#endregion
 		#endregion
 
@@ -3311,6 +3316,18 @@ namespace Wave.Native
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_ElectronicHand |
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_Tracker
 			);
+		}
+
+		Dictionary<WVR_DeviceType, bool> s_TableStatic = new Dictionary<WVR_DeviceType, bool>()
+		{
+			{ WVR_DeviceType.WVR_DeviceType_Controller_Left, false },
+			{ WVR_DeviceType.WVR_DeviceType_Controller_Right, false },
+		};
+		public bool IsDeviceTableStatic(WVR_DeviceType type)
+		{
+			if (!s_TableStatic.ContainsKey(type)) { return false; }
+
+			return s_TableStatic[type];
 		}
 	}
 #endif
