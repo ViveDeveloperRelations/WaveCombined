@@ -135,7 +135,9 @@ public class WaveXRMirror : MonoBehaviour
 			// Make sure we got the display provider.
 		while (targetDisplay == null)
 		{
+#pragma warning disable
 			bool ret = false;
+#pragma warning restore
 			try
 			{
 				if (GetTargetDisplaySubsystem())

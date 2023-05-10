@@ -21,11 +21,15 @@ namespace Wave.Native
 #if UNITY_EDITOR && UNITY_ANDROID
 	public class WVR_DirectPreview : Wave.Native.Interop.WVR_Base
 	{
+#pragma warning disable
 		private static string LOG_TAG = "WVR_DirectPreview";
+#pragma warning enable
 		public static string wifi_ip_tmp;
 		public static string wifi_ip_state = "";
+#pragma warning disable
 		bool isLeftReady = false;
 		bool isRightReady = false;
+#pragma warning enable
 		//bool isTimeUp = false;
 		//bool isClientConnected = false;
 		RenderTexture rt_L;

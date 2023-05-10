@@ -59,11 +59,11 @@ namespace Wave.Essence.Raycast
 		public float PointerDistance { get { return m_PointerDistance; } set { m_PointerDistance = value; } }
 
 		/// The offset from the pointer to the pointer-mounted object.
-		private Vector3 pointerLocalOffset = Vector3.zero;
+		private Vector3 ringOffset = Vector3.zero;
 		/// The offset from the pointer to the pointer-mounted object in every frame.
-		private Vector3 pointerFrameOffset = Vector3.zero;
+		private Vector3 ringFrameOffset = Vector3.zero;
 		/// The pointer world position.
-		private Vector3 pointerWorldPosition = Vector3.zero;
+		private Vector3 ringWorldPosition = Vector3.zero;
 
 		// ----------- Color of ring -----------
 		/// Color of ring background.
@@ -194,24 +194,24 @@ namespace Wave.Essence.Raycast
 			ValidateParameters();
 			UpdatePointerOffset();
 
-			pointerFrameOffset = pointerLocalOffset;
-			pointerFrameOffset.z = pointerFrameOffset.z < kPointerDistanceMinimal ? kPointerDistanceDefault : pointerFrameOffset.z;
+			ringFrameOffset = ringOffset;
+			ringFrameOffset.z = ringFrameOffset.z < kPointerDistanceMinimal ? kPointerDistanceDefault : ringFrameOffset.z;
 
 			// Calculate the pointer world position
-			Vector3 rotated_direction = transform.rotation * pointerFrameOffset;
-			pointerWorldPosition = transform.position + rotated_direction;
-			//DEBUG("pointerWorldPosition: " + pointerWorldPosition.x + ", " + pointerWorldPosition.y + ", " + pointerWorldPosition.z);
+			Vector3 rotated_direction = transform.rotation * ringFrameOffset;
+			ringWorldPosition = transform.position + rotated_direction;
+			//DEBUG("ringWorldPosition: " + ringWorldPosition.x + ", " + ringWorldPosition.y + ", " + ringWorldPosition.z);
 
-			float calcRingWidth = m_PointerRingWidth * (pointerFrameOffset.z / kPointerDistanceDefault);
-			float calcInnerCircleRadius = m_PointerCircleRadius * (pointerFrameOffset.z / kPointerDistanceDefault);
+			float calcRingWidth = m_PointerRingWidth * (ringFrameOffset.z / kPointerDistanceDefault);
+			float calcInnerCircleRadius = m_PointerCircleRadius * (ringFrameOffset.z / kPointerDistanceDefault);
 
 			UpdateRingPercent();
-			DrawRingRoll(calcRingWidth + calcInnerCircleRadius, calcInnerCircleRadius, pointerFrameOffset, m_RingPercent);
+			DrawRingRoll(calcRingWidth + calcInnerCircleRadius, calcInnerCircleRadius, ringFrameOffset, m_RingPercent);
 
 			if (Log.gpl.Print)
 			{
 				DEBUG("Update() " + gameObject.name + " is " + (m_MeshRenderer.enabled ? "shown" : "hidden")
-					+ ", pointerFrameOffset (" + pointerFrameOffset.x + ", " + pointerFrameOffset.y + ", " + pointerFrameOffset.z + ")");
+					+ ", ringFrameOffset (" + ringFrameOffset.x + ", " + ringFrameOffset.y + ", " + ringFrameOffset.z + ")");
 			}
 		}
 		#endregion
@@ -245,10 +245,13 @@ namespace Wave.Essence.Raycast
 
 		private void UpdatePointerOffset()
 		{
-			if (raycastObject == null) { return; }
-
-			Vector3 rotated_direction = currentRaycastResult.worldPosition - gameObject.transform.position;
-			pointerLocalOffset = Quaternion.Inverse(gameObject.transform.rotation) * rotated_direction;
+			ringOffset = pointerLocalOffset;
+			// Moves the pointer onto the gazed object.
+			if (raycastObject != null)
+			{
+				Vector3 rotated_direction = pointerData.pointerCurrentRaycast.worldPosition - gameObject.transform.position;
+				ringOffset = Quaternion.Inverse(transform.rotation) * rotated_direction;
+			}
 		}
 
 		protected float m_GazeOnTime = 0;
@@ -339,7 +342,7 @@ namespace Wave.Essence.Raycast
 		#region External Functions
 		public Vector3 GetPointerPosition()
 		{
-			return pointerWorldPosition;
+			return ringWorldPosition;
 		}
 		#endregion
 	}

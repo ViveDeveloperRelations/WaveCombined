@@ -205,8 +205,8 @@ namespace Wave.XR.Settings
 		SerializedProperty Property_EnableTracker;
         #endregion
 
-        #region Hand
-        static string PropertyName_EnableNaturalHand = "EnableNaturalHand";
+		#region Hand
+		static string PropertyName_EnableNaturalHand = "EnableNaturalHand";
         static GUIContent Label_EnableNaturalHand = new GUIContent("Enable Natural Hand");
         SerializedProperty Property_EnableNaturalHand;
         #endregion
@@ -292,8 +292,8 @@ namespace Wave.XR.Settings
 			if (Property_EnableTracker == null) Property_EnableTracker = serializedObject.FindProperty(PropertyName_EnableTracker);
             #endregion
 
-            #region Hand
-            if (Property_EnableNaturalHand == null) Property_EnableNaturalHand = serializedObject.FindProperty(PropertyName_EnableNaturalHand);
+			#region Hand
+			if (Property_EnableNaturalHand == null) Property_EnableNaturalHand = serializedObject.FindProperty(PropertyName_EnableNaturalHand);
             #endregion
 
             if (displayGamutPreference == null)
@@ -382,7 +382,7 @@ namespace Wave.XR.Settings
             if (foldoutHand)
 			{
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(Property_EnableNaturalHand, Label_EnableNaturalHand);
+				EditorGUILayout.PropertyField(Property_EnableNaturalHand, Label_EnableNaturalHand);
                 EditorGUI.indentLevel--;
             }
 

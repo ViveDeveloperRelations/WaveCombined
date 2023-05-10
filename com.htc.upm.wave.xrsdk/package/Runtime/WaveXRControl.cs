@@ -8,11 +8,9 @@
 // conditions signed by you and all SDK and API requirements,
 // specifications, and documentation provided by HTC to You."
 
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
-using Wave.XR.Settings;
 
 namespace Wave.OpenXR
 {

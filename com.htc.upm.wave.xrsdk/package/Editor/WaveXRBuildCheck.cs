@@ -21,6 +21,7 @@ using UnityEditor.XR.Management.Metadata;
 using UnityEngine.XR.Management;
 using System.Xml;
 using Wave.XR.Settings;
+using System;
 
 namespace Wave.XR.BuildCheck
 {
@@ -30,7 +31,11 @@ namespace Wave.XR.BuildCheck
 
 		const string CustomAndroidManifestPathSrc = "/Platform/Android/AndroidManifest.xml";
 		const string AndroidManifestPathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/AndroidManifest.xml";
+		const string Aar2017PathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/wvr_unity_plugin_2017.aar";
+		const string Aar2022PathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/wvr_unity_plugin_2022.aar";
 		const string AndroidManifestPathDest = "Assets/Plugins/Android/AndroidManifest.xml";
+		const string Aar2017PathDest = "Assets/Plugins/Android/wvr_unity_plugin_2017.aar";
+		const string Aar2022PathDest = "Assets/Plugins/Android/wvr_unity_plugin_2022.aar";
 		const string ForceBuildWVR = "ForceBuildWVR.txt";
 
 		static bool isAndroidManifestPathDestExisted = false;
@@ -116,6 +121,60 @@ namespace Wave.XR.BuildCheck
 			}
 		}
 
+		internal static void AddEyeTrackingAndroidManifest()
+		{
+			WaveXRSettings settings;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+				WaveXRPath = settings.waveXRFolder;
+
+			if (File.Exists(AndroidManifestPathDest))
+			{
+				if (!checkEyeTrackingFeature(AndroidManifestPathDest))
+				{
+					appendFile(
+						filename: AndroidManifestPathDest,
+						eyetracking: true);
+				}
+			}
+			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+			{
+				if (!checkEyeTrackingFeature(WaveXRPath + CustomAndroidManifestPathSrc))
+				{
+					appendFile(
+						filename: WaveXRPath + CustomAndroidManifestPathSrc,
+						eyetracking: true);
+				}
+			}
+		}
+
+		internal static void AddLipExpressionAndroidManifest()
+		{
+			WaveXRSettings settings;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+				WaveXRPath = settings.waveXRFolder;
+
+			if (File.Exists(AndroidManifestPathDest))
+			{
+				if (!checkLipExpressionFeature(AndroidManifestPathDest))
+				{
+					appendFile(
+						filename: AndroidManifestPathDest,
+						lipexpression: true);
+				}
+			}
+			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+			{
+				if (!checkLipExpressionFeature(WaveXRPath + CustomAndroidManifestPathSrc))
+				{
+					appendFile(
+						filename: WaveXRPath + CustomAndroidManifestPathSrc,
+						lipexpression: true);
+				}
+			}
+		}
+
 		static void CopyAndroidManifest()
 		{
 			const string PluginAndroidPath = "Assets/Plugins/Android";
@@ -150,23 +209,32 @@ namespace Wave.XR.BuildCheck
 				File.Copy(AndroidManifestPathSrc, AndroidManifestPathDest, false);
 			}
 
-			bool addHandTracking = (EditorPrefs.GetBool(CheckIfHandTrackingEnabled.MENU_NAME, false) && !checkHandtrackingFeature(AndroidManifestPathDest));
+			bool addHandTracking = false;
 			bool addTracker	     = (EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false)      && !checkTrackerFeature(AndroidManifestPathDest));
 			bool addSimultaneousInteraction      = (EditorPrefs.GetBool(CheckIfSimultaneousInteractionEnabled.MENU_NAME, false)      && !checkSimultaneousInteractionFeature(AndroidManifestPathDest));
+			bool addEyeTracking  = (EditorPrefs.GetBool(CheckIfEyeTrackingEnabled.MENU_NAME, false)  && !checkEyeTrackingFeature(AndroidManifestPathDest));
+			bool addLipExpression = (EditorPrefs.GetBool(CheckIfLipExpressionEnabled.MENU_NAME, false) && !checkLipExpressionFeature(AndroidManifestPathDest));
+
+			if (settings != null)
+				addHandTracking = settings.EnableNaturalHand && !checkHandtrackingFeature(AndroidManifestPathDest);
 
 			appendFile(
 				filename: AndroidManifestPathDest,
 				handtracking: addHandTracking,
 				settings.supportedFPS,
 				tracker: addTracker,
-				simultaneous_interaction: addSimultaneousInteraction);
+				simultaneous_interaction: addSimultaneousInteraction,
+				eyetracking: addEyeTracking,
+				lipexpression: addLipExpression);
 		}
 
 		static void appendFile(string filename
 			, bool handtracking = false
 			, WaveXRSettings.SupportedFPS supportedFPS = WaveXRSettings.SupportedFPS.HMD_Default
 			, bool tracker = false
-			, bool simultaneous_interaction = false)
+			, bool simultaneous_interaction = false
+			, bool eyetracking = false
+			, bool lipexpression = false)
 		{
 			string line;
 
@@ -192,6 +260,14 @@ namespace Wave.XR.BuildCheck
 				{
 					file2.WriteLine("	<uses-feature android:name=\"wave.feature.simultaneous_interaction\" android:required=\"true\" />");
 				}
+				if (line.Contains("</manifest>") && eyetracking)
+				{
+					file2.WriteLine("	<uses-feature android:name=\"wave.feature.eyetracking\" android:required=\"true\" />");
+				}
+				if (line.Contains("</manifest>") && lipexpression)
+				{
+					file2.WriteLine("	<uses-feature android:name=\"wave.feature.lipexpression\" android:required=\"true\" />");
+				}
 				file2.WriteLine(line);
 			}
 
@@ -214,7 +290,7 @@ namespace Wave.XR.BuildCheck
 					string name = metadataNode.Attributes["android:name"].Value;
 					string required = metadataNode.Attributes["android:required"].Value;
 
-					if (name.Equals("wave.feature.handtracking"))
+					if (name != null && name.Equals("wave.feature.handtracking"))
 						return true;
 				}
 			}
@@ -234,7 +310,27 @@ namespace Wave.XR.BuildCheck
 					string name = metadataNode.Attributes["android:name"].Value;
 					string required = metadataNode.Attributes["android:required"].Value;
 
-					if (name.Equals("wave.feature.simultaneous_interaction"))
+					if (name != null && name.Equals("wave.feature.simultaneous_interaction"))
+						return true;
+				}
+			}
+			return false;
+		}
+
+		static bool checkEyeTrackingFeature(string filename)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(filename);
+			XmlNodeList metadataNodeList = doc.SelectNodes("/manifest/uses-feature");
+
+			if (metadataNodeList != null)
+			{
+				foreach (XmlNode metadataNode in metadataNodeList)
+				{
+					string name = metadataNode.Attributes["android:name"].Value;
+					string required = metadataNode.Attributes["android:required"].Value;
+
+					if (name != null && name.Equals("wave.feature.eyetracking"))
 						return true;
 				}
 			}
@@ -254,7 +350,27 @@ namespace Wave.XR.BuildCheck
 					string name = metadataNode.Attributes["android:name"].Value;
 					string required = metadataNode.Attributes["android:required"].Value;
 
-					if (name.Equals("wave.feature.tracker"))
+					if (name != null && name.Equals("wave.feature.tracker"))
+						return true;
+				}
+			}
+			return false;
+		}
+
+		static bool checkLipExpressionFeature(string filename)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(filename);
+			XmlNodeList metadataNodeList = doc.SelectNodes("/manifest/uses-feature");
+
+			if (metadataNodeList != null)
+			{
+				foreach (XmlNode metadataNode in metadataNodeList)
+				{
+					string name = metadataNode.Attributes["android:name"].Value;
+					string required = metadataNode.Attributes["android:required"].Value;
+
+					if (name != null && name.Equals("wave.feature.lipexpression"))
 						return true;
 				}
 			}
@@ -273,7 +389,7 @@ namespace Wave.XR.BuildCheck
 				{
 					string name = metadataNode.Attributes["android:name"].Value;
 
-					if (name.Equals("com.htc.vr.content.SupportedFPS"))
+					if (name != null && name.Equals("com.htc.vr.content.SupportedFPS"))
 						return true;
 				}
 			}
@@ -339,13 +455,61 @@ namespace Wave.XR.BuildCheck
 					//SetBuildingWave();
 					AddHandtrackingAndroidManifest();
 					AddTrackerAndroidManifest();
+					AddEyeTrackingAndroidManifest();
+					AddLipExpressionAndroidManifest();
 					CopyAndroidManifest();
+#if UNITY_2022_1_OR_NEWER
+					if (!File.Exists(Aar2022PathDest))
+						File.Copy(Aar2022PathSrc, Aar2022PathDest, false);
+					if (File.Exists(Aar2017PathDest))
+						File.Delete(Aar2017PathDest);
+					if (File.Exists(Aar2017PathDest + ".meta"))
+						File.Delete(Aar2017PathDest + ".meta");
+					PluginImporter plugin = AssetImporter.GetAtPath(Aar2022PathDest) as PluginImporter;
+					if (plugin != null)
+						plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
+					AssetDatabase.Refresh();
+#else
+					if (!File.Exists(Aar2017PathDest))
+						File.Copy(Aar2017PathSrc, Aar2017PathDest, false);
+					if (File.Exists(Aar2022PathDest))
+						File.Delete(Aar2022PathDest);
+					if (File.Exists(Aar2022PathDest + ".meta"))
+						File.Delete(Aar2022PathDest + ".meta");
+					PluginImporter plugin = AssetImporter.GetAtPath(Aar2017PathDest) as PluginImporter;
+					if (plugin != null)
+						plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
+					AssetDatabase.Refresh();
+#endif
 				}
 				else if (report.summary.platform == BuildTarget.Android && CheckIsBuildingWave())
                 {
-                    CopyAndroidManifest();
-                }
-            }
+					CopyAndroidManifest();
+#if UNITY_2022_1_OR_NEWER
+					if (!File.Exists(Aar2022PathDest))
+						File.Copy(Aar2022PathSrc, Aar2022PathDest, false);
+					if (File.Exists(Aar2017PathDest))
+						File.Delete(Aar2017PathDest);
+					if (File.Exists(Aar2017PathDest + ".meta"))
+						File.Delete(Aar2017PathDest + ".meta");
+					PluginImporter plugin = AssetImporter.GetAtPath(Aar2022PathDest) as PluginImporter;
+					if (plugin != null)
+						plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
+					AssetDatabase.Refresh();
+#else
+					if (!File.Exists(Aar2017PathDest))
+						File.Copy(Aar2017PathSrc, Aar2017PathDest, false);
+					if (File.Exists(Aar2022PathDest))
+						File.Delete(Aar2022PathDest);
+					if (File.Exists(Aar2022PathDest + ".meta"))
+						File.Delete(Aar2022PathDest + ".meta");
+					PluginImporter plugin = AssetImporter.GetAtPath(Aar2017PathDest) as PluginImporter;
+					if (plugin != null)
+						plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
+					AssetDatabase.Refresh();
+#endif
+				}
+			}
         }
 
         private class CustomPostprocessor : IPostprocessBuildWithReport
@@ -359,46 +523,66 @@ namespace Wave.XR.BuildCheck
 					if (!isAndroidManifestPathDestExisted) // not to delete existed AndroidManifest.xml
 						DelAndroidManifest();
 					File.Delete(ForceBuildWVR);
+#if UNITY_2022_1_OR_NEWER
+					if (File.Exists(Aar2022PathDest))
+						File.Delete(Aar2022PathDest);
+					if (File.Exists(Aar2022PathDest + ".meta"))
+						File.Delete(Aar2022PathDest + ".meta");
+#else
+					if (File.Exists(Aar2017PathDest))
+						File.Delete(Aar2017PathDest);
+					if (File.Exists(Aar2017PathDest + ".meta"))
+						File.Delete(Aar2017PathDest + ".meta");
+#endif
 				}
 				else if (report.summary.platform == BuildTarget.Android && CheckIsBuildingWave())
                 {
 					if (!isAndroidManifestPathDestExisted) // not to delete existed AndroidManifest.xml
 						DelAndroidManifest();
-                }
-            }
+#if UNITY_2022_1_OR_NEWER
+					if (File.Exists(Aar2022PathDest))
+						File.Delete(Aar2022PathDest);
+					if (File.Exists(Aar2022PathDest + ".meta"))
+						File.Delete(Aar2022PathDest + ".meta");
+#else
+					if (File.Exists(Aar2017PathDest))
+						File.Delete(Aar2017PathDest);
+					if (File.Exists(Aar2017PathDest + ".meta"))
+						File.Delete(Aar2017PathDest + ".meta");
+#endif
+				}
+				AssetDatabase.Refresh();
+			}
         }
-    }
+	}
 
-	[InitializeOnLoad]
+	[Obsolete("CheckIfHandTrackingEnabled is obsolete. Please use WaveXRSettings EnableNaturalHand instead", false)]
 	public static class CheckIfHandTrackingEnabled
 	{
 		internal const string MENU_NAME = "Wave/Hand Tracking/Enable Hand Tracking";
 
-		private static bool enabled_;
+		private static bool enabled_ = false;
 		static CheckIfHandTrackingEnabled()
 		{
-			CheckIfHandTrackingEnabled.enabled_ = EditorPrefs.GetBool(CheckIfHandTrackingEnabled.MENU_NAME, false);
-
-			/// Delaying until first editor tick so that the menu
-			/// will be populated before setting check state, and
-			/// re-apply correct action
-			EditorApplication.delayCall += () =>
+			WaveXRSettings settings = null;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
 			{
-				PerformAction(CheckIfHandTrackingEnabled.enabled_);
-			};
+				CheckIfHandTrackingEnabled.enabled_ = settings.EnableNaturalHand;
+			}
+
+			EditorPrefs.SetBool(CheckIfHandTrackingEnabled.MENU_NAME, CheckIfHandTrackingEnabled.enabled_);
 		}
 
-		[MenuItem(CheckIfHandTrackingEnabled.MENU_NAME, priority = 601)]
-		private static void ToggleAction()
-		{
-			/// Toggling action
-			PerformAction(!CheckIfHandTrackingEnabled.enabled_);
-		}
-
+		[Obsolete("CheckIfHandTrackingEnabled is obsolete. Please use WaveXRSettings EnableNaturalHand instead", false)]
 		public static void PerformAction(bool enabled)
 		{
-			/// Set checkmark on menu item
-			Menu.SetChecked(CheckIfHandTrackingEnabled.MENU_NAME, enabled);
+			WaveXRSettings settings = null;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+			{
+				settings.EnableNaturalHand = enabled;
+			}
 			if (enabled)
 				CustomBuildProcessor.AddHandtrackingAndroidManifest();
 			/// Saving editor state
@@ -407,10 +591,9 @@ namespace Wave.XR.BuildCheck
 			CheckIfHandTrackingEnabled.enabled_ = enabled;
 		}
 
-		[MenuItem(CheckIfHandTrackingEnabled.MENU_NAME, validate = true, priority = 601)]
+		[Obsolete("CheckIfHandTrackingEnabled is obsolete. Please use WaveXRSettings EnableNaturalHand instead", false)]
 		public static bool ValidateEnabled()
 		{
-			Menu.SetChecked(CheckIfHandTrackingEnabled.MENU_NAME, enabled_);
 			return true;
 		}
 	}
@@ -503,6 +686,98 @@ namespace Wave.XR.BuildCheck
 		public static bool ValidateEnabled()
 		{
 			Menu.SetChecked(CheckIfSimultaneousInteractionEnabled.MENU_NAME, enabled_);
+			return true;
+		}
+	}
+
+	[InitializeOnLoad]
+	public static class CheckIfEyeTrackingEnabled
+	{
+		internal const string MENU_NAME = "Wave/Eye/Enable Eye Tracking";
+
+		private static bool enabled_;
+		static CheckIfEyeTrackingEnabled()
+		{
+			CheckIfEyeTrackingEnabled.enabled_ = EditorPrefs.GetBool(CheckIfEyeTrackingEnabled.MENU_NAME, false);
+
+			/// Delaying until first editor tick so that the menu
+			/// will be populated before setting check state, and
+			/// re-apply correct action
+			EditorApplication.delayCall += () =>
+			{
+				PerformAction(CheckIfEyeTrackingEnabled.enabled_);
+			};
+		}
+
+		[MenuItem(CheckIfEyeTrackingEnabled.MENU_NAME, priority = 604)]
+		private static void ToggleAction()
+		{
+			/// Toggling action
+			PerformAction(!CheckIfEyeTrackingEnabled.enabled_);
+		}
+
+		public static void PerformAction(bool enabled)
+		{
+			/// Set checkmark on menu item
+			Menu.SetChecked(CheckIfEyeTrackingEnabled.MENU_NAME, enabled);
+			if (enabled)
+				CustomBuildProcessor.AddEyeTrackingAndroidManifest();
+			/// Saving editor state
+			EditorPrefs.SetBool(CheckIfEyeTrackingEnabled.MENU_NAME, enabled);
+
+			CheckIfEyeTrackingEnabled.enabled_ = enabled;
+		}
+
+		[MenuItem(CheckIfEyeTrackingEnabled.MENU_NAME, validate = true, priority = 604)]
+		public static bool ValidateEnabled()
+		{
+			Menu.SetChecked(CheckIfEyeTrackingEnabled.MENU_NAME, enabled_);
+			return true;
+		}
+	}
+
+	[InitializeOnLoad]
+	public static class CheckIfLipExpressionEnabled
+	{
+		internal const string MENU_NAME = "Wave/Lip/Enable Lip Expression";
+
+		private static bool enabled_;
+		static CheckIfLipExpressionEnabled()
+		{
+			CheckIfLipExpressionEnabled.enabled_ = EditorPrefs.GetBool(CheckIfLipExpressionEnabled.MENU_NAME, false);
+
+			/// Delaying until first editor tick so that the menu
+			/// will be populated before setting check state, and
+			/// re-apply correct action
+			EditorApplication.delayCall += () =>
+			{
+				PerformAction(CheckIfLipExpressionEnabled.enabled_);
+			};
+		}
+
+		[MenuItem(CheckIfLipExpressionEnabled.MENU_NAME, priority = 605)]
+		private static void ToggleAction()
+		{
+			/// Toggling action
+			PerformAction(!CheckIfLipExpressionEnabled.enabled_);
+		}
+
+		public static void PerformAction(bool enabled)
+		{
+			/// Set checkmark on menu item
+			Menu.SetChecked(CheckIfLipExpressionEnabled.MENU_NAME, enabled);
+			if (enabled)
+				CustomBuildProcessor.AddLipExpressionAndroidManifest();
+			/// Saving editor state
+			EditorPrefs.SetBool(CheckIfLipExpressionEnabled.MENU_NAME, enabled);
+
+			CheckIfLipExpressionEnabled.enabled_ = enabled;
+		}
+
+		[MenuItem(CheckIfLipExpressionEnabled.MENU_NAME, validate = true, priority = 605)]
+		public static bool ValidateEnabled()
+		{
+			Menu.SetChecked(CheckIfLipExpressionEnabled.MENU_NAME, enabled_);
 			return true;
 		}
 	}

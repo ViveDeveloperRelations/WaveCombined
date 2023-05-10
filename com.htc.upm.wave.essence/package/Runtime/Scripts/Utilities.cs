@@ -418,7 +418,9 @@ namespace Wave.Essence
 			return false;
 		}
 
+#pragma warning disable
 		static HapticCapabilities m_HapticCaps = new HapticCapabilities();
+#pragma warning enable
 		public static bool SendHapticImpulse(XR_Device device, float amplitude, float duration, bool adaptiveHanded = false)
 		{
 			device = GetAdaptiveDevice(device, adaptiveHanded);
@@ -690,6 +692,97 @@ namespace Wave.Essence
 			return InputDeviceControl.IsUserPresence();
 		}
 	} // class WXRDevice
+
+	public static class NotifyDevice
+	{
+		const string LOG_TAG = "Wave.Essence.NotifyDevice";
+		static void DEBUG(string msg)
+		{
+			if (Log.EnableDebugLog)
+				Log.d(LOG_TAG, msg, true);
+		}
+		static void ERROR(string msg) { Log.e(LOG_TAG, msg, true); }
+
+		const UInt32 MAX_DATA_LENGTH = 64;
+		static void AssertLength(ref UInt32 length)
+		{
+			length = length > MAX_DATA_LENGTH ? MAX_DATA_LENGTH : length;
+		}
+
+		static Dictionary<WVR_DeviceType, UInt32> s_Results = new Dictionary<WVR_DeviceType, UInt32>()
+		{
+			{ WVR_DeviceType.WVR_DeviceType_HMD, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_Controller_Right, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_Controller_Left, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_Camera, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_EyeTracking, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_HandGesture_Right, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_HandGesture_Left, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_NaturalHand_Right, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_NaturalHand_Left, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_ElectronicHand_Right, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_ElectronicHand_Left, 0 },
+			{ WVR_DeviceType.WVR_DeviceType_Tracker, 0 },
+		};
+
+		public static WVR_Result Start(WVR_DeviceType type, UInt32 unBufferSize = MAX_DATA_LENGTH)
+		{
+			if (!s_Results.ContainsKey(type)) { return WVR_Result.WVR_Error_InvalidArgument; }
+			if (unBufferSize <= 0) { return WVR_Result.WVR_Error_InvalidArgument; }
+			if (!WXRDevice.IsConnected(type)) { return WVR_Result.WVR_Error_DeviceDisconnected; }
+			if (s_Results[type] > 0) { return WVR_Result.WVR_Success; }
+
+			AssertLength(ref unBufferSize);
+
+			var result = Interop.WVR_StartNotifyDeviceInfo(type, unBufferSize);
+			DEBUG("Start() " + type + ", " + unBufferSize + ", result: " + result);
+
+			if (result == WVR_Result.WVR_Success) { s_Results[type] = unBufferSize; }
+			return result;
+		}
+		public static void Stop(WVR_DeviceType type)
+		{
+			if (s_Results.ContainsKey(type) && s_Results[type] > 0)
+			{
+				Interop.WVR_StopNotifyDeviceInfo(type);
+				s_Results[type] = 0;
+			}
+		}
+		const string PREFIX = "OUTDATA-";
+		public static void Send(WVR_DeviceType type, string dataValue)
+		{
+			if (!s_Results.ContainsKey(type))
+			{
+				ERROR("Send() " + type + " is invalid.");
+				return;
+			}
+			if (s_Results[type] <= 0)
+			{
+				ERROR("Send() " + type + " is not started.");
+				return;
+			}
+			if (dataValue == null || dataValue.Length <= 0)
+			{
+				ERROR("Send() invalid data.");
+				return;
+			}
+
+			uint type_id = ((uint)type);
+			string info = PREFIX + type_id + dataValue;
+
+			if (info.Length > s_Results[type])
+			{
+				ERROR("Send() info " + info + " length " + info.Length + " > buffer size " + s_Results[type]);
+				return;
+			}
+
+			DEBUG("Send() " + type + ", " + info);
+
+			IntPtr ptrParameterName = Marshal.StringToHGlobalAnsi(info);
+			Interop.WVR_UpdateNotifyDeviceInfo(type, ptrParameterName);
+			Marshal.FreeHGlobal(ptrParameterName);
+		}
+	}
 
 	[Obsolete("Deprecated.")]
 	public static class ApplicationScene

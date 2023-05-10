@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Wave.Native;
+using Wave.Essence.Eye;
 
 namespace Wave.Essence.Raycast
 {
@@ -39,6 +40,10 @@ namespace Wave.Essence.Raycast
 		[SerializeField]
 		private LayerMask m_PhysicsEventMask = ~0;
 		public LayerMask PhysicsEventMask { get { return m_PhysicsEventMask; } set { m_PhysicsEventMask = value; } }
+
+		[SerializeField]
+		private List<string> s_GraphicTags = new List<string>();
+		public List<string> GraphicTags { get { return s_GraphicTags; } set { s_GraphicTags = value; } }
 		#endregion
 
 		private Camera m_Camera = null;
@@ -61,9 +66,6 @@ namespace Wave.Essence.Raycast
 				var eventSystemObject = new GameObject("EventSystem");
 				eventSystemObject.AddComponent<EventSystem>();
 			}
-
-			/// 3. Use the event camera and EventSystem to reset PointerEventData.
-			ResetEventData();
 		}
 		protected override void OnDisable()
 		{
@@ -76,11 +78,14 @@ namespace Wave.Essence.Raycast
 		{
 			if (!m_Interactable) return;
 
+			/// Use the event camera and EventSystem to reset PointerEventData.
+			ResetEventData();
+
 			/// Update the raycast results
 			resultAppendList.Clear();
-			Raycast(eventData, resultAppendList);
+			Raycast(pointerData, resultAppendList);
 
-			eventData.pointerCurrentRaycast = currentRaycastResult;
+			pointerData.pointerCurrentRaycast = currentRaycastResult;
 
 			/// Send events
 			HandleRaycastEvent();
@@ -160,25 +165,52 @@ namespace Wave.Essence.Raycast
 #endif
 
 		#region Raycast
-		private PointerEventData eventData = null;
-		private Vector2 eventDataPosition = Vector2.zero;
+		protected virtual bool UseEyeData(out Vector3 direction, out EyeManager.EyeSpace space)
+		{
+			direction = Vector3.forward;
+			space = EyeManager.EyeSpace.Local;
+			return false;
+		}
+		protected PointerEventData pointerData = null;
+		protected Vector3 pointerLocalOffset = Vector3.forward;
+		private Vector3 physicsWorldPosition = Vector3.zero;
+		private Vector2 graphicScreenPosition = Vector2.zero;
+		private void UpdatePointerDataPosition()
+		{
+			/// 1. Calculate the pointer offset in "local" space.
+			pointerLocalOffset = Vector3.forward;
+			if (UseEyeData(out Vector3 direction, out EyeManager.EyeSpace space))
+			{
+				pointerLocalOffset = direction;
+
+				// Revise the offset from World space to Local space.
+				if (space == EyeManager.EyeSpace.World)
+					pointerLocalOffset = Quaternion.Inverse(transform.rotation) * pointerLocalOffset;
+			}
+
+			/// 2. Calculate the pointer position in "world" space.
+			Vector3 rotated_offset = transform.rotation * pointerLocalOffset;
+			physicsWorldPosition = transform.position + rotated_offset;
+			graphicScreenPosition = m_Camera.WorldToScreenPoint(physicsWorldPosition);
+			// The graphicScreenPosition.x should be equivalent to (0.5f * Screen.width);
+			// The graphicScreenPosition.y should be equivalent to (0.5f * Screen.height);
+		}
 		private void ResetEventData()
 		{
-			eventDataPosition.x = 0.5f * m_Camera.pixelWidth;
-			eventDataPosition.y = 0.5f * m_Camera.pixelHeight;
-			if (eventData == null) { eventData = new RaycastEventData(EventSystem.current, gameObject); }
-			eventData.position = eventDataPosition;
+			if (pointerData == null) { pointerData = new RaycastEventData(EventSystem.current, gameObject); }
+
+			UpdatePointerDataPosition();
+			pointerData.position = graphicScreenPosition;
 		}
 		List<RaycastResult> resultAppendList = new List<RaycastResult>();
-		readonly Vector2 kScreenCenter = new Vector2(0.5f * Screen.width, 0.5f * Screen.height);
-		protected RaycastResult currentRaycastResult = default;
+		private RaycastResult currentRaycastResult = default;
 		protected GameObject raycastObject = null;
 		protected List<GameObject> s_raycastObjects = new List<GameObject>();
 		protected GameObject raycastObjectEx = null;
 		protected List<GameObject> s_raycastObjectsEx = new List<GameObject>();
 		/**
 		 * Call to
-		 * GraphicRaycast(Canvas canvas, Camera eventCamera, Vector2 pointerPosition, List<RaycastResult> resultAppendList)
+		 * GraphicRaycast(Canvas canvas, Camera eventCamera, Vector2 screenPosition, List<RaycastResult> resultAppendList)
 		 * PhysicsRaycast(Ray ray, Camera eventCamera, List<RaycastResult> resultAppendList)
 		 **/
 		public override void Raycast(PointerEventData eventData, List<RaycastResult> resultAppendList)
@@ -188,14 +220,14 @@ namespace Wave.Essence.Raycast
 			s_raycastObjects.Clear();
 
 			// --------------- Graphic Raycast ---------------
-			Canvas[] canvases = FindObjectsOfType<Canvas>();
+			Canvas[] canvases = FindObjectsOfType<Canvas>();	// note: GC.Alloc
 			for (int i = 0; i < canvases.Length; i++)
 			{
-				GraphicRaycast(canvases[i], m_Camera, kScreenCenter, resultAppendList);
+				GraphicRaycast(canvases[i], m_Camera, eventData.position, resultAppendList);
 			}
 
 			// --------------- Physics Raycast ---------------
-			Ray ray = new Ray(transform.position, transform.forward);
+			Ray ray = new Ray(transform.position, (physicsWorldPosition - transform.position));
 			PhysicsRaycast(ray, m_Camera, resultAppendList);
 
 			currentRaycastResult = GetFirstRaycastResult(resultAppendList);
@@ -220,7 +252,7 @@ namespace Wave.Essence.Raycast
 		}
 
 		Ray ray = new Ray();
-		protected virtual void GraphicRaycast(Canvas canvas, Camera eventCamera, Vector2 pointerPosition, List<RaycastResult> resultAppendList)
+		protected virtual void GraphicRaycast(Canvas canvas, Camera eventCamera, Vector2 screenPosition, List<RaycastResult> resultAppendList)
 		{
 			if (canvas == null)
 				return;
@@ -238,21 +270,23 @@ namespace Wave.Essence.Raycast
 				displayIndex = currentEventCamera.targetDisplay;
 
 			if (currentEventCamera != null)
-				ray = currentEventCamera.ScreenPointToRay(pointerPosition);
+				ray = currentEventCamera.ScreenPointToRay(screenPosition);
 
 			// Necessary for the event system
 			for (int i = 0; i < foundGraphics.Count; ++i)
 			{
 				Graphic graphic = foundGraphics[i];
 
+				if (s_GraphicTags != null && s_GraphicTags.Count != 0 && !s_GraphicTags.Contains(graphic.gameObject.tag)) { continue; }
+
 				// -1 means it hasn't been processed by the canvas, which means it isn't actually drawn
 				if (!graphic.raycastTarget || graphic.canvasRenderer.cull || graphic.depth == -1) { continue; }
 
-				if (!RectTransformUtility.RectangleContainsScreenPoint(graphic.rectTransform, pointerPosition, currentEventCamera)) { continue; }
+				if (!RectTransformUtility.RectangleContainsScreenPoint(graphic.rectTransform, screenPosition, currentEventCamera)) { continue; }
 
 				if (currentEventCamera != null && currentEventCamera.WorldToScreenPoint(graphic.rectTransform.position).z > currentEventCamera.farClipPlane) { continue; }
 
-				if (graphic.Raycast(pointerPosition, currentEventCamera))
+				if (graphic.Raycast(screenPosition, currentEventCamera))
 				{
 					var go = graphic.gameObject;
 					bool appendGraphic = true;
@@ -296,7 +330,7 @@ namespace Wave.Essence.Raycast
 							gameObject = go,
 							module = this,
 							distance = distance,
-							screenPosition = pointerPosition,
+							screenPosition = screenPosition,
 							displayIndex = displayIndex,
 							index = resultAppendList.Count,
 							depth = graphic.depth,
@@ -355,7 +389,7 @@ namespace Wave.Essence.Raycast
 				{
 					if (exitObjects[i] != null && !enterObjects.Contains(exitObjects[i]))
 					{
-						ExecuteEvents.Execute(exitObjects[i], eventData, ExecuteEvents.pointerExitHandler);
+						ExecuteEvents.Execute(exitObjects[i], pointerData, ExecuteEvents.pointerExitHandler);
 						DEBUG("ExitEnterHandler() Exit: " + exitObjects[i]);
 					}
 				}
@@ -367,8 +401,8 @@ namespace Wave.Essence.Raycast
 				{
 					if (enterObjects[i] != null && !exitObjects.Contains(enterObjects[i]))
 					{
-						ExecuteEvents.Execute(enterObjects[i], eventData, ExecuteEvents.pointerEnterHandler);
-						DEBUG("ExitEnterHandler() Enter: " + enterObjects[i] + ", camera: " + eventData.enterEventCamera);
+						ExecuteEvents.Execute(enterObjects[i], pointerData, ExecuteEvents.pointerEnterHandler);
+						DEBUG("ExitEnterHandler() Enter: " + enterObjects[i] + ", camera: " + pointerData.enterEventCamera);
 					}
 				}
 			}
@@ -380,7 +414,7 @@ namespace Wave.Essence.Raycast
 			if (raycastObject != null && (raycastObject == raycastObjectEx))
 			{
 				if (Log.gpl.Print) { DEBUG("HoverHandler() Hover: " + raycastObject.name); }
-				ExecuteEvents.ExecuteHierarchy(raycastObject, eventData, RaycastEvents.pointerHoverHandler);
+				ExecuteEvents.ExecuteHierarchy(raycastObject, pointerData, RaycastEvents.pointerHoverHandler);
 			}
 		}
 		private void DownHandler()
@@ -388,40 +422,40 @@ namespace Wave.Essence.Raycast
 			DEBUG("DownHandler()");
 			if (raycastObject == null) { return; }
 
-			eventData.pressPosition = eventData.position;
-			eventData.pointerPressRaycast = eventData.pointerCurrentRaycast;
-			eventData.pointerPress =
-				ExecuteEvents.ExecuteHierarchy(raycastObject, eventData, ExecuteEvents.pointerDownHandler)
+			pointerData.pressPosition = pointerData.position;
+			pointerData.pointerPressRaycast = pointerData.pointerCurrentRaycast;
+			pointerData.pointerPress =
+				ExecuteEvents.ExecuteHierarchy(raycastObject, pointerData, ExecuteEvents.pointerDownHandler)
 				?? ExecuteEvents.GetEventHandler<IPointerClickHandler>(raycastObject);
 
-			DEBUG("DownHandler() Down: " + eventData.pointerPress + ", raycastObject: " + raycastObject.name);
+			DEBUG("DownHandler() Down: " + pointerData.pointerPress + ", raycastObject: " + raycastObject.name);
 
 			// If Drag Handler exists, send initializePotentialDrag event.
-			eventData.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(raycastObject);
-			if (eventData.pointerDrag != null)
+			pointerData.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(raycastObject);
+			if (pointerData.pointerDrag != null)
 			{
-				DEBUG("DownHandler() Send initializePotentialDrag to " + eventData.pointerDrag + ", current GameObject is " + raycastObject);
-				ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.initializePotentialDrag);
+				DEBUG("DownHandler() Send initializePotentialDrag to " + pointerData.pointerDrag + ", current GameObject is " + raycastObject);
+				ExecuteEvents.Execute(pointerData.pointerDrag, pointerData, ExecuteEvents.initializePotentialDrag);
 			}
 
 			// press happened (even not handled) object.
-			eventData.rawPointerPress = raycastObject;
+			pointerData.rawPointerPress = raycastObject;
 			// allow to send Pointer Click event
-			eventData.eligibleForClick = true;
+			pointerData.eligibleForClick = true;
 			// reset the screen position of press, can be used to estimate move distance
-			eventData.delta = Vector2.zero;
+			pointerData.delta = Vector2.zero;
 			// current Down, reset drag state
-			eventData.dragging = false;
-			eventData.useDragThreshold = true;
+			pointerData.dragging = false;
+			pointerData.useDragThreshold = true;
 			// record the count of Pointer Click should be processed, clean when Click event is sent.
-			eventData.clickCount = 1;
+			pointerData.clickCount = 1;
 			// set clickTime to current time of Pointer Down instead of Pointer Click.
 			// since Down & Up event should not be sent too closely. (< kClickInterval)
-			eventData.clickTime = Time.unscaledTime;
+			pointerData.clickTime = Time.unscaledTime;
 		}
 		private void UpHandler()
 		{
-			if (!eventData.eligibleForClick && !eventData.dragging)
+			if (!pointerData.eligibleForClick && !pointerData.dragging)
 			{
 				// 1. no pending click
 				// 2. no dragging
@@ -429,79 +463,79 @@ namespace Wave.Essence.Raycast
 				return;
 			}
 
-			// raycastObject may be different with eventData.pointerDrag so we don't check null
+			// raycastObject may be different with pointerData.pointerDrag so we don't check null
 
-			if (eventData.pointerPress != null)
+			if (pointerData.pointerPress != null)
 			{
 				// In the frame of button is pressed -> unpressed, send Pointer Up
-				DEBUG("UpHandler() Send Pointer Up to " + eventData.pointerPress);
-				ExecuteEvents.Execute(eventData.pointerPress, eventData, ExecuteEvents.pointerUpHandler);
+				DEBUG("UpHandler() Send Pointer Up to " + pointerData.pointerPress);
+				ExecuteEvents.Execute(pointerData.pointerPress, pointerData, ExecuteEvents.pointerUpHandler);
 			}
 
-			if (eventData.eligibleForClick)
+			if (pointerData.eligibleForClick)
 			{
 				GameObject objectToClick = ExecuteEvents.GetEventHandler<IPointerClickHandler>(raycastObject);
 				if (objectToClick != null)
 				{
-					if (objectToClick == eventData.pointerPress)
+					if (objectToClick == pointerData.pointerPress)
 					{
 						// In the frame of button from being pressed to unpressed, send Pointer Click if Click is pending.
-						DEBUG("UpHandler() Send Pointer Click to " + eventData.pointerPress);
-						ExecuteEvents.Execute(eventData.pointerPress, eventData, ExecuteEvents.pointerClickHandler);
+						DEBUG("UpHandler() Send Pointer Click to " + pointerData.pointerPress);
+						ExecuteEvents.Execute(pointerData.pointerPress, pointerData, ExecuteEvents.pointerClickHandler);
 					}
 					else
 					{
-						DEBUG("UpHandler() pointer down object " + eventData.pointerPress + " is different with click object " + objectToClick);
+						DEBUG("UpHandler() pointer down object " + pointerData.pointerPress + " is different with click object " + objectToClick);
 					}
 				}
 				else
 				{
-					if (eventData.dragging)
+					if (pointerData.dragging)
 					{
 						GameObject _pointerDrop = ExecuteEvents.GetEventHandler<IDropHandler>(raycastObject);
-						if (_pointerDrop == eventData.pointerDrag)
+						if (_pointerDrop == pointerData.pointerDrag)
 						{
 							// In next frame of button from being pressed to unpressed, send Drop and EndDrag if dragging.
-							DEBUG("UpHandler() Send Pointer Drop to " + eventData.pointerDrag);
-							ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.dropHandler);
+							DEBUG("UpHandler() Send Pointer Drop to " + pointerData.pointerDrag);
+							ExecuteEvents.Execute(pointerData.pointerDrag, pointerData, ExecuteEvents.dropHandler);
 						}
-						DEBUG("UpHandler() Send Pointer endDrag to " + eventData.pointerDrag);
-						ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.endDragHandler);
+						DEBUG("UpHandler() Send Pointer endDrag to " + pointerData.pointerDrag);
+						ExecuteEvents.Execute(pointerData.pointerDrag, pointerData, ExecuteEvents.endDragHandler);
 
-						eventData.pointerDrag = null;
-						eventData.dragging = false;
+						pointerData.pointerDrag = null;
+						pointerData.dragging = false;
 					}
 				}
 			}
 
 			// Down of pending Click object.
-			eventData.pointerPress = null;
+			pointerData.pointerPress = null;
 			// press happened (even not handled) object.
-			eventData.rawPointerPress = null;
+			pointerData.rawPointerPress = null;
 			// clear pending state.
-			eventData.eligibleForClick = false;
+			pointerData.eligibleForClick = false;
 			// Click is processed, clearcount.
-			eventData.clickCount = 0;
+			pointerData.clickCount = 0;
 			// Up is processed thus clear the time limitation of Down event.
-			eventData.clickTime = 0;
+			pointerData.clickTime = 0;
 		}
 
 		// After selecting an object over this duration, the drag action will be taken.
 		const float kTimeToDrag = 0.2f;
 		private void DragHandler()
 		{
-			if (Time.unscaledTime - eventData.clickTime < kTimeToDrag) { return; }
-			if (eventData.pointerDrag == null) { return; }
+			if (Time.unscaledTime - pointerData.clickTime < kTimeToDrag) { return; }
+			if (pointerData.pointerDrag == null) { return; }
 
-			if (!eventData.dragging)
+			if (!pointerData.dragging)
 			{
-				DEBUG("DragHandler() Send BeginDrag to " + eventData.pointerDrag);
-				ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.beginDragHandler);
-				eventData.dragging = true;
+				DEBUG("DragHandler() Send BeginDrag to " + pointerData.pointerDrag);
+				ExecuteEvents.Execute(pointerData.pointerDrag, pointerData, ExecuteEvents.beginDragHandler);
+				pointerData.dragging = true;
 			}
 			else
 			{
-				ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.dragHandler);
+				ExecuteEvents.Execute(pointerData.pointerDrag, pointerData, ExecuteEvents.dragHandler);
 			}
 		}
 
@@ -510,7 +544,7 @@ namespace Wave.Essence.Raycast
 			if (raycastObject == null) { return; }
 
 			DEBUG("SubmitHandler() Submit: " + raycastObject.name);
-			ExecuteEvents.ExecuteHierarchy(raycastObject, eventData, ExecuteEvents.submitHandler);
+			ExecuteEvents.ExecuteHierarchy(raycastObject, pointerData, ExecuteEvents.submitHandler);
 		}
 
 		// Do NOT allow event DOWN being sent multiple times during kClickInterval
@@ -535,11 +569,11 @@ namespace Wave.Essence.Raycast
 				// Hold means to Drag.
 				DragHandler();
 			}
-			else if (Time.unscaledTime - eventData.clickTime < kClickInterval)
+			else if (Time.unscaledTime - pointerData.clickTime < kClickInterval)
 			{
 				// Delay new events until kClickInterval has passed.
 			}
-			else if (down && !eventData.eligibleForClick)
+			else if (down && !pointerData.eligibleForClick)
 			{
 				// 1. Not Down -> Down
 				// 2. No pending Click should be procced.

@@ -307,6 +307,36 @@ namespace Wave.Native
 		}
 		#endregion
 
+		#region wvr_notifydeviceinfo.h
+		public override WVR_Result StartNotifyDeviceInfo(WVR_DeviceType type, UInt32 unBufferSize)
+		{
+			return system.StartNotifyDeviceInfo(type, unBufferSize);
+		}
+		public override void StopNotifyDeviceInfo(WVR_DeviceType type)
+		{
+			system.StopNotifyDeviceInfo(type);
+		}
+		public override void UpdateNotifyDeviceInfo(WVR_DeviceType type, IntPtr dataValue)
+		{
+			system.UpdateNotifyDeviceInfo(type, dataValue);
+		}
+		#endregion
+
+		#region Lip Expression
+		public override WVR_Result StartLipExp()
+		{
+			return system.StartLipExp();
+		}
+		public override WVR_Result GetLipExpData([In, Out] float[] value)
+		{
+			return system.GetLipExpData(value);
+		}
+		public override void StopLipExp()
+		{
+			system.StopLipExp();
+		}
+		#endregion
+
 		public override bool IsDeviceConnected(WVR_DeviceType type)
 		{
 			return system.IsDeviceConnected(type);

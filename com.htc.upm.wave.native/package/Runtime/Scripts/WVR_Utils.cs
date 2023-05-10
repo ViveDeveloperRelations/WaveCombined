@@ -75,6 +75,14 @@ namespace Wave.Native
 			unity_vec.y = gl_vec.v1;
 			unity_vec.z = -gl_vec.v2;
 		}
+		public static void Vector3NormalizeZ(ref Vector3 vec)
+		{
+			if (vec.z == 0) { return; }
+			float normal = vec.z < 0 ? -vec.z : vec.z;
+			vec.x /= normal;
+			vec.y /= normal;
+			vec.z /= normal;
+		}
 
 		public static Quaternion GetQuaternionFromGL(Matrix4x4 matrix)
 		{

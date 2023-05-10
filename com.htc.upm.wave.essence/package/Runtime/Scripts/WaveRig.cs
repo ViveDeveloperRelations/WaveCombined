@@ -29,12 +29,16 @@ namespace Wave.Essence
 		private GameObject m_CameraOffset = null;
 		public GameObject CameraOffset { get { return m_CameraOffset; } set { m_CameraOffset = value; } }
 
+#pragma warning disable
 		private Camera m_Camera = null;
+#pragma warning enable
 		[SerializeField]
 		private GameObject m_CameraObject = null;
 		public GameObject CameraObject { get { return m_CameraObject; } set { m_CameraObject = value; } }
 
+#pragma warning disable
 		private TrackingOriginModeFlags m_TrackingOriginEx = TrackingOriginModeFlags.Device;
+#pragma warning enable
 		[SerializeField]
 		private TrackingOriginModeFlags m_TrackingOrigin = TrackingOriginModeFlags.Device;
 		public TrackingOriginModeFlags TrackingOrigin { get { return m_TrackingOrigin; } set { m_TrackingOrigin = value; } }
