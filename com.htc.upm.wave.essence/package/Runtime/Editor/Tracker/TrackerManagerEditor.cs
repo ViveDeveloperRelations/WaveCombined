@@ -34,10 +34,10 @@ namespace Wave.Essence.Tracker.Editor
 			UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
 		}
 
-		SerializedProperty m_UseXRDevice, m_InitialStartTracker;
+		SerializedProperty m_InitialStartTracker/*, m_UseXRDevice*/;
 		private void OnEnable()
 		{
-			m_UseXRDevice = serializedObject.FindProperty("m_UseXRDevice");
+			//m_UseXRDevice = serializedObject.FindProperty("m_UseXRDevice");
 			m_InitialStartTracker = serializedObject.FindProperty("m_InitialStartTracker");
 		}
 
@@ -52,11 +52,11 @@ namespace Wave.Essence.Tracker.Editor
 				MessageType.Info);
 			EditorGUILayout.PropertyField(m_InitialStartTracker);
 
-			GUILayout.Space(5);
+			/*GUILayout.Space(5);
 			EditorGUILayout.HelpBox(
 				"Retrieve the Tracker data from UnityEngine.XR.InputDevice.",
 				MessageType.Info);
-			EditorGUILayout.PropertyField(m_UseXRDevice);
+			EditorGUILayout.PropertyField(m_UseXRDevice);*/
 
 			serializedObject.ApplyModifiedProperties();
 

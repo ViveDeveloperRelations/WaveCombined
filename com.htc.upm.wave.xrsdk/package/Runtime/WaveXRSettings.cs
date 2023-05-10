@@ -176,6 +176,9 @@ namespace Wave.XR.Settings
         [SerializeField, Tooltip("Select to enable auto fallback when using Multi-Layer (i.e. Layers that exceed the maximum layer count will be rendered in-game).")]
         private bool enableAutoFallbackForMultiLayer = true;
 
+        [SerializeField, Tooltip("Allow this plugin to generate a spectator camera to produce images for Screenshot, Recording, or Broadcast usages.  This camera will consume more performance when it is activated, but captured image will have better FOV result.")]
+        public bool allowSpectatorCamera = false;
+
         #region Tracker
         [SerializeField, Tooltip("Select to enable the Tracker feature when AP starts.")]
         public bool EnableTracker = false;
@@ -192,16 +195,21 @@ namespace Wave.XR.Settings
         public const string EnableElectronicHandText = "EnableElectronicHand";
         #endregion
 
+        #region Eye
+        // Expression
+        [SerializeField, Tooltip("Select to enable the Eye Expression feature when AP starts.")]
+        public bool EnableEyeExpression = false;
+        public const string EnableEyeExpressionText = "EnableEyeExpression";
+        // Tracking
+        [SerializeField, Tooltip("Select to enable the Eye Tracking feature when AP starts.")]
+        public bool EnableEyeTracking = false;
+        public const string EnableEyeTrackingText = "EnableEyeTracking";
+        #endregion
+
         #region Lip Expression
         [SerializeField, Tooltip("Select to enable the Lip Expression feature when AP starts.")]
         public bool EnableLipExpression = false;
         public const string EnableLipExpressionText = "EnableLipExpression";
-        #endregion
-
-        #region Eye Expression
-        [SerializeField, Tooltip("Select to enable the Eye Expression feature when AP starts.")]
-        public bool EnableEyeExpression = false;
-        public const string EnableEyeExpressionText = "EnableEyeExpression";
         #endregion
 
         public bool enableAutoFallbackForMultiLayerProperty

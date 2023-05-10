@@ -46,6 +46,8 @@ namespace Wave.Native
 		WVR_EventType_ArenaChanged                       = 1009,    /**< Notification arena changed. */
 		WVR_EventType_RenderingToBePaused                = 1010,
 		WVR_EventType_RenderingToBeResumed               = 1011,
+		WVR_EventType_SpectatingStarted                  = 1012,
+		WVR_EventType_SpectatingStopped                  = 1013,
 
 		WVR_EventType_DeviceConnected                    = 2000,    /**< @ref WVR_DeviceType connected. */
 		WVR_EventType_DeviceDisconnected                 = 2001,    /**< @ref WVR_DeviceType disconnected. */
@@ -479,7 +481,7 @@ namespace Wave.Native
         PMC
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct WVR_RenderInitParams_t
 	{
 		public WVR_GraphicsApiType graphicsApi;
@@ -1066,19 +1068,26 @@ namespace Wave.Native
 		WVR_Error_CameraNotAvailable             = 6,    /**< Camera was unavailable, cannot query camera related information. */
 		WVR_Error_CameraPermissionNotGranted     = 7,    /**< The Android camera permission was not granted yet. */
 		WVR_Error_DeviceDisconnected             = 8,    /**< The device is disconnected */
+		WVR_Error_TrackerDisconnected            = 9,    /**< The tracker is disconnected. */
 
 		WVR_Error_CtrlerModel_WrongDeviceType    = 100,  /**< Input wrong device type for asking controller model. */
 		WVR_Error_CtrlerModel_DeviceDisconnected = 101,  /**< The controller device you want to get its model is disconnected. */
 		WVR_Error_CtrlerModel_InvalidModel       = 102,  /**< We can't get model that can be use. */
 		WVR_Error_CtrlerModel_Unknown            = 103,  /**< Unknown error. */
-		WVR_Error_InvalidRenderModel			 = 110,
-		WVR_Error_CtrlerModel_NoAnimationData	 = 104,
+		WVR_Error_CtrlerModel_NoAnimationData    = 104,
+
+		WVR_Error_InvalidRenderModel             = 110,
 
 		WVR_Error_EyeTracking_NotInitial         = 200,  /**< The eye calibration procedure has not been initialized. */
 		WVR_Error_EyeTracking_NotWorking         = 201,  /**< The operation of eye tracking is not working. */
 
-		WVR_Error_HandTracking_FeatureNotRequested = 300, /**< The AndroidManifest.xml of this VR App does not request hand tracking feature.*/
-		WVR_Error_Tracker_FeatureNotRequested = 301, /**< The AndroidManifest.xml of this VR App does not request tracker feature.*/
+		WVR_Error_HandTracking_FeatureNotRequested  = 300, /**< The AndroidManifest.xml of this VR App does not request hand tracking feature.*/
+		WVR_Error_Tracker_FeatureNotRequested       = 301, /**< The AndroidManifest.xml of this VR App does not request tracker feature.*/
+		WVR_Error_EyeTracking_FeatureNotRequested   = 302, /**< The AndroidManifest.xml of this VR App does not request eye tracking feature.*/
+		WVR_Error_LipExpression_FeatureNotRequested = 303, /**< The AndroidManifest.xml of this VR App does not request lip expression feature.*/
+		WVR_Error_EyeExpression_FeatureNotRequested = 304, /**< The AndroidManifest.xml of this VR App does not request eye expression feature.*/
+
+		WVR_Error_Data_Invalid = 400   /**< Data is invalid or unavailabe at this moment, ex., visual occlusion. */
 	}
 
 
@@ -1522,6 +1531,138 @@ namespace Wave.Native
 	}
 	#endregion
 
+	#region Scene Perception
+	//Scene Perception enums
+	public enum WVR_ScenePerceptionTarget
+	{
+		WVR_ScenePerceptionTarget_2dPlane = 0,           /**< Specifies to get 2d plane data. */
+		WVR_ScenePerceptionTarget_3dObject = 1,           /**< Specifies to get 3d object data. */
+		WVR_ScenePerceptionTarget_SceneMesh = 2,           /**< Specifies to get scene meshes of surrounding environment. */
+		WVR_ScenePerceptionTarget_Max = 0x7FFFFFFF
+	}
+
+	public enum WVR_ScenePerceptionState
+	{
+		WVR_ScenePerceptionState_Empty = 0,
+		WVR_ScenePerceptionState_Observing = 1,
+		WVR_ScenePerceptionState_Paused = 2,
+		WVR_ScenePerceptionState_Completed = 3,
+		WVR_ScenePerceptionState_Max = 0x7FFFFFFF
+	}
+
+	public enum WVR_ScenePlaneType
+	{
+		WVR_ScenePlaneType_Unknown = 0,
+		WVR_ScenePlaneType_HorizontalUpwardFacing = 1,
+		WVR_ScenePlaneType_HorizontalDownwardFacing = 2,
+		WVR_ScenePlaneType_Vertical = 3,
+		WVR_ScenePlaneType_Max = 0x7FFFFFFF         // app sets WVR_ScenePlaneType_Max meaning no filer.
+	}
+
+	public enum WVR_ScenePlaneLabel
+	{
+		WVR_ScenePlaneLabel_Unknown = 0,
+		WVR_ScenePlaneLabel_Floor = 1,
+		WVR_ScenePlaneLabel_Ceiling = 2,
+		WVR_ScenePlaneLabel_Wall = 3,
+		WVR_ScenePlaneLabel_Desk = 4,
+		WVR_ScenePlaneLabel_Couch = 5,
+		WVR_ScenePlaneLabel_Door = 6,
+		WVR_ScenePlaneLabel_Window = 7,
+		WVR_ScenePlaneLabel_Stage = 8,
+		WVR_ScenePlaneLabel_Max = 0x7FFFFFFF        // app sets WVR_ScenePlaneLabel_Max meaning no filer.
+	}
+
+	public enum WVR_SceneMeshType
+	{
+		WVR_SceneMeshType_VisualMesh = 0,           /**< Specifies to get visualization meshes. */
+		WVR_SceneMeshType_ColliderMesh = 1,           /**< Specifies to get collider meshes. */
+		WVR_SceneMeshType_Max = 0x7FFFFFFF
+	}
+
+	public enum WVR_SpatialAnchorTrackingState
+	{
+		WVR_SpatialAnchorTrackingState_Tracking,
+		WVR_SpatialAnchorTrackingState_Paused,
+		WVR_SpatialAnchorTrackingState_Stopped
+	}
+
+	//Scene perception structs
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_ScenePlaneFilter
+	{
+		public WVR_ScenePlaneType planeType;
+		public WVR_ScenePlaneLabel planeLabel;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_Uuid
+	{
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+		public Byte[] data; //WVR_UUID_SIZE 16
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_SceneMesh
+	{
+		public UInt64 meshBufferId;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_Extent2Df
+	{
+		public float width;
+		public float height;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_ScenePlane
+	{
+		public WVR_Uuid uuid;
+		public WVR_Uuid parentUuid;
+		public UInt64 meshBufferId;
+		public WVR_Pose_t pose;
+		public WVR_Extent2Df extent;
+		public WVR_ScenePlaneType planeType;
+		public WVR_ScenePlaneLabel planeLabel;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_SceneMeshBuffer
+	{
+		public UInt32 vertexCapacityInput;
+		public UInt32 vertexCountOutput;
+		public IntPtr vertexBuffer;     //WVR_Vector3f*
+		public UInt32 indexCapacityInput;
+		public UInt32 indexCountOutput;
+		public IntPtr indexBuffer;			//uint32_t*
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_SpatialAnchorCreateInfo
+	{
+		public WVR_Pose_t pose;
+		public WVR_PoseOriginModel originModel;
+		public WVR_SpatialAnchorName anchorName;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_SpatialAnchorName
+	{
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+		public char[] name; //WVR_MAX_SPATIAL_ANCHOR_NAME_SIZE 256
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_SpatialAnchorState
+	{
+		public WVR_SpatialAnchorTrackingState trackingState;
+		public WVR_Pose_t pose;
+		public WVR_SpatialAnchorName anchorName;
+	}
+
+	#endregion
+
 	public enum WVR_SupportedFeature {
 		WVR_SupportedFeature_PassthroughImage   = 1 << 0,    /**< Passthrough image feature type */
 		WVR_SupportedFeature_PassthroughOverlay = 1 << 1,    /**< Passthrough overlay feature type */
@@ -1535,6 +1676,7 @@ namespace Wave.Native
 		WVR_SupportedFeature_EyeExp             = 1 << 10,   /**< Expression of Eye; Wide, Squeeze, Frown*/
 		WVR_SupportedFeature_LipExp             = 1 << 11,   /**< Expression of Lip; Jaw, Mouth, Cheek, Tongue*/
 		WVR_SupportedFeature_Tracker            = 1 << 16,   /**< Tracker feature type */
+		WVR_SupportedFeature_ScenePerception	= 1 << 17,   /**< Scene Perception feature type */
 	}
 
 	#region Controller Pose Mode
@@ -1546,6 +1688,11 @@ namespace Wave.Native
 		WVR_ControllerPoseMode_Handle	= 3, /**< Handle mode: Controller ray is parallel to the handle of controller. */
 	}
 	#endregion
+
+	public struct WVR_SpectatorState
+	{
+		public bool shouldRender;
+	}
 
 	public delegate void WVR_RequestCompleteCallback(List<WVR_RequestResult> results);
 	public delegate void WVR_RequestUsbCompleteCallback(bool result);
@@ -2049,6 +2196,70 @@ namespace Wave.Native
 		}
 		#endregion
 
+		#region Scene Perception
+
+		public static WVR_Result WVR_StartScene()
+		{
+			return WVR_Base.Instance.StartScene();
+		}
+
+		public static void WVR_StopScene()
+		{
+			WVR_Base.Instance.StopScene();
+		}
+
+		public static WVR_Result WVR_StartScenePerception(WVR_ScenePerceptionTarget target)
+		{
+			return WVR_Base.Instance.StartScenePerception(target);
+		}
+
+		public static WVR_Result WVR_StopScenePerception(WVR_ScenePerceptionTarget target)
+		{
+			return WVR_Base.Instance.StopScenePerception(target);
+		}
+
+		public static WVR_Result WVR_GetScenePerceptionState(WVR_ScenePerceptionTarget target, ref WVR_ScenePerceptionState state /* WVR_ScenePerceptionState* */)
+		{
+			return WVR_Base.Instance.GetScenePerceptionState(target, ref state);
+		}
+
+		public static WVR_Result WVR_GetScenePlanes([In, Out] WVR_ScenePlaneFilter[] planeFilter /* WVR_ScenePlaneFilter*,nullptr if no need filter. */, UInt32 planeCapacityInput, out UInt32 planeCountOutput /* uint32_t* */, WVR_PoseOriginModel originModel, IntPtr planes /* WVR_ScenePlane* */)
+		{
+			return WVR_Base.Instance.GetScenePlanes(planeFilter, planeCapacityInput, out planeCountOutput, originModel, planes);
+		}
+
+		public static WVR_Result WVR_GetSceneMeshes(WVR_SceneMeshType meshType, UInt32 meshCapacityInput, out UInt32 meshCountOutput /* uint32_t* */, IntPtr meshes /* WVR_SceneMesh* */)
+		{
+			return WVR_Base.Instance.GetSceneMeshes(meshType, meshCapacityInput, out meshCountOutput, meshes);
+		}
+
+		public static WVR_Result WVR_GetSceneMeshBuffer(UInt64 meshBufferId, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
+		{
+			return WVR_Base.Instance.GetSceneMeshBuffer(meshBufferId, ref sceneMeshBuffer);
+		}
+
+		public static WVR_Result WVR_CreateSpatialAnchor([In, Out] WVR_SpatialAnchorCreateInfo[] createInfo /* WVR_SpatialAnchorCreateInfo* */, out UInt64 anchor /* WVR_SpatialAnchor* */)
+		{
+			return WVR_Base.Instance.CreateSpatialAnchor(createInfo, out anchor);
+		}
+
+		public static WVR_Result WVR_DestroySpatialAnchor(UInt64 anchor /* WVR_SpatialAnchor */)
+		{
+			return WVR_Base.Instance.DestroySpatialAnchor(anchor);
+		}
+
+		public static WVR_Result WVR_EnumerateSpatialAnchors(UInt32 anchorCapacityInput, out UInt32 anchorCountOutput /* uint32_t* */, out UInt64 anchors /* WVR_SpatialAnchor* */)
+		{
+			return WVR_Base.Instance.EnumerateSpatialAnchors(anchorCapacityInput, out anchorCountOutput, out anchors);
+		}
+
+		public static WVR_Result WVR_GetSpatialAnchorState(UInt64 anchor /* WVR_SpatialAnchor */, WVR_PoseOriginModel originModel, out WVR_SpatialAnchorState anchorState /* WVR_SpatialAnchorState* */)
+		{
+			return WVR_Base.Instance.GetSpatialAnchorState(anchor, originModel, out anchorState);
+		}
+
+		#endregion
+
 		public static ulong WVR_GetSupportedFeatures()
 		{
 			return WVR_Base.Instance.GetSupportedFeatures();
@@ -2442,6 +2653,21 @@ namespace Wave.Native
 		public static bool WVR_IsDeviceTableStatic(WVR_DeviceType type)
 		{
 			return WVR_Base.Instance.IsDeviceTableStatic(type);
+		}
+
+		public static void WVR_GetSpectatorRenderTargetSize(ref uint width, ref uint height)
+		{
+			WVR_Base.Instance.GetSpectatorRenderTargetSize(ref width, ref height);
+		}
+
+		public static void WVR_GetSpectatorClippingPlaneBoundary(ref float l, ref float r, ref float t, ref float b)
+		{
+			WVR_Base.Instance.GetSpectatorClippingPlaneBoundary(ref l, ref r, ref t, ref b);
+		}
+
+		public static bool WVR_PreSpectatorRender(ref WVR_SpectatorState state)
+		{
+			return WVR_Base.Instance.PreSpectatorRender(ref state);
 		}
 
 		public static bool WVR_SetChecker(bool enable)
@@ -3009,6 +3235,77 @@ namespace Wave.Native
 			}
 			#endregion
 
+			#region Scene Perception
+
+			public virtual WVR_Result StartScene()
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual void StopScene()
+			{
+				return;
+			}
+
+			public virtual WVR_Result StartScenePerception(WVR_ScenePerceptionTarget target)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result StopScenePerception(WVR_ScenePerceptionTarget target)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result GetScenePerceptionState( WVR_ScenePerceptionTarget target, ref WVR_ScenePerceptionState state /* WVR_ScenePerceptionState* */)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result GetScenePlanes([In, Out] WVR_ScenePlaneFilter[] planeFilter /* WVR_ScenePlaneFilter*,nullptr if no need filter. */, UInt32 planeCapacityInput, out UInt32 planeCountOutput /* uint32_t* */, WVR_PoseOriginModel originModel, IntPtr planes /* WVR_ScenePlane* */)
+			{
+				planeCountOutput = 0;
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result GetSceneMeshes(WVR_SceneMeshType meshType, UInt32 meshCapacityInput, out UInt32 meshCountOutput /* uint32_t* */, IntPtr meshes /* WVR_SceneMesh* */)
+			{
+				meshCountOutput = 0;
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result GetSceneMeshBuffer(UInt64 meshBufferId, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result CreateSpatialAnchor([In, Out] WVR_SpatialAnchorCreateInfo[] createInfo /* WVR_SpatialAnchorCreateInfo* */, out UInt64 anchor /* WVR_SpatialAnchor* */)
+			{
+				anchor = 0;
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result DestroySpatialAnchor(UInt64 anchor /* WVR_SpatialAnchor */)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result EnumerateSpatialAnchors(UInt32 anchorCapacityInput, out UInt32 anchorCountOutput /* uint32_t* */, out UInt64 anchors /* WVR_SpatialAnchor* */)
+			{
+				anchorCountOutput = 0;
+				anchors = 0;
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual WVR_Result GetSpatialAnchorState(UInt64 anchor /* WVR_SpatialAnchor */, WVR_PoseOriginModel originModel, out WVR_SpatialAnchorState anchorState /* WVR_SpatialAnchorState* */)
+			{
+				anchorState = default(WVR_SpatialAnchorState);
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+
+			#endregion
+
 			public virtual ulong GetSupportedFeatures()
 			{
 				return 0;
@@ -3400,6 +3697,29 @@ namespace Wave.Native
 			{
 				return false;
 			}
+
+			public virtual void GetSpectatorRenderTargetSize(ref uint width, ref uint height)
+			{
+				width = 1920;
+				height = 1080;
+			}
+
+			public virtual void GetSpectatorClippingPlaneBoundary(ref float l, ref float r, ref float t, ref float b)
+			{
+				l = -1;
+				r = 1;
+				t = 1;
+				b = -1;
+			}
+
+
+			public virtual bool PreSpectatorRender(ref WVR_SpectatorState state)
+			{
+				state.shouldRender = false;
+				return false;
+			}
+
+
 
 			#region Internal
 			public virtual string DeployRenderModelAssets(int deviceIndex, string renderModelName)

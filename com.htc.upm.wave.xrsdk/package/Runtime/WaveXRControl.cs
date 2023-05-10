@@ -17,9 +17,13 @@ namespace Wave.OpenXR
 	public static class InputDeviceControl
 	{
 		const string LOG_TAG = "Wave.OpenXR.InputDeviceControl";
-		static void DEBUG(string msg)
+		static void DEBUG(string msg) { Debug.Log(LOG_TAG + " " + msg); }
+
+		public enum ControlDevice
 		{
-			Debug.Log(LOG_TAG + " " + msg);
+			Head = 1,
+			Right = 2,
+			Left = 3,
 		}
 
 		/// <summary> Wave Head Mounted Device Characteristics </summary>
@@ -43,6 +47,15 @@ namespace Wave.OpenXR
 			InputDeviceCharacteristics.HeldInHand
 		);
 
+		public static InputDeviceCharacteristics characteristic(this ControlDevice cd)
+		{
+			return (
+				cd == ControlDevice.Head ? kHMDCharacteristics : (
+					cd == ControlDevice.Right ? kControllerRightCharacteristics : kControllerLeftCharacteristics
+				)
+			);
+		}
+
 		internal static List<InputDevice> m_InputDevices = new List<InputDevice>();
 
 		/// Tracking state
@@ -57,6 +70,8 @@ namespace Wave.OpenXR
 
 			return false;
 		}
+		public static bool IsConnected(ControlDevice device) { return IsConnected(device.characteristic()); }
+
 		public static bool IsTracked(InputDeviceCharacteristics device)
 		{
 			bool isTracked = false;
@@ -74,6 +89,7 @@ namespace Wave.OpenXR
 
 			return isTracked;
 		}
+		public static bool IsTracked(ControlDevice device) { return IsTracked(device.characteristic()); }
 
 		/// Button
 		public static bool KeyDown(InputDeviceCharacteristics device, InputFeatureUsage<bool> button)
@@ -93,6 +109,7 @@ namespace Wave.OpenXR
 
 			return isDown;
 		}
+		public static bool KeyDown(ControlDevice device, InputFeatureUsage<bool> button) { return KeyDown(device.characteristic(), button); }
 		public static bool KeyAxis1D(InputDeviceCharacteristics device, InputFeatureUsage<float> button, out float axis1d)
 		{
 			axis1d = 0;
@@ -113,6 +130,7 @@ namespace Wave.OpenXR
 
 			return false;
 		}
+		public static bool KeyAxis1D(ControlDevice device, InputFeatureUsage<float> button, out float axis1d) { return KeyAxis1D(device.characteristic(), button, out axis1d); }
 		public static bool KeyAxis2D(InputDeviceCharacteristics device, InputFeatureUsage<Vector2> button, out Vector2 axis2d)
 		{
 			axis2d = Vector2.zero;
@@ -133,6 +151,7 @@ namespace Wave.OpenXR
 
 			return false;
 		}
+		public static bool KeyAxis2D(ControlDevice device, InputFeatureUsage<Vector2> button, out Vector2 axis2d) { return KeyAxis2D(device.characteristic(), button, out axis2d); }
 
 		/// Haptic
 		static readonly HapticCapabilities emptyHapticCapabilities = new HapticCapabilities();
@@ -156,6 +175,7 @@ namespace Wave.OpenXR
 
 			return false;
 		}
+		public static bool TryGetHapticCapabilities(ControlDevice device, out HapticCapabilities hapticCaps) { return TryGetHapticCapabilities(device.characteristic(), out hapticCaps); }
 		public static bool SendHapticImpulse(InputDeviceCharacteristics device, float amplitude, float duration)
 		{
 			InputDevices.GetDevices(m_InputDevices);
@@ -177,6 +197,7 @@ namespace Wave.OpenXR
 
 			return false;
 		}
+		public static bool SendHapticImpulse(ControlDevice device, float amplitude, float duration) { return SendHapticImpulse(device.characteristic(), amplitude, duration); }
 
 		/// Pose
 		public static bool GetPosition(InputDeviceCharacteristics device, out Vector3 position)
@@ -202,6 +223,7 @@ namespace Wave.OpenXR
 
 			return false;
 		}
+		public static bool GetPosition(ControlDevice device, out Vector3 position) { return GetPosition(device.characteristic(), out position); }
 		public static bool GetRotation(InputDeviceCharacteristics device, out Quaternion rotation)
 		{
 			rotation = Quaternion.identity;
@@ -225,6 +247,7 @@ namespace Wave.OpenXR
 
 			return false;
 		}
+		public static bool GetRotation(ControlDevice device, out Quaternion rotation) { return GetRotation(device.characteristic(), out rotation); }
 
 		/// Battery
 		public static float GetBatteryLevel(InputDeviceCharacteristics device)
@@ -244,6 +267,7 @@ namespace Wave.OpenXR
 
 			return level;
 		}
+		public static float GetBatteryLevel(ControlDevice device) { return GetBatteryLevel(device.characteristic()); }
 
 		public static bool IsUserPresence()
 		{

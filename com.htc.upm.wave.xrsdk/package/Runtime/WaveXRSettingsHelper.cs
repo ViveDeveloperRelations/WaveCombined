@@ -53,6 +53,11 @@ namespace Wave.XR.Settings
                 config |= (1 << 8);
             }
 
+            if (appSettings.allowSpectatorCamera)
+            {
+                config |= (1L << 33);
+            }
+
             uint highBytes = (uint)((config >> 32) & 0xFFFFFFFF);
             uint lowBytes = (uint)(config & 0xFFFFFFFF);
             SetInt("renderConfigH", highBytes);
@@ -134,8 +139,11 @@ namespace Wave.XR.Settings
             SetBool(WaveXRSettings.EnableElectronicHandText, appSettings.EnableElectronicHand);
             #endregion
 
-            #region Eye Expression
+            #region Eye
+            // Expression
             SetBool(WaveXRSettings.EnableEyeExpressionText, appSettings.EnableEyeExpression);
+            // Tracking
+            SetBool(WaveXRSettings.EnableEyeTrackingText, appSettings.EnableEyeTracking);
             #endregion
 
             #region Lip Expression

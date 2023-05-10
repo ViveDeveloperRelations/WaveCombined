@@ -243,11 +243,6 @@ namespace Wave.Essence.Hand
 		[SerializeField]
 		private TrackerOption m_TrackerOptions = new TrackerOption();
 		public TrackerOption TrackerOptions { get { return m_TrackerOptions; } set { m_TrackerOptions = value; } }
-
-		[Tooltip("Retrieves the Hand Tracking data from UnityEngine.XR.InputDevice.")]
-		[SerializeField]
-		private bool m_UseXRDevice = true;
-		public bool UseXRDevice { get { return m_UseXRDevice; } set { m_UseXRDevice = value; } }
 		#endregion
 
 		private static HandManager m_Instance = null;
@@ -361,6 +356,8 @@ namespace Wave.Essence.Hand
 		}
 		void Update()
 		{
+			Log.gpl.check();
+
 			interactionMode = ClientInterface.InteractionMode;
 
 			/// ------------- Gesture -------------
@@ -695,8 +692,10 @@ namespace Wave.Essence.Hand
 		}
 		#endregion
 
-		WaveXRSettings m_WaveXRSettings = null;
-		bool UseXRData(TrackerType tracker)
+		static WaveXRSettings m_WaveXRSettings = null;
+		static bool m_UseXRDevice = true;
+		public bool UseXRDevice { get { return m_UseXRDevice; } set { m_UseXRDevice = value; } }
+		static bool UseXRData(TrackerType tracker)
 		{
 			// Hand is already enabled in WaveXRSettings.
 			bool XRAlreadyEnabled = false;
@@ -802,6 +801,7 @@ namespace Wave.Essence.Hand
 					status == TrackerStatus.Stopping ||
 					status == TrackerStatus.NoSupport)
 				{
+					DEBUG("CanStartHandTracker() status: " + status);
 					return false;
 				}
 
@@ -833,17 +833,9 @@ namespace Wave.Essence.Hand
 		}
 		private bool CanStopHandTracker(TrackerType tracker)
 		{
-			if (tracker == TrackerType.Natural)
-			{
-				if (GetHandTrackerStatus(TrackerType.Natural) == TrackerStatus.Available)
-					return true;
-			}
-			if (tracker == TrackerType.Electronic)
-			{
-				if (GetHandTrackerStatus(TrackerType.Electronic) == TrackerStatus.Available)
-					return true;
-			}
-
+			var status = GetHandTrackerStatus(tracker);
+			if (status == TrackerStatus.Available) { return true; }
+			DEBUG("CanStopHandTracker() status:" + status);
 			return false;
 		}
 
@@ -852,16 +844,18 @@ namespace Wave.Essence.Hand
 		private event HandTrackerResultDelegate handTrackerResultCB = null;
 		private void StartHandTrackerLock(TrackerType tracker)
 		{
+			if (!CanStartHandTracker(tracker))
+				return;
+
 			if (UseXRData(tracker))
 			{
 				if (tracker == TrackerType.Natural) { InputDeviceHand.ActivateNaturalHand(true); }
+#pragma warning disable
 				if (tracker == TrackerType.Electronic) { InputDeviceHand.ActivateElectronicHand(true); }
+#pragma warning enable
 				DEBUG("StartHandTrackerLock() XR " + tracker);
 				return;
 			}
-
-			if (!CanStartHandTracker(tracker))
-				return;
 
 			SetHandTrackerStatus(tracker, TrackerStatus.Starting);
 			WVR_Result result = Interop.WVR_StartHandTracking((WVR_HandTrackerType)tracker);
@@ -900,6 +894,9 @@ namespace Wave.Essence.Hand
 		}
 		public void StartHandTracker(TrackerType tracker)
 		{
+			if (!CanStartHandTracker(tracker))
+				return;
+
 			string caller = new StackFrame(1, true).GetMethod().Name;
 			if (tracker == TrackerType.Natural)
 			{
@@ -912,9 +909,6 @@ namespace Wave.Essence.Hand
 				INFO("StartHandTracker() " + tracker + "(" + refCountElectronic + ") from " + caller);
 			}
 
-			if (!CanStartHandTracker(tracker))
-				return;
-
 			INFO("StartHandTracker() " + tracker);
 			Thread hand_tracker_t = new Thread(StartHandTrackerThread);
 			hand_tracker_t.Name = "StartHandTrackerThread";
@@ -923,16 +917,18 @@ namespace Wave.Essence.Hand
 
 		private void StopHandTrackerLock(TrackerType tracker)
 		{
+			if (!CanStopHandTracker(tracker))
+				return;
+
 			if (UseXRData(tracker))
 			{
 				if (tracker == TrackerType.Natural) { InputDeviceHand.ActivateNaturalHand(false); }
+#pragma warning disable
 				if (tracker == TrackerType.Electronic) { InputDeviceHand.ActivateElectronicHand(false); }
+#pragma warning enable
 				DEBUG("StopHandTrackerLock() XR " + tracker);
 				return;
 			}
-
-			if (!CanStopHandTracker(tracker))
-				return;
 
 			DEBUG("StopHandTrackerLock() " + tracker);
 			SetHandTrackerStatus(tracker, TrackerStatus.Stopping);
@@ -956,6 +952,9 @@ namespace Wave.Essence.Hand
 		}
 		public void StopHandTracker(TrackerType tracker)
 		{
+			if (!CanStopHandTracker(tracker))
+				return;
+
 			string caller = new StackFrame(1, true).GetMethod().Name;
 			if (tracker == TrackerType.Natural)
 			{
@@ -970,9 +969,6 @@ namespace Wave.Essence.Hand
 				if (refCountElectronic > 0) return;
 			}
 
-			if (!CanStopHandTracker(tracker))
-				return;
-
 			INFO("StopHandTracker() " + tracker);
 			Thread hand_tracker_t = new Thread(StopHandTrackerThread);
 			hand_tracker_t.Name = "StopHandTrackerThread";
@@ -984,16 +980,37 @@ namespace Wave.Essence.Hand
 			lock (handTrackerThreadLocker)
 			{
 				DEBUG("RestartHandTrackerThread() " + (TrackerType)tracker);
-				StopHandTrackerLock((TrackerType)tracker);
-				StartHandTrackerLock((TrackerType)tracker);
+				if (UseXRData((TrackerType)tracker))
+				{
+					StopHandTrackerLock((TrackerType)tracker);
+
+					uint waitCount = 0;
+					TrackerStatus status = GetHandTrackerStatus((TrackerType)tracker);
+					while (status != TrackerStatus.NotStart && waitCount <= 5)
+					{
+						DEBUG("RestartHandTrackerThread() status: " + status + ", wait 1s.");
+						Thread.Sleep(1000); // wait 1s.
+						waitCount++;
+						status = GetHandTrackerStatus((TrackerType)tracker);
+					}
+
+					StartHandTrackerLock((TrackerType)tracker);
+				}
+				else
+				{
+					StopHandTrackerLock((TrackerType)tracker);
+					StartHandTrackerLock((TrackerType)tracker);
+				}
 			}
 		}
 		#endregion
 
 		#region Hand Tracking Interface
+		internal static UnityEngine.XR.Bone boneDef = new Bone();
 		public static bool GetBone(HandJoint joint, bool isLeft, out UnityEngine.XR.Bone outBone)
 		{
-			outBone = new UnityEngine.XR.Bone();
+			outBone = boneDef;
+			if (!UseXRData(TrackerType.Natural)) { return false; } // Supports natural hand only.
 
 			if (joint == HandJoint.Wrist)
 				outBone = InputDeviceHand.GetWrist(isLeft);
@@ -1014,7 +1031,24 @@ namespace Wave.Essence.Hand
 		{
 			if (UseXRData(tracker))
 			{
-				return (InputDeviceHand.IsAvailable() ? TrackerStatus.Available : TrackerStatus.NotStart);
+				if (tracker == TrackerType.Electronic) { return TrackerStatus.NoSupport; }
+
+				var status = InputDeviceHand.GetNaturalHandStatus();
+				switch(status)
+				{
+					case InputDeviceHand.TrackingStatus.NOT_START:
+						return TrackerStatus.NotStart;
+					case InputDeviceHand.TrackingStatus.START_FAILURE:
+						return TrackerStatus.StartFailure;
+					case InputDeviceHand.TrackingStatus.STARTING:
+						return TrackerStatus.Starting;
+					case InputDeviceHand.TrackingStatus.STOPPING:
+						return TrackerStatus.Stopping;
+					case InputDeviceHand.TrackingStatus.AVAILABLE:
+						return TrackerStatus.Available;
+					default:
+						return TrackerStatus.NoSupport;
+				}
 			}
 
 			try
@@ -1078,6 +1112,53 @@ namespace Wave.Essence.Hand
 				RestartHandTracker(tracker);
 		}
 
+		/// <summary>
+		/// Retrieves the timestamp of hand tracking data of a <see cref="TrackerType">tracker</see>.
+		/// </summary>
+		/// <param name="tracker">Natural or electronic tracker.</param>
+		/// <param name="timestamp">The timestamp of hand tracking data.</param>
+		/// <returns>True for valid data.</returns>
+		public bool GetHandTrackingTimestamp(TrackerType tracker, out long timestamp)
+		{
+			timestamp = 0;
+
+			if (tracker == TrackerType.Natural && hasNaturalHandTrackerData && hasNaturalTrackerInfo)
+			{
+				timestamp = m_NaturalHandTrackerData.timestamp;
+				return true;
+			}
+			if (tracker == TrackerType.Electronic && hasElectronicHandTrackerData && hasElectronicTrackerInfo)
+			{
+				timestamp = m_ElectronicHandTrackerData.timestamp;
+				return true;
+			}
+
+			return false;
+		}
+		/// <summary>
+		/// Retrieves the timestamp of hand tracking data of the current available <see cref="TrackerType">tracker</see>.
+		/// </summary>
+		/// <param name="timestamp">The timestamp of hand tracking data.</param>
+		/// <returns>True for valid data.</returns>
+		public bool GetHandTrackingTimestamp(out long timestamp)
+		{
+			timestamp = 0;
+
+			TrackerType tracker = TrackerType.Natural;
+			if (GetPreferTracker(ref tracker))
+			{
+				return GetHandTrackingTimestamp(tracker, out timestamp);
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Checks if left/hand pose of a <see cref="TrackerType">tracker</see> is valid.
+		/// </summary>
+		/// <param name="tracker">Natural or electronic tracker.</param>
+		/// <param name="isLeft">True for left hand.</param>
+		/// <returns>True for valid data.</returns>
 		public bool IsHandPoseValid(TrackerType tracker, bool isLeft)
 		{
 			if (UseXRData(tracker))
@@ -1123,7 +1204,23 @@ namespace Wave.Essence.Hand
 		{
 			return IsHandPoseValid(hand == HandType.Left ? true : false);
 		}
+		public bool IsHandPoseValid(TrackerType tracker, bool isLeft, out long timestamp)
+		{
+			GetHandTrackingTimestamp(tracker, out timestamp);
+			return IsHandPoseValid(tracker, isLeft);
+		}
+		public bool IsHandPoseValid(bool isLeft, out long timestamp)
+		{
+			GetHandTrackingTimestamp(out timestamp);
+			return IsHandPoseValid(isLeft);
+		}
 
+		/// <summary>
+		/// Retrieves left/right hand's confidence of a <see cref="TrackerType">tracker</see>.
+		/// </summary>
+		/// <param name="tracker">Natural or electronic tracker.</param>
+		/// <param name="isLeft">True for left hand.</param>
+		/// <returns>A float {0, 1} value where 1 means the most reliable.</returns>
 		public float GetHandConfidence(TrackerType tracker, bool isLeft)
 		{
 			if (UseXRData(tracker))
@@ -1173,6 +1270,16 @@ namespace Wave.Essence.Hand
 		public float GetHandConfidence(HandType hand)
 		{
 			return GetHandConfidence(hand == HandType.Left ? true : false);
+		}
+		public float GetHandConfidence(TrackerType tracker, bool isLeft, out long timestamp)
+		{
+			GetHandTrackingTimestamp(tracker, out timestamp);
+			return GetHandConfidence(tracker, isLeft);
+		}
+		public float GetHandConfidence(bool isLeft, out long timestamp)
+		{
+			GetHandTrackingTimestamp(out timestamp);
+			return GetHandConfidence(isLeft);
 		}
 
 		/// <summary> @position will not be updated when no position. </summary>
@@ -1286,6 +1393,18 @@ namespace Wave.Essence.Hand
 		{
 			return GetJointPosition(joint, ref position, hand == HandType.Left ? true : false);
 		}
+		public bool GetJointPosition(TrackerType tracker, HandJoint joint, out Vector3 position, bool isLeft, out long timestamp)
+		{
+			position = Vector3.zero;
+			GetHandTrackingTimestamp(tracker, out timestamp);
+			return GetJointPosition(tracker, joint, ref position, isLeft);
+		}
+		public bool GetJointPosition(HandJoint joint, out Vector3 position, bool isLeft, out long timestamp)
+		{
+			position = Vector3.zero;
+			GetHandTrackingTimestamp(out timestamp);
+			return GetJointPosition(joint, ref position, isLeft);
+		}
 
 		/// <summary> @rotation will not be updated when no rotation. </summary>
 		public bool GetJointRotation(TrackerType tracker, HandJoint joint, ref Quaternion rotation, bool isLeft)
@@ -1398,6 +1517,18 @@ namespace Wave.Essence.Hand
 		{
 			return GetJointRotation(joint, ref rotation, hand == HandType.Left ? true : false);
 		}
+		public bool GetJointRotation(TrackerType tracker, HandJoint joint, out Quaternion rotation, bool isLeft, out long timestamp)
+		{
+			rotation = Quaternion.identity;
+			GetHandTrackingTimestamp(tracker, out timestamp);
+			return GetJointRotation(tracker, joint, ref rotation, isLeft);
+		}
+		public bool GetJointRotation(HandJoint joint, out Quaternion rotation, bool isLeft, out long timestamp)
+		{
+			rotation = Quaternion.identity;
+			GetHandTrackingTimestamp(out timestamp);
+			return GetJointRotation(joint, ref rotation, isLeft);
+		}
 
 		/// <summary> @scale will not be updated when no scale. </summary>
 		public bool GetHandScale(TrackerType tracker, ref Vector3 scale, bool isLeft)
@@ -1472,6 +1603,18 @@ namespace Wave.Essence.Hand
 		public bool GetHandScale(ref Vector3 scale, HandType hand)
 		{
 			return GetHandScale(ref scale, hand == HandType.Left ? true : false);
+		}
+		public bool GetHandScale(TrackerType tracker, out Vector3 scale, bool isLeft, out long timestamp)
+		{
+			scale = Vector3.zero;
+			GetHandTrackingTimestamp(tracker, out timestamp);
+			return GetHandScale(tracker, ref scale, isLeft);
+		}
+		public bool GetHandScale(out Vector3 scale, bool isLeft, out long timestamp)
+		{
+			scale = Vector3.zero;
+			GetHandTrackingTimestamp(out timestamp);
+			return GetHandScale(ref scale, isLeft);
 		}
 
 		/// <summary> @velocity will not be updated when no velocity. </summary>
@@ -1548,6 +1691,18 @@ namespace Wave.Essence.Hand
 		{
 			return GetWristLinearVelocity(ref velocity, hand == HandType.Left ? true : false);
 		}
+		public bool GetWristLinearVelocity(TrackerType tracker, out Vector3 velocity, bool isLeft, out long timestamp)
+		{
+			velocity = Vector3.zero;
+			GetHandTrackingTimestamp(tracker, out timestamp);
+			return GetWristLinearVelocity(tracker, ref velocity, isLeft);
+		}
+		public bool GetWristLinearVelocity(out Vector3 velocity, bool isLeft, out long timestamp)
+		{
+			velocity = Vector3.zero;
+			GetHandTrackingTimestamp(out timestamp);
+			return GetWristLinearVelocity(ref velocity, isLeft);
+		}
 
 		/// <summary> @velocity will not be updated when no velocity. </summary>
 		public bool GetWristAngularVelocity(TrackerType tracker, ref Vector3 velocity, bool isLeft)
@@ -1623,6 +1778,59 @@ namespace Wave.Essence.Hand
 		{
 			return GetWristAngularVelocity(ref velocity, hand == HandType.Left ? true : false);
 		}
+		public bool GetWristAngularVelocity(TrackerType tracker, out Vector3 velocity, bool isLeft, out long timestamp)
+		{
+			velocity = Vector3.zero;
+			GetHandTrackingTimestamp(tracker, out timestamp);
+			return GetWristAngularVelocity(tracker, ref velocity, isLeft);
+		}
+		public bool GetWristAngularVelocity(out Vector3 velocity, bool isLeft, out long timestamp)
+		{
+			velocity = Vector3.zero;
+			GetHandTrackingTimestamp(out timestamp);
+			return GetWristAngularVelocity(ref velocity, isLeft);
+		}
+
+		/// <summary>
+		/// Retrieves the timestamp of hand pose data of a <see cref="TrackerType">tracker</see>.
+		/// </summary>
+		/// <param name="tracker">Natural or electronic tracker.</param>
+		/// <param name="timestamp">Timestamp of hand pose data</param>
+		/// <returns></returns>
+		public bool GetHandPoseTimestamp(TrackerType tracker, out long timestamp)
+		{
+			timestamp = 0;
+
+			if (tracker == TrackerType.Natural && hasNaturalHandTrackerData && hasNaturalTrackerInfo)
+			{
+				timestamp = m_NaturalHandPoseData.timestamp;
+				return true;
+			}
+			if (tracker == TrackerType.Electronic && hasElectronicHandTrackerData && hasElectronicTrackerInfo)
+			{
+				timestamp = m_ElectronicHandPoseData.timestamp;
+				return true;
+			}
+
+			return false;
+		}
+		/// <summary>
+		/// Retrieves the timestamp of hand pose data of the current available <see cref="TrackerType">tracker</see>.
+		/// </summary>
+		/// <param name="timestamp">Timestamp of hand pose data</param>
+		/// <returns></returns>
+		public bool GetHandPoseTimestamp(out long timestamp)
+		{
+			timestamp = 0;
+
+			TrackerType tracker = TrackerType.Natural;
+			if (GetPreferTracker(ref tracker))
+			{
+				return GetHandTrackingTimestamp(tracker, out timestamp);
+			}
+
+			return false;
+		}
 
 		/// <summary> Checks if the player in taking a motion, e.g. Pinch, Hold. </summary>
 		public bool GetHandMotion(TrackerType tracker, out HandMotion motion, bool isLeft)
@@ -1681,6 +1889,17 @@ namespace Wave.Essence.Hand
 		{
 			return GetHandMotion(tracker, hand == HandType.Left ? true : false);
 		}
+		public bool GetHandMotion(out HandMotion motion, bool isLeft)
+		{
+			TrackerType tracker = TrackerType.Natural;
+			if (GetPreferTracker(ref tracker))
+			{
+				return GetHandMotion(tracker, out motion, isLeft);
+			}
+
+			motion = HandMotion.None;
+			return false;
+		}
 		public HandMotion GetHandMotion(bool isLeft)
 		{
 			TrackerType tracker = TrackerType.Electronic;
@@ -1691,6 +1910,16 @@ namespace Wave.Essence.Hand
 		public HandMotion GetHandMotion(HandType hand)
 		{
 			return GetHandMotion(hand == HandType.Left ? true : false);
+		}
+		public bool GetHandMotion(TrackerType tracker, out HandMotion motion, bool isLeft, out long timestamp)
+		{
+			GetHandPoseTimestamp(tracker, out timestamp);
+			return GetHandMotion(tracker, out motion, isLeft);
+		}
+		public bool GetHandMotion(out HandMotion motion, bool isLeft, out long timestamp)
+		{
+			GetHandPoseTimestamp(out timestamp);
+			return GetHandMotion(out motion, isLeft);
 		}
 
 		/// <summary> Checks if the player is holding or side holding an equipment. </summary>
@@ -1773,6 +2002,16 @@ namespace Wave.Essence.Hand
 				role = value;
 
 			return role;
+		}
+		public bool GetHandHoldRole(TrackerType tracker, out HandHoldRole role, bool isLeft, out long timestamp)
+		{
+			GetHandPoseTimestamp(tracker, out timestamp);
+			return GetHandHoldRole(tracker, out role, isLeft);
+		}
+		public bool GetHandHoldRole(out HandHoldRole role, bool isLeft, out long timestamp)
+		{
+			GetHandPoseTimestamp(out timestamp);
+			return GetHandHoldRole(out role, isLeft);
 		}
 
 		/// <summary> Retrieves the type of equipment hold by the player. </summary>
@@ -1857,6 +2096,16 @@ namespace Wave.Essence.Hand
 
 			return type;
 		}
+		public bool GetHandHoldType(TrackerType tracker, out HandHoldType type, bool isLeft, out long timestamp)
+		{
+			GetHandPoseTimestamp(tracker, out timestamp);
+			return GetHandHoldType(tracker, out type, isLeft);
+		}
+		public bool GetHandHoldType(out HandHoldType type, bool isLeft, out long timestamp)
+		{
+			GetHandPoseTimestamp(out timestamp);
+			return GetHandHoldType(out type, isLeft);
+		}
 
 		/// <summary> Retrieves the origin location in world space of Hand Pinch motion. </summary>
 		public bool GetPinchOrigin(TrackerType tracker, ref Vector3 origin, bool isLeft)
@@ -1926,6 +2175,18 @@ namespace Wave.Essence.Hand
 		public bool GetPinchOrigin(ref Vector3 origin, HandType hand)
 		{
 			return GetPinchOrigin(ref origin, hand == HandType.Left ? true : false);
+		}
+		public bool GetPinchOrigin(TrackerType tracker, out Vector3 origin, bool isLeft, out long timestamp)
+		{
+			origin = Vector3.zero;
+			GetHandPoseTimestamp(tracker, out timestamp);
+			return GetPinchOrigin(tracker, ref origin, isLeft);
+		}
+		public bool GetPinchOrigin(out Vector3 origin, bool isLeft, out long timestamp)
+		{
+			origin = Vector3.zero;
+			GetHandPoseTimestamp(out timestamp);
+			return GetPinchOrigin(ref origin, isLeft);
 		}
 
 		/// <summary> Retrieves the direction vector in world space of Hand Pinch motion. </summary>
@@ -1997,6 +2258,18 @@ namespace Wave.Essence.Hand
 		{
 			return GetPinchDirection(ref direction, hand == HandType.Left ? true : false);
 		}
+		public bool GetPinchDirection(TrackerType tracker, out Vector3 direction, bool isLeft, out long timestamp)
+		{
+			direction = Vector3.zero;
+			GetHandPoseTimestamp(tracker, out timestamp);
+			return GetPinchDirection(tracker, ref direction, isLeft);
+		}
+		public bool GetPinchDirection(out Vector3 direction, bool isLeft, out long timestamp)
+		{
+			direction = Vector3.zero;
+			GetHandPoseTimestamp(out timestamp);
+			return GetPinchDirection(ref direction, isLeft);
+		}
 
 		/// <summary> Retrieves the strength of Hand Pinch motion. </summary>
 		public float GetPinchStrength(TrackerType tracker, bool isLeft)
@@ -2051,6 +2324,16 @@ namespace Wave.Essence.Hand
 		public float GetPinchStrength(HandType hand)
 		{
 			return GetPinchStrength(hand == HandType.Left ? true : false);
+		}
+		public float GetPinchStrength(TrackerType tracker, bool isLeft, out long timestamp)
+		{
+			GetHandPoseTimestamp(tracker, out timestamp);
+			return GetPinchStrength(tracker, isLeft);
+		}
+		public float GetPinchStrength(bool isLeft, out long timestamp)
+		{
+			GetHandPoseTimestamp(out timestamp);
+			return GetPinchStrength(isLeft);
 		}
 
 		/// <summary> Retrieves the default threshold of Hand Pinch motion. </summary>

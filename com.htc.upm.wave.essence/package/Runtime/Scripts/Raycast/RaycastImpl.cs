@@ -502,12 +502,13 @@ namespace Wave.Essence.Raycast
 						DEBUG("UpHandler() Send Pointer endDrag to " + pointerData.pointerDrag);
 						ExecuteEvents.Execute(pointerData.pointerDrag, pointerData, ExecuteEvents.endDragHandler);
 
-						pointerData.pointerDrag = null;
 						pointerData.dragging = false;
 					}
 				}
 			}
 
+			// initializePotentialDrag was sent when IDragHandler exists.
+			pointerData.pointerDrag = null;
 			// Down of pending Click object.
 			pointerData.pointerPress = null;
 			// press happened (even not handled) object.

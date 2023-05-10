@@ -202,26 +202,37 @@ namespace Wave.XR.Settings
         #region Tracker
         static string PropertyName_EnableTracker = "EnableTracker";
         static GUIContent Label_EnableTracker = new GUIContent("Enable Tracker");
-        SerializedProperty Property_EnableTracker;
+        SerializedProperty Property_EnableTracker = null;
         #endregion
 
         #region Hand
         static string PropertyName_EnableNaturalHand = "EnableNaturalHand";
         static GUIContent Label_EnableNaturalHand = new GUIContent("Enable Natural Hand");
-        SerializedProperty Property_EnableNaturalHand;
+        SerializedProperty Property_EnableNaturalHand = null;
         #endregion
 
-        #region Eye Expression
+        #region Eye
+        // Expression
         static string PropertyName_EnableEyeExpression = "EnableEyeExpression";
         static GUIContent Label_EnableEyeExpression = new GUIContent("Enable Eye Expression");
-        SerializedProperty Property_EnableEyeExpression;
+        SerializedProperty Property_EnableEyeExpression = null;
+
+        // Tracking
+        static string PropertyName_EnableEyeTracking = "EnableEyeTracking";
+        static GUIContent Label_EnableEyeTracking = new GUIContent("Enable Eye Tracking");
+        SerializedProperty Property_EnableEyeTracking = null;
         #endregion
 
         #region Lip Expression
         static string PropertyName_EnableLipExpression = "EnableLipExpression";
         static GUIContent Label_EnableLipExpression = new GUIContent("Enable Lip Expression");
-        SerializedProperty Property_EnableLipExpression;
+        SerializedProperty Property_EnableLipExpression = null;
         #endregion
+
+        static string PropertyName_AllowSpectatorCamera = "allowSpectatorCamera";
+        static GUIContent Label_AllowSpectatorCamera = new GUIContent("Allow Spectator Camera", "Allow this plugin to generate a spectator camera to produce images for Screenshot, Recording, or Broadcast usages.This camera will consume more performance when it is activated, but captured image will have better FOV result.");
+        SerializedProperty Property_AllowSpectatorCamera;
+
 
         enum Platform
         {
@@ -255,7 +266,7 @@ namespace Wave.XR.Settings
         bool foldoutRendering = true;
         bool foldoutTracker = true;
         bool foldoutHand = true;
-        bool foldoutEyeExpression = true;
+        bool foldoutEye = true;
         bool foldoutLipExpression = true;
         bool foldoutCommon = true;
 
@@ -291,6 +302,8 @@ namespace Wave.XR.Settings
             if (Property_EnableFSE == null) Property_EnableFSE = serializedObject.FindProperty(PropertyName_EnableFSE);
             if (Property_FSELevel == null) Property_FSELevel = serializedObject.FindProperty(PropertyName_FSELevel);
 
+            if (Property_AllowSpectatorCamera == null) Property_AllowSpectatorCamera = serializedObject.FindProperty(PropertyName_AllowSpectatorCamera);
+
             if (Property_SupportedFPS == null) Property_SupportedFPS = serializedObject.FindProperty(PropertyName_SupportedFPS);
             if (Property_WaveXRFolder == null) Property_WaveXRFolder = serializedObject.FindProperty(PropertyName_WaveXRFolder);
             if (Property_WaveEssenceFolder == null) Property_WaveEssenceFolder = serializedObject.FindProperty(PropertyName_WaveEssenceFolder);
@@ -302,6 +315,7 @@ namespace Wave.XR.Settings
             if (Property_OverrideLogFlag == null) Property_OverrideLogFlag = serializedObject.FindProperty(PropertyName_OverrideLogFlag);
             if (Property_UseCMPChecker == null) Property_UseCMPChecker = serializedObject.FindProperty(PropertyName_UseCMPChecker);
 
+
             #region Tracker
             if (Property_EnableTracker == null) Property_EnableTracker = serializedObject.FindProperty(PropertyName_EnableTracker);
             #endregion
@@ -310,13 +324,17 @@ namespace Wave.XR.Settings
             if (Property_EnableNaturalHand == null) Property_EnableNaturalHand = serializedObject.FindProperty(PropertyName_EnableNaturalHand);
             #endregion
 
-            #region Eye Expression
+            #region Eye
+            // Expression
             if (Property_EnableEyeExpression == null) Property_EnableEyeExpression = serializedObject.FindProperty(PropertyName_EnableEyeExpression);
+            // Tracking
+            if (Property_EnableEyeTracking == null) Property_EnableEyeTracking = serializedObject.FindProperty(PropertyName_EnableEyeTracking);
             #endregion
 
-            #region Eye Expression
+            #region Lip Expression
             if (Property_EnableLipExpression == null) Property_EnableLipExpression = serializedObject.FindProperty(PropertyName_EnableLipExpression);
             #endregion
+
 
             if (displayGamutPreference == null)
             {
@@ -382,6 +400,9 @@ namespace Wave.XR.Settings
                 GUI.enabled = true;
 
                 MultiLayerGUI();
+
+                EditorGUILayout.PropertyField(Property_AllowSpectatorCamera, Label_AllowSpectatorCamera);
+
                 EditorGUI.indentLevel--;
             }
 
@@ -412,11 +433,12 @@ namespace Wave.XR.Settings
             #endregion
 
             #region Eye Expression
-            foldoutEyeExpression = EditorGUILayout.Foldout(foldoutEyeExpression, "Eye Expression");
-            if (foldoutEyeExpression)
+            foldoutEye = EditorGUILayout.Foldout(foldoutEye, "Eye");
+            if (foldoutEye)
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(Property_EnableEyeExpression, Label_EnableEyeExpression);
+                EditorGUILayout.PropertyField(Property_EnableEyeTracking, Label_EnableEyeTracking);
                 EditorGUI.indentLevel--;
             }
 
