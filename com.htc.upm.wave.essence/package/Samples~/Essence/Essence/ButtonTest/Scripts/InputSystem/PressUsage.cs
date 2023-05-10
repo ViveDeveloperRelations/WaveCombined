@@ -11,8 +11,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Wave.Native;
+
 #if ENABLE_INPUT_SYSTEM
-using Wave.Essence.HIDPlugin;
+using UnityEngine.InputSystem;
 #endif
 
 namespace Wave.Essence.Samples.ButtonTest
@@ -23,12 +24,68 @@ namespace Wave.Essence.Samples.ButtonTest
 		void DEBUG(string msg)
 		{
 			if (Log.EnableDebugLog)
-				Log.d(LOG_TAG, msg, true);
+				Log.d(LOG_TAG, gameObject.name + " " + msg, true);
 		}
+		bool printIntervalLog = false;
+		int logFrame = 0;
+		void INTERVAL(string msg) { if (printIntervalLog && !Application.isEditor) { DEBUG(msg); } }
 
-		public XR_Device deviceType = XR_Device.NonDominant;
-		public WVR_InputId inputId = WVR_InputId.WVR_InputId_Alias1_System;
 		public string usageName;
+
+#if ENABLE_INPUT_SYSTEM
+		[SerializeField]
+		private InputActionReference m_PressButton = null;
+		public InputActionReference PressButton { get { return m_PressButton; } set { m_PressButton = value; } }
+		private static bool VALIDATE(InputActionReference actionReference, out string msg)
+		{
+			msg = "Normal";
+
+			if (actionReference == null)
+			{
+				msg = "Null reference.";
+				return false;
+			}
+			else if (actionReference.action == null)
+			{
+				msg = "Null reference action.";
+				return false;
+			}
+			else if (!actionReference.action.enabled)
+			{
+				msg = "Reference action disabled.";
+				return false;
+			}
+			else if (actionReference.action.activeControl == null)
+			{
+				msg = "No active control of the reference action, phase: " + actionReference.action.phase;
+				return false;
+			}
+			else if (actionReference.action.controls.Count <= 0)
+			{
+				msg = "Action control count is " + actionReference.action.controls.Count;
+				return false;
+			}
+
+			return true;
+		}
+		private void GetButtonValue(InputActionReference actionReference, out bool value, out string msg)
+		{
+			value = false;
+			if (VALIDATE(actionReference, out msg))
+			{
+				if (actionReference.action.activeControl.valueType == typeof(float))
+					value = actionReference.action.ReadValue<float>() > 0;
+				if (actionReference.action.activeControl.valueType == typeof(bool))
+					value = actionReference.action.ReadValue<bool>();
+
+				INTERVAL("GetButtonValue(" + value + ")");
+			}
+			else
+			{
+				INTERVAL("GetButtonValue() invalid input: " + msg);
+			}
+		}
+#endif
 
 		public Text textComponent;
 		public Image imageComponent;
@@ -43,7 +100,12 @@ namespace Wave.Essence.Samples.ButtonTest
 
 		void Update()
 		{
-			bool buttonState = GetButtonState(deviceType, inputId);
+#if ENABLE_INPUT_SYSTEM
+			logFrame++;
+			logFrame %= 300;
+			printIntervalLog = (logFrame == 0);
+
+			GetButtonValue(m_PressButton, out bool buttonState, out string msg);
 
 			if (buttonState)
 			{
@@ -53,111 +115,7 @@ namespace Wave.Essence.Samples.ButtonTest
 			{
 				imageComponent.color = Color.red;
 			}
-		}
-
-		bool GetButtonState(XR_Device deviceType, WVR_InputId inputId)
-		{
-#if ENABLE_INPUT_SYSTEM
-			switch (deviceType)
-			{
-				case XR_Device.Head:
-					{
-						switch (inputId)
-						{
-							case WVR_InputId.WVR_InputId_Alias1_System:
-								return (WaveXRHmd.current != null ? WaveXRHmd.current.hmdSystemHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Back:
-								return (WaveXRHmd.current != null ? WaveXRHmd.current.hmdBackHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Enter:
-								return (WaveXRHmd.current != null ? WaveXRHmd.current.hmdEnterHold.isPressed : false);
-							default:
-								break;
-						}
-					}
-					break;
-				case XR_Device.NonDominant:
-					{
-						switch (inputId)
-						{
-							case WVR_InputId.WVR_InputId_Alias1_System:
-								return (WaveXRController.current != null ? WaveXRController.current.leftSystemHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Menu:
-								return (WaveXRController.current != null ? WaveXRController.current.leftMenuHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Grip:
-								return (WaveXRController.current != null ? WaveXRController.current.leftGripHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Volume_Up:
-								return (WaveXRController.current != null ? WaveXRController.current.leftVolumeUpHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Volume_Down:
-								return (WaveXRController.current != null ? WaveXRController.current.leftVolumeDownHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Bumper:
-								return (WaveXRController.current != null ? WaveXRController.current.leftBumperHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_A:
-								return (WaveXRController.current != null ? WaveXRController.current.leftAHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_B:
-								return (WaveXRController.current != null ? WaveXRController.current.leftBHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_X:
-								return (WaveXRController.current != null ? WaveXRController.current.leftXHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Y:
-								return (WaveXRController.current != null ? WaveXRController.current.leftYHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Back:
-								return (WaveXRController.current != null ? WaveXRController.current.leftBackHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Enter:
-								return (WaveXRController.current != null ? WaveXRController.current.leftEnterHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Touchpad:
-								return (WaveXRController.current != null ? WaveXRController.current.leftTouchpadHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Trigger:
-								return (WaveXRController.current != null ? WaveXRController.current.leftTriggerHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Thumbstick:
-								return (WaveXRController.current != null ? WaveXRController.current.leftJoystickHold.isPressed : false);
-							default:
-								break;
-						}
-					}
-					break;
-				case XR_Device.Dominant:
-					{
-						switch (inputId)
-						{
-							case WVR_InputId.WVR_InputId_Alias1_System:
-								return (WaveXRController.current != null ? WaveXRController.current.rightSystemHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Menu:
-								return (WaveXRController.current != null ? WaveXRController.current.rightMenuHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Grip:
-								return (WaveXRController.current != null ? WaveXRController.current.rightGripHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Volume_Up:
-								return (WaveXRController.current != null ? WaveXRController.current.rightVolumeUpHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Volume_Down:
-								return (WaveXRController.current != null ? WaveXRController.current.rightVolumeDownHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Bumper:
-								return (WaveXRController.current != null ? WaveXRController.current.rightBumperHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_A:
-								return (WaveXRController.current != null ? WaveXRController.current.rightAHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_B:
-								return (WaveXRController.current != null ? WaveXRController.current.rightBHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_X:
-								return (WaveXRController.current != null ? WaveXRController.current.rightXHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Y:
-								return (WaveXRController.current != null ? WaveXRController.current.rightYHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Back:
-								return (WaveXRController.current != null ? WaveXRController.current.rightBackHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Enter:
-								return (WaveXRController.current != null ? WaveXRController.current.rightEnterHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Touchpad:
-								return (WaveXRController.current != null ? WaveXRController.current.rightTouchpadHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Trigger:
-								return (WaveXRController.current != null ? WaveXRController.current.rightTriggerHold.isPressed : false);
-							case WVR_InputId.WVR_InputId_Alias1_Thumbstick:
-								return (WaveXRController.current != null ? WaveXRController.current.rightJoystickHold.isPressed : false);
-							default:
-								break;
-						}
-					}
-					break;
-				default:
-					break;
-			}
 #endif
-			return false;
 		}
 	}
 }

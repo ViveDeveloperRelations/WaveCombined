@@ -10,6 +10,7 @@
 
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -33,97 +34,18 @@ namespace Wave.XR.Sample.Controller
 		[SerializeField]
 		private InputActionReference m_IsTracked = null;
 		public InputActionReference IsTracked { get { return m_IsTracked; } set { m_IsTracked = value; } }
-		private bool GetButtonValue(InputActionReference actionReference, out bool value, out string msg)
-		{
-			value = false;
-
-			if (VALIDATE(actionReference, out msg))
-			{
-				if (actionReference.action.activeControl.valueType == typeof(float))
-					value = actionReference.action.ReadValue<float>() > 0;
-				if (actionReference.action.activeControl.valueType == typeof(bool))
-					value = actionReference.action.ReadValue<bool>();
-
-				INTERVAL("GetButtonValue(" + value + ")");
-				return true;
-			}
-			else
-			{
-				INTERVAL("GetButtonValue() invalid input: " + msg);
-			}
-
-			return false;
-		}
 
 		[SerializeField]
 		private InputActionReference m_TrackingState = null;
 		public InputActionReference TrackingState { get { return m_TrackingState; } set { m_TrackingState = value; } }
-		private bool GetIntegerValue(InputActionReference actionReference, out int value, out string msg)
-		{
-			value = 0;
-
-			if (VALIDATE(actionReference, out msg))
-			{
-				if (actionReference.action.activeControl.valueType == typeof(int))
-					value = actionReference.action.ReadValue<int>();
-
-				INTERVAL("GetIntegerValue(" + value + ")");
-				return true;
-			}
-			else
-			{
-				INTERVAL("GetIntegerValue() invalid input: " + msg);
-			}
-
-			return false;
-		}
 
 		[SerializeField]
 		private InputActionReference m_Position = null;
 		public InputActionReference Position { get { return m_Position; } set { m_Position = value; } }
-		private bool GetVector3Value(InputActionReference actionReference, out Vector3 value, out string msg)
-		{
-			value = Vector3.zero;
-
-			if (VALIDATE(actionReference, out msg))
-			{
-				if (actionReference.action.activeControl.valueType == typeof(Vector3))
-					value = actionReference.action.ReadValue<Vector3>();
-
-				INTERVAL("GetVector3Value(" + value.x.ToString() + ", " + value.y.ToString() + ", " + value.z.ToString() + ")");
-				return true;
-			}
-			else
-			{
-				INTERVAL("GetVector3Value() invalid input: " + msg);
-			}
-
-			return false;
-		}
 
 		[SerializeField]
 		private InputActionReference m_Rotation = null;
 		public InputActionReference Rotation { get { return m_Rotation; } set { m_Rotation = value; } }
-		private bool GetQuaternionValue(InputActionReference actionReference, out Quaternion value, out string msg)
-		{
-			value = Quaternion.identity;
-
-			if (VALIDATE(actionReference, out msg))
-			{
-				if (actionReference.action.activeControl.valueType == typeof(Quaternion))
-					value = actionReference.action.ReadValue<Quaternion>();
-
-				Vector3 direction = value * Vector3.forward;
-				INTERVAL("GetQuaternionValue(" + direction.x.ToString() + ", " + direction.y.ToString() + ", " + direction.z.ToString() + ")");
-				return true;
-			}
-			else
-			{
-				INTERVAL("GetQuaternionValue() invalid input: " + msg);
-			}
-
-			return false;
-		}
 
 		[SerializeField]
 		private InputActionReference m_MenuButton = null;
@@ -184,7 +106,7 @@ namespace Wave.XR.Sample.Controller
 			m_Text.text = m_IsLeft ? "Left Tracker: " : "Right Tracker: ";
 
 			// isTracked
-			if (GetButtonValue(m_IsTracked, out bool tracked, out string trackedText))
+			if (Utils.GetButton(m_IsTracked, out bool tracked, out string trackedText))
 			{
 				m_Text.text += "Tracked: " + tracked;
 			}
@@ -195,7 +117,7 @@ namespace Wave.XR.Sample.Controller
 			m_Text.text += "\n";
 
 			// trackingState
-			if (GetIntegerValue(m_TrackingState, out int state, out string stateText))
+			if (Utils.GetInteger(m_TrackingState, out InputTrackingState state, out string stateText))
 			{
 				m_Text.text += "State: " + state;
 			}
@@ -206,7 +128,7 @@ namespace Wave.XR.Sample.Controller
 			m_Text.text += "\n";
 
 			// position
-			if (GetVector3Value(m_Position, out Vector3 pos, out string posText))
+			if (Utils.GetVector3(m_Position, out Vector3 pos, out string posText))
 			{
 				m_Text.text += "Position: " + "(" + pos.x.ToString() + ", " + pos.y.ToString() + ", " + pos.z.ToString() + ")";
 			}
@@ -217,7 +139,7 @@ namespace Wave.XR.Sample.Controller
 			m_Text.text += "\n";
 
 			// rotation
-			if (GetQuaternionValue(m_Rotation, out Quaternion rot, out string rotText))
+			if (Utils.GetQuaternion(m_Rotation, out Quaternion rot, out string rotText))
 			{
 				var direction = rot * Vector3.forward;
 				m_Text.text += "Direction: " + "(" + direction.x.ToString() + ", " + direction.y.ToString() + ", " + direction.z.ToString() + ")";
@@ -229,7 +151,7 @@ namespace Wave.XR.Sample.Controller
 			m_Text.text += "\n";
 
 			// menu button
-			if (GetButtonValue(m_MenuButton, out bool menu, out string menuText))
+			if (Utils.GetButton(m_MenuButton, out bool menu, out string menuText))
 			{
 				m_Text.text += "Menu: " + menu;
 			}
@@ -240,7 +162,7 @@ namespace Wave.XR.Sample.Controller
 			m_Text.text += "\n";
 
 			// primary button
-			if (GetButtonValue(m_PrimaryButton, out bool primary, out string primaryText))
+			if (Utils.GetButton(m_PrimaryButton, out bool primary, out string primaryText))
 			{
 				m_Text.text += "Primary: " + primary;
 			}

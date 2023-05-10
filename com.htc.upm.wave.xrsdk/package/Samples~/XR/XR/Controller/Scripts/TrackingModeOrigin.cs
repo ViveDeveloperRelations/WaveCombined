@@ -80,6 +80,8 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
 
             if(m_CurrentTrackingOriginMode != m_DesiredTrackingOriginMode && m_DesiredTrackingOriginMode != TrackingOriginModeFlags.Unknown)
             {
+				if (!Application.isEditor)
+					Debug.Log("TrackingModeOrigin() m_CurrentTrackingOriginMode: " + m_CurrentTrackingOriginMode + ", TrySetTrackingOriginMode: " + m_DesiredTrackingOriginMode);
                 subsystem?.TrySetTrackingOriginMode(m_DesiredTrackingOriginMode);
             }
             m_CurrentTrackingOriginMode = subsystem?.GetTrackingOriginMode() ?? TrackingOriginModeFlags.Unknown;

@@ -11,8 +11,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Wave.Native;
+
 #if ENABLE_INPUT_SYSTEM
-using Wave.Essence.HIDPlugin;
+using UnityEngine.InputSystem;
 #endif
 
 namespace Wave.Essence.Samples.ButtonTest
@@ -23,12 +24,70 @@ namespace Wave.Essence.Samples.ButtonTest
 		void DEBUG(string msg)
 		{
 			if (Log.EnableDebugLog)
-				Log.d(LOG_TAG, msg, true);
+				Log.d(LOG_TAG, gameObject.name + " " + msg, true);
 		}
+		bool printIntervalLog = false;
+		int logFrame = 0;
+		void INTERVAL(string msg) { if (printIntervalLog && !Application.isEditor) { DEBUG(msg); } }
 
-		public XR_Device deviceType = XR_Device.NonDominant;
-		public WVR_InputId inputId = WVR_InputId.WVR_InputId_Alias1_System;
 		public string usageName;
+
+#if ENABLE_INPUT_SYSTEM
+		[SerializeField]
+		private InputActionReference m_TouchButton = null;
+		public InputActionReference TouchButton { get { return m_TouchButton; } set { m_TouchButton = value; } }
+		private static bool VALIDATE(InputActionReference actionReference, out string msg)
+		{
+			msg = "Normal";
+
+			if (actionReference == null)
+			{
+				msg = "Null reference.";
+				return false;
+			}
+			else if (actionReference.action == null)
+			{
+				msg = "Null reference action.";
+				return false;
+			}
+			else if (!actionReference.action.enabled)
+			{
+				msg = "Reference action disabled.";
+				return false;
+			}
+			else if (actionReference.action.activeControl == null)
+			{
+				msg = "No active control of the reference action, phase: " + actionReference.action.phase;
+				return false;
+			}
+			else if (actionReference.action.controls.Count <= 0)
+			{
+				msg = "Action control count is " + actionReference.action.controls.Count;
+				return false;
+			}
+
+			return true;
+		}
+		private void GetButtonValue(InputActionReference actionReference, out bool value, out string msg)
+		{
+			value = false;
+#if ENABLE_INPUT_SYSTEM
+			if (VALIDATE(actionReference, out msg))
+			{
+				if (actionReference.action.activeControl.valueType == typeof(float))
+					value = actionReference.action.ReadValue<float>() > 0;
+				if (actionReference.action.activeControl.valueType == typeof(bool))
+					value = actionReference.action.ReadValue<bool>();
+
+				INTERVAL("GetButtonValue(" + value + ")");
+			}
+			else
+			{
+				INTERVAL("GetButtonValue() invalid input: " + msg);
+			}
+#endif
+		}
+#endif
 
 		public Text textComponent;
 		public Image imageComponent;
@@ -41,26 +100,14 @@ namespace Wave.Essence.Samples.ButtonTest
 			}
 		}
 
-#if ENABLE_INPUT_SYSTEM
-		WaveXRInput m_Input = null;
-		private void Awake()
-		{
-			if (m_Input == null)
-				m_Input = new WaveXRInput();
-		}
-		private void OnEnable()
-		{
-			m_Input.Enable();
-		}
-		private void OnDisable()
-		{
-			m_Input.Disable();
-		}
-#endif
-
 		void Update()
 		{
-			bool buttonState = GetButtonState(deviceType, inputId);
+#if ENABLE_INPUT_SYSTEM
+			logFrame++;
+			logFrame %= 300;
+			printIntervalLog = (logFrame == 0);
+
+			GetButtonValue(m_TouchButton, out bool buttonState, out string msg);
 
 			if (buttonState)
 			{
@@ -70,76 +117,7 @@ namespace Wave.Essence.Samples.ButtonTest
 			{
 				imageComponent.color = Color.red;
 			}
-		}
-
-		bool GetButtonState(XR_Device deviceType, WVR_InputId inputId)
-		{
-#if ENABLE_INPUT_SYSTEM
-			switch (deviceType)
-			{
-				case XR_Device.NonDominant:
-					{
-						switch (inputId)
-						{
-							case WVR_InputId.WVR_InputId_Alias1_Grip:
-								return m_Input.Left.GripTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_A:
-								return m_Input.Left.ButtonATouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_B:
-								return m_Input.Left.ButtonBTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_X:
-								return m_Input.Left.ButtonXTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_Y:
-								return m_Input.Left.ButtonYTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_Touchpad:
-								return m_Input.Left.TouchpadTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_Bumper:
-								return WaveXRController.current != null ? WaveXRController.current.leftBumperTouch.isPressed : false;
-							case WVR_InputId.WVR_InputId_Alias1_Trigger:
-								return WaveXRController.current != null ? WaveXRController.current.leftTriggerTouch.isPressed : false;
-							case WVR_InputId.WVR_InputId_Alias1_Thumbstick:
-								return m_Input.Left.JoystickTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_Parking:
-								return m_Input.Left.ParkingTouch.ReadValue<float>() > 0;
-							default:
-								break;
-						}
-					}
-					break;
-				case XR_Device.Dominant:
-					{
-						switch (inputId)
-						{
-							case WVR_InputId.WVR_InputId_Alias1_Grip:
-								return m_Input.Right.GripTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_A:
-								return m_Input.Right.ButtonATouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_B:
-								return m_Input.Right.ButtonBTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_X:
-								return m_Input.Right.ButtonXTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_Y:
-								return m_Input.Right.ButtonYTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_Touchpad:
-								return m_Input.Right.TouchpadTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_Bumper:
-								return WaveXRController.current != null ? WaveXRController.current.rightBumperTouch.isPressed : false;
-							case WVR_InputId.WVR_InputId_Alias1_Trigger:
-								return WaveXRController.current != null ? WaveXRController.current.rightTriggerTouch.isPressed : false;
-							case WVR_InputId.WVR_InputId_Alias1_Thumbstick:
-								return m_Input.Right.JoystickTouch.ReadValue<float>() > 0;
-							case WVR_InputId.WVR_InputId_Alias1_Parking:
-								return m_Input.Right.ParkingTouch.ReadValue<float>() > 0;
-							default:
-								break;
-						}
-					}
-					break;
-				default:
-					break;
-			}
 #endif
-			return false;
 		}
 	}
 }

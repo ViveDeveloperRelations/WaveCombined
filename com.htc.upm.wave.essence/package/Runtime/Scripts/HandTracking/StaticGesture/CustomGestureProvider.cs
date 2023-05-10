@@ -97,8 +97,16 @@ namespace Wave.Essence.Hand.StaticGesture
 				OnRightGesture.Invoke(m_RightGesture);
 			}
 
-			foreach (var producer in SingleHandCustomGestures) producer.CheckGesture();
-			foreach (var producer in DualHandCustomGestures) producer.CheckGesture();
+			if (SingleHandCustomGestures != null && SingleHandCustomGestures.Count > 0)
+			{
+				for (int i = 0; i < SingleHandCustomGestures.Count; i++)
+					SingleHandCustomGestures[i].CheckGesture();
+			}
+			if (DualHandCustomGestures != null && DualHandCustomGestures.Count > 0)
+			{
+				for (int i = 0; i < DualHandCustomGestures.Count; i++)
+					DualHandCustomGestures[i].CheckGesture();
+			}
 		}
 
 		private void UpdateGesture(ref GestureHandData hand, ref HandState state)
@@ -147,11 +155,14 @@ namespace Wave.Essence.Hand.StaticGesture
 			GestureType gesture = GetHandGesture(isLeftHand);
 			if (gesture != GestureType.Unknown) { return gesture.ToString(); }
 
-			foreach (var producer in SingleHandCustomGestures)
+			if (SingleHandCustomGestures != null && SingleHandCustomGestures.Count > 0)
 			{
-				if ((isLeftHand && producer.IsLeftMatch) || (!isLeftHand && producer.IsRightMatch))
+				for (int i = 0; i < SingleHandCustomGestures.Count; i++)
 				{
-					return producer.name;
+					if ((isLeftHand && SingleHandCustomGestures[i].IsLeftMatch) || (!isLeftHand && SingleHandCustomGestures[i].IsRightMatch))
+					{
+						return SingleHandCustomGestures[i].name;
+					}
 				}
 			}
 
@@ -160,9 +171,12 @@ namespace Wave.Essence.Hand.StaticGesture
 		/// <summary> Retrieves custom defined dual hand gesture types. </summary>
 		public string GetDualHandGesture()
 		{
-			foreach (var producer in DualHandCustomGestures)
+			if (DualHandCustomGestures != null && DualHandCustomGestures.Count > 0)
 			{
-				if (producer.IsMatch) { return producer.name; }
+				for (int i = 0; i < DualHandCustomGestures.Count; i++)
+				{
+					if (DualHandCustomGestures[i].IsMatch) { return DualHandCustomGestures[i].name; }
+				}
 			}
 
 			return GestureType.Unknown.ToString();

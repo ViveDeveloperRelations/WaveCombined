@@ -19,10 +19,6 @@ using UnityEditor;
 using Wave.Essence.Editor;
 #endif
 
-#if ENABLE_INPUT_SYSTEM
-using Wave.Essence.HIDPlugin;
-#endif
-
 namespace Wave.Essence
 {
 	public class WaveEssence : MonoBehaviour
@@ -273,28 +269,10 @@ namespace Wave.Essence
 				}
 
 				//UpdateEventStates(device);
-
-#if ENABLE_INPUT_SYSTEM
-				if (device == WVR_DeviceType.WVR_DeviceType_HMD) { WaveXRHmd.AddDevice(); }
-				if (device == WVR_DeviceType.WVR_DeviceType_Controller_Right ||
-					device == WVR_DeviceType.WVR_DeviceType_Controller_Left)
-				{
-					WaveXRController.AddDevice();
-				}
-#endif
 			}
 			else
 			{
 				ResetButtonStates(device);
-
-#if ENABLE_INPUT_SYSTEM
-				if (device == WVR_DeviceType.WVR_DeviceType_HMD) { WaveXRHmd.RemoveDevice(); }
-				if (m_Connected[WVR_DeviceType.WVR_DeviceType_Controller_Right] == false &&
-					m_Connected[WVR_DeviceType.WVR_DeviceType_Controller_Left] == false)
-				{
-					WaveXRController.RemoveDevice();
-				}
-#endif
 			}
 		}
 
@@ -325,9 +303,9 @@ namespace Wave.Essence
 			if (UpdateCurrentPoseMode(systemEvent.device.type))
 			{
 				if (systemEvent.device.type == WVR_DeviceType.WVR_DeviceType_Controller_Right)
-					UpdateControllerPoseOffset(systemEvent.device.type, m_RightPoseMode);
+					UpdateControllerPoseOffset(systemEvent.device.type, m_RightPoseMode.mode);
 				if (systemEvent.device.type == WVR_DeviceType.WVR_DeviceType_Controller_Left)
-					UpdateControllerPoseOffset(systemEvent.device.type, m_LeftPoseMode);
+					UpdateControllerPoseOffset(systemEvent.device.type, m_LeftPoseMode.mode);
 			}
 		}
 		private void OnControllerPoseModeOffsetReady(WVR_Event_t systemEvent)
@@ -824,26 +802,34 @@ namespace Wave.Essence
 		#endregion
 
 		#region Controller Pose Mode
-		WVR_ControllerPoseMode m_RightPoseMode = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw;
-		WVR_ControllerPoseMode m_LeftPoseMode = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw;
+		internal class PoseModeSetting
+		{
+			public bool isValid = false;
+			public WVR_ControllerPoseMode mode = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw;
+			public PoseModeSetting(bool in_isValid, WVR_ControllerPoseMode in_mode)
+			{
+				isValid = in_isValid;
+				mode = in_mode;
+			}
+		};
+		PoseModeSetting m_RightPoseMode = new PoseModeSetting(false, WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw);
+		PoseModeSetting m_LeftPoseMode = new PoseModeSetting(false, WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw);
 		private bool UpdateCurrentPoseMode(WVR_DeviceType type)
 		{
 			WVR_ControllerPoseMode mode = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw;
-			if (Interop.WVR_GetControllerPoseMode(type, ref mode))
+			bool isValid = Interop.WVR_GetControllerPoseMode(type, ref mode);
+			DEBUG("UpdateCurrentPoseMode() isValid: " + isValid + ", device: " + type + ", mode: " + mode);
+			if (type == WVR_DeviceType.WVR_DeviceType_Controller_Right)
 			{
-				if (type == WVR_DeviceType.WVR_DeviceType_Controller_Right)
-				{
-					m_RightPoseMode = mode;
-					DEBUG("UpdateCurrentPoseMode() Right: " + m_RightPoseMode);
-				}
-				if (type == WVR_DeviceType.WVR_DeviceType_Controller_Left)
-				{
-					m_LeftPoseMode = mode;
-					DEBUG("UpdateCurrentPoseMode() Left: " + m_LeftPoseMode);
-				}
-				return true;
+				m_RightPoseMode.isValid = isValid;
+				if (m_RightPoseMode.isValid) { m_RightPoseMode.mode = mode; }
 			}
-			return false;
+			if (type == WVR_DeviceType.WVR_DeviceType_Controller_Left)
+			{
+				m_LeftPoseMode.isValid = isValid;
+				if (m_LeftPoseMode.isValid) { m_LeftPoseMode.mode = mode; }
+			}
+			return isValid;
 		}
 		private Vector3 triggerModePositionOffsetLeft = Vector3.zero, panelModePositionOffsetLeft = Vector3.zero, handleModePositionOffsetLeft = Vector3.zero;
 		private Vector3 triggerModePositionOffsetRight = Vector3.zero, panelModePositionOffsetRight = Vector3.zero, handleModePositionOffsetRight = Vector3.zero;
@@ -929,9 +915,9 @@ namespace Wave.Essence
 		public Vector3 GetCurrentControllerPositionOffset(WVR_DeviceType type)
 		{
 			if (type == WVR_DeviceType.WVR_DeviceType_Controller_Right)
-				return GetControllerPositionOffset(type, m_RightPoseMode);
+				return GetControllerPositionOffset(type, m_RightPoseMode.mode);
 			if (type == WVR_DeviceType.WVR_DeviceType_Controller_Left)
-				return GetControllerPositionOffset(type, m_LeftPoseMode);
+				return GetControllerPositionOffset(type, m_LeftPoseMode.mode);
 			return Vector3.zero;
 		}
 		public Vector3 GetControllerPositionOffset(WVR_DeviceType type, WVR_ControllerPoseMode mode)
@@ -966,9 +952,9 @@ namespace Wave.Essence
 		public Quaternion GetCurrentControllerRotationOffset(WVR_DeviceType type)
 		{
 			if (type == WVR_DeviceType.WVR_DeviceType_Controller_Right)
-				return GetControllerRotationOffset(type, m_RightPoseMode);
+				return GetControllerRotationOffset(type, m_RightPoseMode.mode);
 			if (type == WVR_DeviceType.WVR_DeviceType_Controller_Left)
-				return GetControllerRotationOffset(type, m_LeftPoseMode);
+				return GetControllerRotationOffset(type, m_LeftPoseMode.mode);
 			return Quaternion.identity;
 		}
 		public Quaternion GetControllerRotationOffset(WVR_DeviceType type, WVR_ControllerPoseMode mode)
@@ -999,6 +985,27 @@ namespace Wave.Essence
 					break;
 			}
 			return Quaternion.identity;
+		}
+		public bool GetControllerPoseMode(WVR_DeviceType type, out WVR_ControllerPoseMode mode)
+		{
+			if (type == WVR_DeviceType.WVR_DeviceType_Controller_Right)
+			{
+				mode = m_RightPoseMode.mode;
+				return m_RightPoseMode.isValid;
+			}
+			if (type == WVR_DeviceType.WVR_DeviceType_Controller_Left)
+			{
+				mode = m_LeftPoseMode.mode;
+				return m_LeftPoseMode.isValid;
+			}
+
+			mode = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw;
+			return false;
+		}
+		public bool SetControllerPoseMode(WVR_DeviceType type, WVR_ControllerPoseMode mode)
+		{
+			DEBUG("SetControllerPoseMode() " + type + ", " + mode);
+			return Interop.WVR_SetControllerPoseMode(type, mode);
 		}
 		#endregion
 

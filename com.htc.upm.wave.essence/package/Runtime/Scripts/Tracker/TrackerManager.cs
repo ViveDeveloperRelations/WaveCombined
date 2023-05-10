@@ -593,11 +593,15 @@ namespace Wave.Essence.Tracker
 		{
 			public bool valid = false;
 			public RigidTransform rigid = RigidTransform.identity;
+			public Vector3 velocity = Vector3.zero;
+			public Vector3 angularVelocity = Vector3.zero;
 
 			public TrackerPose()
 			{
 				valid = false;
 				rigid = RigidTransform.identity;
+				velocity = Vector3.zero;
+				angularVelocity = Vector3.zero;
 			}
 		}
 		WVR_PoseOriginModel originModel = WVR_PoseOriginModel.WVR_PoseOriginModel_OriginOnHead;
@@ -622,6 +626,10 @@ namespace Wave.Essence.Tracker
 				{
 					s_TrackerPoses[trackerId].valid = pose.IsValidPose;
 					s_TrackerPoses[trackerId].rigid.update(pose.PoseMatrix);
+					Coordinate.GetVectorFromGL(pose.Velocity, out s_TrackerPoses[trackerId].velocity);
+					s_TrackerPoses[trackerId].angularVelocity.x = -pose.AngularVelocity.v0;
+					s_TrackerPoses[trackerId].angularVelocity.y = -pose.AngularVelocity.v1;
+					s_TrackerPoses[trackerId].angularVelocity.z = pose.AngularVelocity.v2;
 				}
 			}
 		}
@@ -1096,6 +1104,46 @@ namespace Wave.Essence.Tracker
 			}
 
 			return s_TrackerPoses[trackerId].rigid.rot;
+		}
+		public bool GetTrackerVelocity(TrackerId trackerId, out Vector3 velocity)
+		{
+			if (UseXRData())
+			{
+				return InputDeviceTracker.GetVelocity(trackerId.InputDevice(), out velocity);
+			}
+			velocity = s_TrackerPoses[trackerId].velocity;
+			return s_TrackerPoses[trackerId].valid;
+		}
+		public Vector3 GetTrackerVelocity(TrackerId trackerId)
+		{
+			if (UseXRData())
+			{
+				if (GetTrackerVelocity(trackerId, out Vector3 velocity))
+					return velocity;
+				else
+					return Vector3.zero;
+			}
+			return s_TrackerPoses[trackerId].velocity;
+		}
+		public bool GetTrackerAngularVelocity(TrackerId trackerId, out Vector3 angularVelocity)
+		{
+			if (UseXRData())
+			{
+				return InputDeviceTracker.GetAngularVelocity(trackerId.InputDevice(), out angularVelocity);
+			}
+			angularVelocity = s_TrackerPoses[trackerId].angularVelocity;
+			return s_TrackerPoses[trackerId].valid;
+		}
+		public Vector3 GetTrackerAngularVelocity(TrackerId trackerId)
+		{
+			if (UseXRData())
+			{
+				if (GetTrackerAngularVelocity(trackerId, out Vector3 angularVelocity))
+					return angularVelocity;
+				else
+					return Vector3.zero;
+			}
+			return s_TrackerPoses[trackerId].angularVelocity;
 		}
 
 		public AxisType GetTrackerButtonAxisType(TrackerId trackerId, TrackerButton id)

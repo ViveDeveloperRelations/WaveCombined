@@ -114,6 +114,24 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "IsTracked",
+                    "type": "Button",
+                    "id": "f5ebdec1-74ea-495e-9d38-bf2bd3c27a18",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "TrackingState",
+                    "type": "Value",
+                    "id": "05cb1556-4c3c-4ed4-90e0-493ee81f98a5",
+                    "expectedControlType": "Integer",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "GripPosition",
                     "type": "Value",
                     "id": "016fba43-5925-456c-a865-176f8fb04583",
@@ -127,15 +145,6 @@
                     "type": "Value",
                     "id": "6d9180b6-b425-44c5-a4df-fff615dbb37c",
                     "expectedControlType": "Quaternion",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "TrackingState",
-                    "type": "Value",
-                    "id": "05cb1556-4c3c-4ed4-90e0-493ee81f98a5",
-                    "expectedControlType": "Integer",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -317,6 +326,17 @@
                     "action": "TrackingState",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7be1a513-d15a-4768-9bc5-98733fc3e426",
+                    "path": "<XRController>{LeftHand}/isTracked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "IsTracked",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -433,6 +453,24 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "IsTracked",
+                    "type": "Button",
+                    "id": "2f8b53a9-be2d-4aaa-b6d6-9b2138db087e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "TrackingState",
+                    "type": "Value",
+                    "id": "b0f47772-6d4d-4c5e-b3df-be42f6eb4d08",
+                    "expectedControlType": "Integer",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "GripPosition",
                     "type": "Value",
                     "id": "9715692b-ec5b-4264-9731-c02780e67179",
@@ -446,15 +484,6 @@
                     "type": "Value",
                     "id": "a6f17fc0-706e-459c-9915-2064d4928217",
                     "expectedControlType": "Quaternion",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "TrackingState",
-                    "type": "Value",
-                    "id": "b0f47772-6d4d-4c5e-b3df-be42f6eb4d08",
-                    "expectedControlType": "Integer",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -636,6 +665,17 @@
                     "action": "TrackingState",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "315373cc-615f-4390-ba81-e7a1144edc74",
+                    "path": "<XRController>{RightHand}/isTracked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "IsTracked",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -657,6 +697,24 @@
                     "type": "Value",
                     "id": "4e56a29d-b0cc-42fd-a087-552950afac95",
                     "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "hmdIsTracked",
+                    "type": "Button",
+                    "id": "0d953964-67bf-4ea6-bb27-9e884103cff8",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "hmdTrackingState",
+                    "type": "Value",
+                    "id": "f74b1ce2-faff-412e-b551-d06154b148be",
+                    "expectedControlType": "Integer",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -682,6 +740,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "hmdRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b1499c2a-440f-4f14-9ead-19750b5f55c6",
+                    "path": "<XRHMD>/isTracked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "hmdIsTracked",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "35d2c302-7e4b-4ebd-9588-359667eb9244",
+                    "path": "<XRHMD>/trackingState",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "hmdTrackingState",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

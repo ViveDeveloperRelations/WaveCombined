@@ -44,13 +44,13 @@ namespace Wave.Essence
 		private void Start()
 		{
 			m_RightControllerModeEx = m_RightControllerMode;
-			if (Interop.WVR_SetControllerPoseMode(WVR_DeviceType.WVR_DeviceType_Controller_Right, (WVR_ControllerPoseMode)m_RightControllerMode))
+			if (WXRDevice.SetControllerPoseMode(XR_Hand.Right, m_RightControllerMode))
 				DEBUG("Start() Sets up the right controller pose mode to " + m_RightControllerMode + " successfully.");
 			else
 				DEBUG("Start() Failed to set up the right controller pose mode to " + m_RightControllerMode);
 
 			m_LeftControllerModeEx = m_LeftControllerMode;
-			if (Interop.WVR_SetControllerPoseMode(WVR_DeviceType.WVR_DeviceType_Controller_Left, (WVR_ControllerPoseMode)m_LeftControllerMode))
+			if (WXRDevice.SetControllerPoseMode(XR_Hand.Left, m_LeftControllerMode))
 				DEBUG("Start() Sets up the left controller pose mode to " + m_LeftControllerMode + " successfully.");
 			else
 				DEBUG("Start() Failed to set up the left controller pose mode to " + m_LeftControllerMode);
@@ -61,7 +61,7 @@ namespace Wave.Essence
 			if (m_RightControllerModeEx != m_RightControllerMode)
 			{
 				m_RightControllerModeEx = m_RightControllerMode;
-				if (Interop.WVR_SetControllerPoseMode(WVR_DeviceType.WVR_DeviceType_Controller_Right, (WVR_ControllerPoseMode)m_RightControllerMode))
+				if (WXRDevice.SetControllerPoseMode(XR_Hand.Right, m_RightControllerMode))
 					DEBUG("Update() Sets up the right controller pose mode to " + m_RightControllerMode + " successfully.");
 				else
 					DEBUG("Update() Failed to set up the right controller pose mode to " + m_RightControllerMode);
@@ -70,7 +70,7 @@ namespace Wave.Essence
 			if (m_LeftControllerModeEx != m_LeftControllerMode)
 			{
 				m_LeftControllerModeEx = m_LeftControllerMode;
-				if (Interop.WVR_SetControllerPoseMode(WVR_DeviceType.WVR_DeviceType_Controller_Left, (WVR_ControllerPoseMode)m_LeftControllerMode))
+				if (WXRDevice.SetControllerPoseMode(XR_Hand.Left, m_LeftControllerMode))
 					DEBUG("Start() Sets up the left controller pose mode to " + m_LeftControllerMode + " successfully.");
 				else
 					DEBUG("Start() Failed to set up the left controller pose mode to " + m_LeftControllerMode);

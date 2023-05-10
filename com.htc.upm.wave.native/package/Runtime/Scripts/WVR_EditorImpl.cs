@@ -1621,7 +1621,7 @@ namespace Wave.Native
 		#endregion
 
 		#region Interaction Mode
-		private WVR_InteractionMode interactionMode = WVR_InteractionMode.WVR_InteractionMode_Hand;
+		private WVR_InteractionMode interactionMode = WVR_InteractionMode.WVR_InteractionMode_Controller;
 		[System.Obsolete("This is an obsolete function.", true)]
 		public bool SetInteractionMode(WVR_InteractionMode mode)
 		{

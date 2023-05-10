@@ -177,6 +177,15 @@ namespace Wave.Essence
 				return false;
 			}
 		}
+
+		public static bool IsValid(this Quaternion quat)
+		{
+			if (quat.x > 1 || quat.x < -1) { return false; }
+			if (quat.y > 1 || quat.y < -1) { return false; }
+			if (quat.z > 1 || quat.z < -1) { return false; }
+			if (quat.w > 1 || quat.w < -1) { return false; }
+			return true;
+		}
 	} // class Numeric
 
 	public class RenderFunctions
@@ -483,6 +492,17 @@ namespace Wave.Essence
 
 			return false;
 		}
+		public static bool GetVelocity(XR_Device device, ref Vector3 velocity, bool adaptiveHanded = false)
+		{
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			return InputDeviceControl.GetVelocity(device.InputDevice(), out velocity);
+		}
+		public static bool GetAngularVelocity(XR_Device device, ref Vector3 angularVelocity, bool adaptiveHanded = false)
+		{
+			device = GetAdaptiveDevice(device, adaptiveHanded);
+			return InputDeviceControl.GetAngularVelocity(device.InputDevice(), out angularVelocity);
+		}
+
 		#region Controller Pose Mode
 		public static bool GetControllerPosition(XR_Hand hand, ref Vector3 position, bool adaptiveHanded = false)
 		{
@@ -515,7 +535,7 @@ namespace Wave.Essence
 				}
 			}
 
-			Vector3 offset = WaveEssence.Instance.GetControllerPositionOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
+			Vector3 offset = GetControllerPositionOffset(hand, mode, adaptiveHanded);
 			position = pos + offset;
 
 			return true;
@@ -552,12 +572,50 @@ namespace Wave.Essence
 				}
 			}
 
-			Quaternion offset = WaveEssence.Instance.GetControllerRotationOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
+			Quaternion offset = GetControllerRotationOffset(hand, mode, adaptiveHanded);
 			rotation = rot * offset;
 
 			return true;
 		}
-#endregion
+
+		public static bool SetControllerPoseMode(XR_Hand hand, XR_ControllerPoseMode mode, bool adaptiveHanded = false)
+		{
+			return WaveEssence.Instance.SetControllerPoseMode(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
+		}
+		public static bool GetControllerPoseMode(XR_Hand hand, out XR_ControllerPoseMode mode, bool adaptiveHanded = false)
+		{
+			mode = XR_ControllerPoseMode.Raw;
+			if (WaveEssence.Instance.GetControllerPoseMode(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), out WVR_ControllerPoseMode wvrMode))
+			{
+				mode = wvrMode.XrMode();
+				return true;
+			}
+			return false;
+		}
+		public static Vector3 GetCurrentControllerPositionOffset(XR_Hand hand, bool adaptiveHanded = false)
+		{
+			return WaveEssence.Instance.GetCurrentControllerPositionOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded));
+		}
+		public static Vector3 GetControllerPositionOffset(XR_Hand hand, XR_ControllerPoseMode mode, bool adaptiveHanded = false)
+		{
+			return WaveEssence.Instance.GetControllerPositionOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
+		}
+		public static Quaternion GetCurrentControllerRotationOffset(XR_Hand hand, bool adaptiveHanded = false)
+		{
+			return WaveEssence.Instance.GetCurrentControllerRotationOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded));
+		}
+		public static Quaternion GetControllerRotationOffset(XR_Hand hand, XR_ControllerPoseMode mode, bool adaptiveHanded = false)
+		{
+			return WaveEssence.Instance.GetControllerRotationOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
+		}
+		public static XR_ControllerPoseMode XrMode(this WVR_ControllerPoseMode mode)
+		{
+			if (mode == WVR_ControllerPoseMode.WVR_ControllerPoseMode_Trigger) { return XR_ControllerPoseMode.Trigger; }
+			if (mode == WVR_ControllerPoseMode.WVR_ControllerPoseMode_Panel) { return XR_ControllerPoseMode.Panel; }
+			if (mode == WVR_ControllerPoseMode.WVR_ControllerPoseMode_Handle) { return XR_ControllerPoseMode.Handle; }
+			return XR_ControllerPoseMode.Raw;
+		}
+		#endregion
 
 		/// <summary>
 		/// Retrieves a device's battery life with a valid value between 0~1 where 1 means full capacity or an invalid value of -1.
@@ -670,11 +728,5 @@ namespace Wave.Essence
 			Interop.WVR_UpdateNotifyDeviceInfo(type, ptrParameterName);
 			Marshal.FreeHGlobal(ptrParameterName);
 		}
-	}
-
-	[Obsolete("Deprecated.")]
-	public static class ApplicationScene
-	{
-		public static bool IsFocused { get { return ClientInterface.IsFocused; } }
 	}
 }

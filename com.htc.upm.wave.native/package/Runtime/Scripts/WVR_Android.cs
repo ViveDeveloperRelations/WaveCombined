@@ -988,7 +988,21 @@ namespace Wave.Native
             return WVR_GetMaxCompositionLayerCount_Android();
         }
 
-        [DllImportAttribute("wvr_api", EntryPoint = "WVR_SubmitFrame", CallingConvention = CallingConvention.Cdecl)]
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_CreateAndroidSurface", CallingConvention = CallingConvention.Cdecl)]
+		public static extern IntPtr WVR_CreateAndroidSurface_Android(int width, int height, bool isProtected, [In, Out] WVR_TextureParams_t[] param);
+		public override IntPtr CreateAndroidSurface(int width, int height, bool isProtected, [In, Out] WVR_TextureParams_t[] param)
+		{
+			return WVR_CreateAndroidSurface_Android(width, height, isProtected, param);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_DeleteAndroidSurface", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_DeleteAndroidSurface_Android();
+		public override void DeleteAndroidSurface()
+		{
+			WVR_DeleteAndroidSurface_Android();
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SubmitFrame", CallingConvention = CallingConvention.Cdecl)]
 		public static extern WVR_SubmitError WVR_SubmitFrame_Android(WVR_Eye eye, [In, Out] WVR_TextureParams_t[] param, [In, Out] WVR_PoseState_t[] pose, WVR_SubmitExtend extendMethod);
 		public override WVR_SubmitError SubmitFrame(WVR_Eye eye, [In, Out] WVR_TextureParams_t[] param, [In, Out] WVR_PoseState_t[] pose, WVR_SubmitExtend extendMethod)
 		{

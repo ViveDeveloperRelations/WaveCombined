@@ -42,11 +42,14 @@ namespace Wave.XR
 		{
 			var subsystems = new List<XRDisplaySubsystem>();
 			SubsystemManager.GetInstances(subsystems);
-			foreach (var subsystem in subsystems)
+			if (subsystems != null && subsystems.Count > 0)
 			{
-				if (subsystem.SubsystemDescriptor.id == Constants.k_DisplaySubsystemId)
+				for (int i = 0; i < subsystems.Count; i++)
 				{
-					return subsystem;
+					if (subsystems[i].SubsystemDescriptor.id == Constants.k_DisplaySubsystemId)
+					{
+						return subsystems[i];
+					}
 				}
 			}
 			return null;
@@ -56,11 +59,14 @@ namespace Wave.XR
 		{
 			var subsystems = new List<XRInputSubsystem>();
 			SubsystemManager.GetInstances(subsystems);
-			foreach (var subsystem in subsystems)
+			if (subsystems != null && subsystems.Count > 0)
 			{
-				if (subsystem.SubsystemDescriptor.id == Constants.k_InputSubsystemId)
+				for (int i = 0; i < subsystems.Count; i++)
 				{
-					return subsystem;
+					if (subsystems[i].SubsystemDescriptor.id == Constants.k_InputSubsystemId)
+					{
+						return subsystems[i];
+					}
 				}
 			}
 			return null;
