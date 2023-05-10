@@ -41,6 +41,31 @@ public class FoveatedTest : MonoBehaviour
 	{
 		if (!foveated.enabled)
 		{
+			foveated.SetDynamic = false;
+			foveated.enabled = true;
+			changeStatus = true;
+		}
+		else if (foveated.SetDynamic)
+		{
+			foveated.enabled = false;
+			foveated.SetDynamic = false;
+			foveated.enabled = true;
+			changeStatus = true;
+		}
+	}
+
+	public void FoveationIsEnableDynamic()
+	{
+		if (!foveated.enabled)
+		{
+			foveated.SetDynamic = true;
+			foveated.enabled = true;
+			changeStatus = true;
+		}
+		else if (!foveated.SetDynamic)
+		{
+			foveated.enabled = false;
+			foveated.SetDynamic = true;
 			foveated.enabled = true;
 			changeStatus = true;
 		}
@@ -199,7 +224,7 @@ public class FoveatedTest : MonoBehaviour
 		}
 		else
 		{
-			string[] textArray1 = new string[10];
+			string[] textArray1 = new string[12];
 			textArray1[0] = "Foveation enable : ";
 			textArray1[1] = foveated.enabled.ToString();
 			textArray1[2] = "\n LeftClearVisionFOV : ";
@@ -210,6 +235,8 @@ public class FoveatedTest : MonoBehaviour
 			textArray1[7] = foveated.LeftPeripheralQuality.ToString();
 			textArray1[8] = "\n RightPeripheralQuality : ";
 			textArray1[9] = foveated.RightPeripheralQuality.ToString();
+			textArray1[10] = "\n Foveation dynamic : ";
+			textArray1[11] = foveated.SetDynamic.ToString();
 			str = string.Concat(textArray1);
 			//Log.d(LOG_TAG, "foveation_type_text: " + str, false);
 		}

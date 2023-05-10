@@ -331,14 +331,25 @@ namespace Wave.XR.DirectPreview
 			UnityEngine.Debug.Log(LOG_TAG + ": " + msg);
 		}
 
+		public class DirectPreviewRendererHooker : MonoBehaviour
+        {
+			// Only MonoBehaviour has coroutine
+			IEnumerator Start()
+            {
+				while (Camera.main == null)
+					yield return null;
+				if (Camera.main.gameObject.GetComponent<DirectPreviewRender>() == null)
+					Camera.main.gameObject.AddComponent<DirectPreviewRender>();
+				Destroy(this.gameObject);
+			}
+        }
+
 		static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
-			PrintDebug("OnSceneLoaded() " + scene.name);
-			bool tPreview = EditorPrefs.GetBool("EnablePreviewImage");
-			if (EnableDirectPreview && (connectType == 1) && tPreview)
+			if (EnableDirectPreview)
 			{
-				PrintDebug("OnSceneLoaded() call WVR_PostInit()");
-				Camera.main.gameObject.AddComponent<DirectPreviewRender>();
+				var obj = new GameObject("DPRendererHooker");
+				obj.AddComponent<DirectPreviewRendererHooker>();
 			}
 		}
 

@@ -38,7 +38,7 @@ namespace Wave.XR.DirectPreview.Editor
 
 		public static bool isStreamingServerExist()
 		{
-			var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/dpServer.exe");
+			var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/RRServer/RRserver.exe");
 
 			UnityEngine.Debug.Log("StreamingServer pull path = " + absolutePath);
 
@@ -52,13 +52,14 @@ namespace Wave.XR.DirectPreview.Editor
 			{
 				try
 				{
-					var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary");
+					var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/RRServer");
 					var driveStr = absolutePath.Substring(0, 2);
 
 					UnityEngine.Debug.Log("StreamingServer in " + absolutePath);
-					//Get the path of the Game data folder
-					myProcess.StartInfo.FileName = "C:\\Windows\\system32\\cmd.exe";
-					myProcess.StartInfo.Arguments = "/c " + driveStr + " && cd " + absolutePath + " && dpServer";
+                    UnityEngine.Debug.Log("driveStr " + driveStr);
+                    //Get the path of the Game data folder
+                    myProcess.StartInfo.FileName = "C:\\Windows\\system32\\cmd.exe";
+					myProcess.StartInfo.Arguments = "/c " + driveStr + " && cd " + absolutePath + " && RRserver";
 					myProcess.Start();
 				}
 				catch (Exception e)
@@ -82,7 +83,7 @@ namespace Wave.XR.DirectPreview.Editor
 				{
 					UnityEngine.Debug.Log("Stop Streaming Server.");
 					myProcess.StartInfo.FileName = "C:\\Windows\\system32\\cmd.exe";
-					myProcess.StartInfo.Arguments = "/c taskkill /F /IM dpServer.exe";
+					myProcess.StartInfo.Arguments = "/c taskkill /F /IM RRServer.exe";
 					myProcess.Start();
 				}
 				catch (Exception e)

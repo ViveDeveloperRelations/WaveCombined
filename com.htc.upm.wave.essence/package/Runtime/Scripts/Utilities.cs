@@ -9,7 +9,6 @@
 // specifications, and documentation provided by HTC to You."
 
 using System;
-using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.XR;
@@ -285,7 +284,7 @@ namespace Wave.Essence
 			return WVR_DeviceType.WVR_DeviceType_Invalid;
 		}
 
-		public static UnityEngine.XR.InputDevice GetRoleDevice(XR_Device device, bool adaptiveHanded = false)
+		public static InputDevice GetRoleDevice(XR_Device device, bool adaptiveHanded = false)
 		{
 			if (device == XR_Device.Dominant)
 			{
@@ -485,34 +484,9 @@ namespace Wave.Essence
 			return false;
 		}
 		#region Controller Pose Mode
-		static int[,] positionFrame = new int[Enum.GetNames(typeof(WVR_DeviceType)).Length, Enum.GetNames(typeof(WVR_ControllerPoseMode)).Length];
-		static bool AllowGetPosition(XR_Hand hand, XR_ControllerPoseMode mode)
-		{
-			if (Time.frameCount != positionFrame[(int)hand, (int)mode])
-			{
-				positionFrame[(int)hand, (int)mode] = Time.frameCount;
-				return true;
-			}
-			return false;
-		}
-		static int[,] rotationFrame = new int[Enum.GetNames(typeof(WVR_DeviceType)).Length, Enum.GetNames(typeof(WVR_ControllerPoseMode)).Length];
-		static bool AllowGetRotation(XR_Hand hand, XR_ControllerPoseMode mode)
-		{
-			if (Time.frameCount != rotationFrame[(int)hand, (int)mode])
-			{
-				rotationFrame[(int)hand, (int)mode] = Time.frameCount;
-				return true;
-			}
-			return false;
-		}
-
-		static Vector3 triggerPos_L = Vector3.zero, panelPos_L = Vector3.zero, handlePos_L = Vector3.zero;
-		static Quaternion triggerRot_L = Quaternion.identity, panelRot_L = Quaternion.identity, handleRot_L = Quaternion.identity;
-		static Vector3 triggerPos_R = Vector3.zero, panelPos_R = Vector3.zero, handlePos_R = Vector3.zero;
-		static Quaternion triggerRot_R = Quaternion.identity, panelRot_R = Quaternion.identity, handleRot_R = Quaternion.identity;
 		public static bool GetControllerPosition(XR_Hand hand, ref Vector3 position, bool adaptiveHanded = false)
 		{
-			return GetControllerPosition(hand, XR_ControllerPoseMode.Panel, ref position, adaptiveHanded);
+			return GetControllerPosition(hand, XR_ControllerPoseMode.Raw, ref position, adaptiveHanded);
 		}
 		public static bool GetControllerPosition(XR_Hand hand, XR_ControllerPoseMode mode, ref Vector3 position, bool adaptiveHanded = false)
 		{
@@ -542,56 +516,13 @@ namespace Wave.Essence
 			}
 
 			Vector3 offset = WaveEssence.Instance.GetControllerPositionOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
-
-			if (AllowGetPosition(hand, mode))
-			{
-				position = pos + offset;
-				if (hand == XR_Hand.Dominant)
-				{
-					if (mode == XR_ControllerPoseMode.Trigger)
-						triggerPos_R = position;
-					if (mode == XR_ControllerPoseMode.Panel)
-						panelPos_R = position;
-					if (mode == XR_ControllerPoseMode.Handle)
-						handlePos_R = position;
-				}
-				if (hand == XR_Hand.NonDominant)
-				{
-					if (mode == XR_ControllerPoseMode.Trigger)
-						triggerPos_L = position;
-					if (mode == XR_ControllerPoseMode.Panel)
-						panelPos_L = position;
-					if (mode == XR_ControllerPoseMode.Handle)
-						handlePos_L = position;
-				}
-			}
-			else
-			{
-				if (hand == XR_Hand.Dominant)
-				{
-					if (mode == XR_ControllerPoseMode.Trigger)
-						position = triggerPos_R;
-					if (mode == XR_ControllerPoseMode.Panel)
-						position = panelPos_R;
-					if (mode == XR_ControllerPoseMode.Handle)
-						position = handlePos_R;
-				}
-				if (hand == XR_Hand.NonDominant)
-				{
-					if (mode == XR_ControllerPoseMode.Trigger)
-						position = triggerPos_L;
-					if (mode == XR_ControllerPoseMode.Panel)
-						position = panelPos_L;
-					if (mode == XR_ControllerPoseMode.Handle)
-						position = handlePos_L;
-				}
-			}
+			position = pos + offset;
 
 			return true;
 		}
 		public static bool GetControllerRotation(XR_Hand hand, ref Quaternion rotation, bool adaptiveHanded = false)
 		{
-			return GetControllerRotation(hand, XR_ControllerPoseMode.Panel, ref rotation, adaptiveHanded);
+			return GetControllerRotation(hand, XR_ControllerPoseMode.Raw, ref rotation, adaptiveHanded);
 		}
 		public static bool GetControllerRotation(XR_Hand hand, XR_ControllerPoseMode mode, ref Quaternion rotation, bool adaptiveHanded = false)
 		{
@@ -622,50 +553,7 @@ namespace Wave.Essence
 			}
 
 			Quaternion offset = WaveEssence.Instance.GetControllerRotationOffset(GetRoleDevice((WVR_DeviceType)hand, adaptiveHanded), (WVR_ControllerPoseMode)mode);
-
-			if (AllowGetRotation(hand, mode))
-			{
-				rotation = rot * offset;
-				if (hand == XR_Hand.Dominant)
-				{
-					if (mode == XR_ControllerPoseMode.Trigger)
-						triggerRot_R = rotation;
-					if (mode == XR_ControllerPoseMode.Panel)
-						panelRot_R = rotation;
-					if (mode == XR_ControllerPoseMode.Handle)
-						handleRot_R = rotation;
-				}
-				if (hand == XR_Hand.NonDominant)
-				{
-					if (mode == XR_ControllerPoseMode.Trigger)
-						triggerRot_L = rotation;
-					if (mode == XR_ControllerPoseMode.Panel)
-						panelRot_L = rotation;
-					if (mode == XR_ControllerPoseMode.Handle)
-						handleRot_L = rotation;
-				}
-			}
-			else
-			{
-				if (hand == XR_Hand.Dominant)
-				{
-					if (mode == XR_ControllerPoseMode.Trigger)
-						rotation = triggerRot_R;
-					if (mode == XR_ControllerPoseMode.Panel)
-						rotation = panelRot_R;
-					if (mode == XR_ControllerPoseMode.Handle)
-						rotation = handleRot_R;
-				}
-				if (hand == XR_Hand.NonDominant)
-				{
-					if (mode == XR_ControllerPoseMode.Trigger)
-						rotation = triggerRot_L;
-					if (mode == XR_ControllerPoseMode.Panel)
-						rotation = panelRot_L;
-					if (mode == XR_ControllerPoseMode.Handle)
-						rotation = handleRot_L;
-				}
-			}
+			rotation = rot * offset;
 
 			return true;
 		}

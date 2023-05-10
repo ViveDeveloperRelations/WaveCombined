@@ -33,10 +33,10 @@ namespace Wave.XR.DirectPreview.Editor
 		//[UnityEditor.MenuItem("Wave/DirectPreview/Install Device APK", priority = 801)]
 		public static void InstallSimulator()
 		{
-			UninstallSimulatorInner();
+			//UninstallSimulatorInner();
 			InstallSimulatorInner();
-			CreateDirectPreviewFolderInner();
-			PushConfigInner();
+			//CreateDirectPreviewFolderInner();
+			//PushConfigInner();
 		}
 
 		//[UnityEditor.MenuItem("Wave/DirectPreview/Start Device APK", priority = 802)]
@@ -84,7 +84,7 @@ namespace Wave.XR.DirectPreview.Editor
 		{
 			try
 			{
-				var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/wvr_plugins_directpreview_agent_unity.apk");
+				var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/RRClient/Vive_rrClient.apk");
 				UnityEngine.Debug.Log("Install Direct Preview device APK pull path = " + absolutePath);
 
 				Process myProcess = new Process();

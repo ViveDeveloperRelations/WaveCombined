@@ -50,20 +50,21 @@ namespace Wave.XR.Sample
 			float interp = unscaledDeltaTime / (0.5f + unscaledDeltaTime);
 			float currentFPS = 1.0f / unscaledDeltaTime;
 			fps = Mathf.Lerp(fps, currentFPS, interp);
-#if !UNITY_EDITOR && UNITY_ANDROID
-			List<XRDisplaySubsystem> displays = new List<XRDisplaySubsystem>();
+			// Let Show FPS can up to limit
+//#if !UNITY_EDITOR && UNITY_ANDROID
+//			List<XRDisplaySubsystem> displays = new List<XRDisplaySubsystem>();
 
-			SubsystemManager.GetInstances(displays);
-            foreach (var display in displays)
-                if (display.running)
-					displaySubsystem = display;
-			if (displaySubsystem != null)
-				displaySubsystem.TryGetDisplayRefreshRate(out targetfps);
+//			SubsystemManager.GetInstances(displays);
+//			foreach (var display in displays)
+//				if (display.running)
+//					displaySubsystem = display;
+//			if (displaySubsystem != null)
+//				displaySubsystem.TryGetDisplayRefreshRate(out targetfps);
 
-			var showFps = (fps > targetfps) ? targetfps : fps;
-#else
+//			var showFps = (fps > targetfps) ? targetfps : fps;
+//#else
 			var showFps = fps;
-#endif
+//#endif
 			// Avoid update Canvas too frequently.
 			if (accTime < 0.20f)
 				return;

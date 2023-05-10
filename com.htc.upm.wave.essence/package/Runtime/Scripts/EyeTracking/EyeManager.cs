@@ -283,6 +283,7 @@ namespace Wave.Essence.Eye
 			{
 				DEBUG("StopEyeTrackingLock() XR");
 				InputDeviceEye.ActivateEyeTracking(false);
+				hasEyeTrackingData = false;
 				return;
 			}
 

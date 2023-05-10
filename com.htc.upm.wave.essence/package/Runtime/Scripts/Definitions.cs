@@ -161,6 +161,7 @@ namespace Wave.Essence
 
 	public enum XR_ControllerPoseMode
 	{
+		Raw = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw,
 		Trigger = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Trigger,
 		Panel = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Panel,
 		Handle = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Handle,

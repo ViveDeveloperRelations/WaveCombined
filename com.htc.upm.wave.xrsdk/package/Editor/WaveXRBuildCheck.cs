@@ -36,11 +36,10 @@ namespace Wave.XR.BuildCheck
 		const string Aar2017PathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/wvr_unity_plugin_2017.aar";
 		const string Aar2022PathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/wvr_unity_plugin_2022.aar";
 		const string AndroidManifestPathDest = "Assets/Plugins/Android/AndroidManifest.xml";
+		const string AndroidManifestScriptCreatedPath = "Assets/Plugins/Android/AndroidManifest.IsCreatedByScript";
 		const string Aar2017PathDest = "Assets/Plugins/Android/wvr_unity_plugin_2017.aar";
 		const string Aar2022PathDest = "Assets/Plugins/Android/wvr_unity_plugin_2022.aar";
 		const string ForceBuildWVR = "ForceBuildWVR.txt";
-
-		static bool isAndroidManifestPathDestExisted = false;
 
 		internal static void AddHandtrackingAndroidManifest()
 		{
@@ -177,6 +176,87 @@ namespace Wave.XR.BuildCheck
 			}
 		}
 
+		internal static void AddScenePerceptionAndroidManifest()
+		{
+			WaveXRSettings settings;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+				WaveXRPath = settings.waveXRFolder;
+
+			if (File.Exists(AndroidManifestPathDest))
+			{
+				if (!checkScenePerceptionFeature(AndroidManifestPathDest))
+				{
+					appendFile(
+						filename: AndroidManifestPathDest,
+						scenePerception: true);
+				}
+			}
+			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+			{
+				if (!checkScenePerceptionFeature(WaveXRPath + CustomAndroidManifestPathSrc))
+				{
+					appendFile(
+						filename: WaveXRPath + CustomAndroidManifestPathSrc,
+						scenePerception: true);
+				}
+			}
+		}
+
+		internal static void AddSceneMeshAndroidManifest()
+		{
+			WaveXRSettings settings;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+				WaveXRPath = settings.waveXRFolder;
+
+			if (File.Exists(AndroidManifestPathDest))
+			{
+				if (!checkSceneMeshPermission(AndroidManifestPathDest))
+				{
+					appendFile(
+						filename: AndroidManifestPathDest,
+						sceneMesh: true);
+				}
+			}
+			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+			{
+				if (!checkSceneMeshPermission(WaveXRPath + CustomAndroidManifestPathSrc))
+				{
+					appendFile(
+						filename: WaveXRPath + CustomAndroidManifestPathSrc,
+						sceneMesh: true);
+				}
+			}
+		}
+
+		static void RemoveCreatedAndroidManifest()
+		{
+			bool isAndroidManifestCreatedByScript = File.Exists(AndroidManifestScriptCreatedPath);
+			if (isAndroidManifestCreatedByScript)
+			{
+				File.Delete(AndroidManifestScriptCreatedPath);
+				if (File.Exists(AndroidManifestPathDest))
+					File.Delete(AndroidManifestPathDest);
+			}
+		}
+
+		static void RemoveWaveAARs()
+        {
+#if UNITY_2022_1_OR_NEWER
+			if (File.Exists(Aar2022PathDest))
+				File.Delete(Aar2022PathDest);
+			if (File.Exists(Aar2022PathDest + ".meta"))
+				File.Delete(Aar2022PathDest + ".meta");
+#else
+			if (File.Exists(Aar2017PathDest))
+				File.Delete(Aar2017PathDest);
+			if (File.Exists(Aar2017PathDest + ".meta"))
+				File.Delete(Aar2017PathDest + ".meta");
+#endif
+			AssetDatabase.Refresh();
+		}
+
 		static void CopyAndroidManifest()
 		{
 			const string PluginAndroidPath = "Assets/Plugins/Android";
@@ -187,7 +267,7 @@ namespace Wave.XR.BuildCheck
 
 			if (!Directory.Exists(PluginAndroidPath))
 				Directory.CreateDirectory(PluginAndroidPath);
-			isAndroidManifestPathDestExisted = File.Exists(AndroidManifestPathDest);
+			bool isAndroidManifestPathDestExisted = File.Exists(AndroidManifestPathDest);
 			if (isAndroidManifestPathDestExisted)
 			{
 				Debug.Log("Using the Android Manifest at Assets/Plugins/Android");
@@ -200,6 +280,10 @@ namespace Wave.XR.BuildCheck
 				return; // not to overwrite existed AndroidManifest.xml
 			}
 
+			// Create the dummy file
+			if (!isAndroidManifestPathDestExisted)
+				File.Create(AndroidManifestScriptCreatedPath).Dispose();
+
 			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
 			{
 				Debug.Log("Using the Android Manifest at " + WaveXRPath + "/Platform/Android");
@@ -211,15 +295,23 @@ namespace Wave.XR.BuildCheck
 				File.Copy(AndroidManifestPathSrc, AndroidManifestPathDest, false);
 			}
 
-			bool addHandTracking = false;
-			bool addTracker	     = (EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false)      && !checkTrackerFeature(AndroidManifestPathDest));
-			bool addSimultaneousInteraction      = (EditorPrefs.GetBool(CheckIfSimultaneousInteractionEnabled.MENU_NAME, false)      && !checkSimultaneousInteractionFeature(AndroidManifestPathDest));
-			bool addEyeTracking  = (EditorPrefs.GetBool(CheckIfEyeTrackingEnabled.MENU_NAME, false)  && !checkEyeTrackingFeature(AndroidManifestPathDest));
-			bool addLipExpression = (EditorPrefs.GetBool(CheckIfLipExpressionEnabled.MENU_NAME, false) && !checkLipExpressionFeature(AndroidManifestPathDest));
+			bool addHandTracking  = false;
+			bool addTracker	      = false;
+			bool addEyeTracking	  = false;
+			bool addLipExpression = false;
+			bool addScenePerception = false;
+			bool addSceneMesh = false;
+			bool addSimultaneousInteraction = (EditorPrefs.GetBool(CheckIfSimultaneousInteractionEnabled.MENU_NAME, false) && !checkSimultaneousInteractionFeature(AndroidManifestPathDest));
 
 			if (settings != null)
 			{
 				addHandTracking = settings.EnableNaturalHand && !checkHandtrackingFeature(AndroidManifestPathDest);
+				addTracker = settings.EnableTracker && !checkTrackerFeature(AndroidManifestPathDest);
+				addEyeTracking = settings.EnableEyeTracking && !checkEyeTrackingFeature(AndroidManifestPathDest);
+				addLipExpression = settings.EnableLipExpression && !checkLipExpressionFeature(AndroidManifestPathDest);
+				addScenePerception = settings.EnableScenePerception && !checkScenePerceptionFeature(AndroidManifestPathDest);
+				addSceneMesh = settings.EnableSceneMesh && !checkSceneMeshPermission(AndroidManifestPathDest);
+
 				appendFile(
 					filename: AndroidManifestPathDest,
 					handtracking: addHandTracking,
@@ -227,7 +319,9 @@ namespace Wave.XR.BuildCheck
 					tracker: addTracker,
 					simultaneous_interaction: addSimultaneousInteraction,
 					eyetracking: addEyeTracking,
-					lipexpression: addLipExpression);
+					lipexpression: addLipExpression,
+					scenePerception: addScenePerception,
+					sceneMesh: addSceneMesh);
 			}
 			else
 			{
@@ -237,8 +331,37 @@ namespace Wave.XR.BuildCheck
 					tracker: addTracker,
 					simultaneous_interaction: addSimultaneousInteraction,
 					eyetracking: addEyeTracking,
-					lipexpression: addLipExpression);
+					lipexpression: addLipExpression,
+					scenePerception: addScenePerception,
+					sceneMesh: addSceneMesh);
 			}
+		}
+
+		static void CopyWaveAARs()
+        {
+#if UNITY_2022_1_OR_NEWER
+			if (!File.Exists(Aar2022PathDest))
+				File.Copy(Aar2022PathSrc, Aar2022PathDest, false);
+			if (File.Exists(Aar2017PathDest))
+				File.Delete(Aar2017PathDest);
+			if (File.Exists(Aar2017PathDest + ".meta"))
+				File.Delete(Aar2017PathDest + ".meta");
+			PluginImporter plugin = AssetImporter.GetAtPath(Aar2022PathDest) as PluginImporter;
+			if (plugin != null)
+				plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
+			AssetDatabase.Refresh();
+#else
+			if (!File.Exists(Aar2017PathDest))
+				File.Copy(Aar2017PathSrc, Aar2017PathDest, false);
+			if (File.Exists(Aar2022PathDest))
+				File.Delete(Aar2022PathDest);
+			if (File.Exists(Aar2022PathDest + ".meta"))
+				File.Delete(Aar2022PathDest + ".meta");
+			PluginImporter plugin = AssetImporter.GetAtPath(Aar2017PathDest) as PluginImporter;
+			if (plugin != null)
+				plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
+			AssetDatabase.Refresh();
+#endif
 		}
 
 		static void appendFile(string filename
@@ -247,7 +370,9 @@ namespace Wave.XR.BuildCheck
 			, bool tracker = false
 			, bool simultaneous_interaction = false
 			, bool eyetracking = false
-			, bool lipexpression = false)
+			, bool lipexpression = false
+			, bool scenePerception = false
+			, bool sceneMesh = false)
 		{
 			string line;
 
@@ -280,6 +405,14 @@ namespace Wave.XR.BuildCheck
 				if (line.Contains("</manifest>") && lipexpression)
 				{
 					file2.WriteLine("	<uses-feature android:name=\"wave.feature.lipexpression\" android:required=\"true\" />");
+				}
+				if (line.Contains("</manifest>") && scenePerception)
+				{
+					file2.WriteLine("	<uses-feature android:name=\"wave.feature.sceneperception\" android:required=\"true\" />");
+				}
+				if (line.Contains("</manifest>") && sceneMesh)
+				{
+					file2.WriteLine("	<uses-permission android:name=\"wave.permission.GET_SCENE_MESH\" />");
 				}
 				file2.WriteLine(line);
 			}
@@ -390,6 +523,45 @@ namespace Wave.XR.BuildCheck
 			return false;
 		}
 
+		static bool checkScenePerceptionFeature(string filename)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(filename);
+			XmlNodeList metadataNodeList = doc.SelectNodes("/manifest/uses-feature");
+
+			if (metadataNodeList != null)
+			{
+				foreach (XmlNode metadataNode in metadataNodeList)
+				{
+					string name = metadataNode.Attributes["android:name"].Value;
+					string required = metadataNode.Attributes["android:required"].Value;
+
+					if (name != null && name.Equals("wave.feature.sceneperception"))
+						return true;
+				}
+			}
+			return false;
+		}
+
+		static bool checkSceneMeshPermission(string filename)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(filename);
+			XmlNodeList metadataNodeList = doc.SelectNodes("/manifest/uses-permission");
+
+			if (metadataNodeList != null)
+			{
+				foreach (XmlNode metadataNode in metadataNodeList)
+				{
+					string name = metadataNode.Attributes["android:name"].Value;
+
+					if (name != null && name.Equals("wave.permission.GET_SCENE_MESH"))
+						return true;
+				}
+			}
+			return false;
+		}
+
 		static bool checkDefSupportedFPS(string filename)
 		{
 			XmlDocument doc = new XmlDocument();
@@ -436,6 +608,22 @@ namespace Wave.XR.BuildCheck
 			return didAssign;
 		}
 
+		static bool CheckIsBuildingVR()
+        {
+			var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
+			if (androidGenericSettings == null)
+				return false;
+
+			var androidXRMSettings = androidGenericSettings.AssignedSettings;
+			if (androidXRMSettings == null)
+				return false;
+
+#pragma warning disable
+            var loaders = androidXRMSettings.loaders;
+#pragma warning enable
+            return loaders.Count > 0;
+		}
+
 		static bool CheckIsBuildingWave()
 		{
 			var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
@@ -446,7 +634,9 @@ namespace Wave.XR.BuildCheck
 			if (androidXRMSettings == null)
 				return false;
 
+#pragma warning disable
 			var loaders = androidXRMSettings.loaders;
+#pragma warning enable
 			foreach (var loader in loaders)
 			{
 				if (loader.GetType() == typeof(WaveXRLoader))
@@ -457,12 +647,114 @@ namespace Wave.XR.BuildCheck
 			return false;
 		}
 
+		// Copy from XR.Management.XRGeneralBuildProcess
+		internal class BootConfig
+		{
+			static readonly string kXrBootSettingsKey = "xr-boot-settings";
+			Dictionary<string, string> bootConfigSettings;
+
+			BuildReport buildReport;
+			string bootConfigPath;
+
+			internal BootConfig(BuildReport report)
+			{
+				buildReport = report;
+			}
+
+			internal void ReadBootConfig()
+			{
+				bootConfigSettings = new Dictionary<string, string>();
+
+				string buildTargetName = BuildPipeline.GetBuildTargetName(buildReport.summary.platform);
+				string xrBootSettings = UnityEditor.EditorUserBuildSettings.GetPlatformSettings(buildTargetName, kXrBootSettingsKey);
+				if (!String.IsNullOrEmpty(xrBootSettings))
+				{
+					// boot settings string format
+					// <boot setting>:<value>[;<boot setting>:<value>]*
+					var bootSettings = xrBootSettings.Split(';');
+					foreach (var bootSetting in bootSettings)
+					{
+						var setting = bootSetting.Split(':');
+						if (setting.Length == 2 && !String.IsNullOrEmpty(setting[0]) && !String.IsNullOrEmpty(setting[1]))
+						{
+							bootConfigSettings.Add(setting[0], setting[1]);
+						}
+					}
+				}
+			}
+
+			internal void SetValueForKey(string key, string value, bool replace = false)
+			{
+				if (bootConfigSettings.ContainsKey(key))
+				{
+					bootConfigSettings[key] = value;
+				}
+				else
+				{
+					bootConfigSettings.Add(key, value);
+				}
+			}
+
+			internal bool GetValueForKey(string key, out string value)
+			{
+				if (bootConfigSettings.ContainsKey(key))
+				{
+					value = bootConfigSettings[key];
+					return true;
+				}
+				value = "";
+				return false;
+			}
+
+			internal void WriteBootConfig()
+			{
+				// boot settings string format
+				// <boot setting>:<value>[;<boot setting>:<value>]*
+				bool firstEntry = true;
+				var sb = new System.Text.StringBuilder();
+				foreach (var kvp in bootConfigSettings)
+				{
+					if (!firstEntry)
+					{
+						sb.Append(";");
+					}
+					sb.Append($"{kvp.Key}:{kvp.Value}");
+					firstEntry = false;
+				}
+
+				string buildTargetName = BuildPipeline.GetBuildTargetName(buildReport.summary.platform);
+				EditorUserBuildSettings.SetPlatformSettings(buildTargetName, kXrBootSettingsKey, sb.ToString());
+			}
+		}
+
 		private class CustomPreprocessor : IPreprocessBuildWithReport
         {
             public int callbackOrder { get { return 0; } }
 
-            public void OnPreprocessBuild(BuildReport report)
-            {
+			public void OnPreprocessBuild(BuildReport report)
+			{
+				// Remove any script created files before build
+				{
+					RemoveCreatedAndroidManifest();
+					RemoveWaveAARs();
+				}
+
+				if (report.summary.platform == BuildTarget.Android && !CheckIsBuildingVR())
+				{
+					Debug.Log("WaveXRBuildCheck: Not building WaveXR.");
+					// if we want to build non-VR Android apk, we need clean the pre-init library because the XR.Management didn't clean it.
+					string key = "xrsdk-pre-init-library";
+					BootConfig bootConfig = new BootConfig(report);
+					bootConfig.ReadBootConfig();
+					if (bootConfig.GetValueForKey(key, out string value) && value == "wvrunityxr")
+					{
+						Debug.Log("WaveXRBuildCheck: Clean Wave's PreInitLibrary.");
+						bootConfig.SetValueForKey(key, "");
+						bootConfig.WriteBootConfig();
+					}
+					return;
+				}
+
 				if (File.Exists(ForceBuildWVR))
 				{
 					//SetBuildingWave();
@@ -470,60 +762,20 @@ namespace Wave.XR.BuildCheck
 					AddTrackerAndroidManifest();
 					AddEyeTrackingAndroidManifest();
 					AddLipExpressionAndroidManifest();
+					AddScenePerceptionAndroidManifest();
+					AddSceneMeshAndroidManifest();
 					CopyAndroidManifest();
-#if UNITY_2022_1_OR_NEWER
-					if (!File.Exists(Aar2022PathDest))
-						File.Copy(Aar2022PathSrc, Aar2022PathDest, false);
-					if (File.Exists(Aar2017PathDest))
-						File.Delete(Aar2017PathDest);
-					if (File.Exists(Aar2017PathDest + ".meta"))
-						File.Delete(Aar2017PathDest + ".meta");
-					PluginImporter plugin = AssetImporter.GetAtPath(Aar2022PathDest) as PluginImporter;
-					if (plugin != null)
-						plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
-					AssetDatabase.Refresh();
-#else
-					if (!File.Exists(Aar2017PathDest))
-						File.Copy(Aar2017PathSrc, Aar2017PathDest, false);
-					if (File.Exists(Aar2022PathDest))
-						File.Delete(Aar2022PathDest);
-					if (File.Exists(Aar2022PathDest + ".meta"))
-						File.Delete(Aar2022PathDest + ".meta");
-					PluginImporter plugin = AssetImporter.GetAtPath(Aar2017PathDest) as PluginImporter;
-					if (plugin != null)
-						plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
-					AssetDatabase.Refresh();
-#endif
+					CopyWaveAARs();
+					return;
 				}
 				else if (report.summary.platform == BuildTarget.Android && CheckIsBuildingWave())
-                {
+				{
 					CopyAndroidManifest();
-#if UNITY_2022_1_OR_NEWER
-					if (!File.Exists(Aar2022PathDest))
-						File.Copy(Aar2022PathSrc, Aar2022PathDest, false);
-					if (File.Exists(Aar2017PathDest))
-						File.Delete(Aar2017PathDest);
-					if (File.Exists(Aar2017PathDest + ".meta"))
-						File.Delete(Aar2017PathDest + ".meta");
-					PluginImporter plugin = AssetImporter.GetAtPath(Aar2022PathDest) as PluginImporter;
-					if (plugin != null)
-						plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
-					AssetDatabase.Refresh();
-#else
-					if (!File.Exists(Aar2017PathDest))
-						File.Copy(Aar2017PathSrc, Aar2017PathDest, false);
-					if (File.Exists(Aar2022PathDest))
-						File.Delete(Aar2022PathDest);
-					if (File.Exists(Aar2022PathDest + ".meta"))
-						File.Delete(Aar2022PathDest + ".meta");
-					PluginImporter plugin = AssetImporter.GetAtPath(Aar2017PathDest) as PluginImporter;
-					if (plugin != null)
-						plugin.SetCompatibleWithPlatform(BuildTarget.Android, true);
-					AssetDatabase.Refresh();
-#endif
+					CopyWaveAARs();
+					return;
 				}
 			}
-        }
+		}
 
         private class CustomPostprocessor : IPostprocessBuildWithReport
         {
@@ -531,45 +783,13 @@ namespace Wave.XR.BuildCheck
 
             public void OnPostprocessBuild(BuildReport report)
             {
-				if (File.Exists(ForceBuildWVR))
-				{
-					if (!isAndroidManifestPathDestExisted) // not to delete existed AndroidManifest.xml
-						DelAndroidManifest();
-					File.Delete(ForceBuildWVR);
-#if UNITY_2022_1_OR_NEWER
-					if (File.Exists(Aar2022PathDest))
-						File.Delete(Aar2022PathDest);
-					if (File.Exists(Aar2022PathDest + ".meta"))
-						File.Delete(Aar2022PathDest + ".meta");
-#else
-					if (File.Exists(Aar2017PathDest))
-						File.Delete(Aar2017PathDest);
-					if (File.Exists(Aar2017PathDest + ".meta"))
-						File.Delete(Aar2017PathDest + ".meta");
-#endif
-				}
-				else if (report.summary.platform == BuildTarget.Android && CheckIsBuildingWave())
-                {
-					if (!isAndroidManifestPathDestExisted) // not to delete existed AndroidManifest.xml
-						DelAndroidManifest();
-#if UNITY_2022_1_OR_NEWER
-					if (File.Exists(Aar2022PathDest))
-						File.Delete(Aar2022PathDest);
-					if (File.Exists(Aar2022PathDest + ".meta"))
-						File.Delete(Aar2022PathDest + ".meta");
-#else
-					if (File.Exists(Aar2017PathDest))
-						File.Delete(Aar2017PathDest);
-					if (File.Exists(Aar2017PathDest + ".meta"))
-						File.Delete(Aar2017PathDest + ".meta");
-#endif
-				}
-				AssetDatabase.Refresh();
+				RemoveCreatedAndroidManifest();
+				RemoveWaveAARs();
 			}
         }
 	}
 
-	[Obsolete("CheckIfHandTrackingEnabled is obsolete. Please use WaveXRSettings EnableNaturalHand instead", false)]
+	[Obsolete("CheckIfHandTrackingEnabled is deprecated. Please use WaveXRSettings EnableNaturalHand instead", false)]
 	public static class CheckIfHandTrackingEnabled
 	{
 		internal const string MENU_NAME = "Wave/Hand Tracking/Enable Hand Tracking";
@@ -616,7 +836,7 @@ namespace Wave.XR.BuildCheck
 	{
 		const string LOG_TAG = "Wave.XR.CheckIfWaveEnabled";
 		static void DEBUG(string msg) { Debug.Log(LOG_TAG + " " + msg); }
-		const string VERSION_DEFINE_WAVE_XR = "USE_VIVE_WAVE_XR_5_1_1";
+		const string VERSION_DEFINE_WAVE_XR = "USE_VIVE_WAVE_XR_5_2_0";
 		internal struct ScriptingDefinedSettings
 		{
 			public string[] scriptingDefinedSymbols;
@@ -643,7 +863,9 @@ namespace Wave.XR.BuildCheck
 				if (androidXRMSettings == null)
 					return false;
 
+#pragma warning disable
 				var loaders = androidXRMSettings.loaders;
+#pragma warning enable
 				foreach (var loader in loaders)
 				{
 					if (loader.GetType() == typeof(WaveXRLoader))
@@ -749,12 +971,12 @@ namespace Wave.XR.BuildCheck
 		}
 	}
 
-	[InitializeOnLoad]
+	[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableTracker instead.", false)]
 	public static class CheckIfTrackerEnabled
 	{
 		internal const string MENU_NAME = "Wave/Tracker/Enable Tracker";
 
-		private static bool enabled_;
+		private static bool enabled_ = false;
 		static CheckIfTrackerEnabled()
 		{
 			CheckIfTrackerEnabled.enabled_ = EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false);
@@ -768,13 +990,7 @@ namespace Wave.XR.BuildCheck
 			};
 		}
 
-		[MenuItem(CheckIfTrackerEnabled.MENU_NAME, priority = 602)]
-		private static void ToggleAction()
-		{
-			/// Toggling action
-			PerformAction(!CheckIfTrackerEnabled.enabled_);
-		}
-
+		[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableTracker instead.", false)]
 		public static void PerformAction(bool enabled)
 		{
 			/// Set checkmark on menu item
@@ -787,7 +1003,7 @@ namespace Wave.XR.BuildCheck
 			CheckIfTrackerEnabled.enabled_ = enabled;
 		}
 
-		[MenuItem(CheckIfTrackerEnabled.MENU_NAME, validate = true, priority = 602)]
+		[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableTracker instead.", false)]
 		public static bool ValidateEnabled()
 		{
 			Menu.SetChecked(CheckIfTrackerEnabled.MENU_NAME, enabled_);
@@ -841,12 +1057,12 @@ namespace Wave.XR.BuildCheck
 		}
 	}
 
-	[InitializeOnLoad]
+	[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableEyeTracking instead.", false)]
 	public static class CheckIfEyeTrackingEnabled
 	{
 		internal const string MENU_NAME = "Wave/Eye/Enable Eye Tracking";
 
-		private static bool enabled_;
+		private static bool enabled_ = false;
 		static CheckIfEyeTrackingEnabled()
 		{
 			CheckIfEyeTrackingEnabled.enabled_ = EditorPrefs.GetBool(CheckIfEyeTrackingEnabled.MENU_NAME, false);
@@ -860,13 +1076,7 @@ namespace Wave.XR.BuildCheck
 			};
 		}
 
-		[MenuItem(CheckIfEyeTrackingEnabled.MENU_NAME, priority = 604)]
-		private static void ToggleAction()
-		{
-			/// Toggling action
-			PerformAction(!CheckIfEyeTrackingEnabled.enabled_);
-		}
-
+		[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableEyeTracking instead.", false)]
 		public static void PerformAction(bool enabled)
 		{
 			/// Set checkmark on menu item
@@ -879,7 +1089,7 @@ namespace Wave.XR.BuildCheck
 			CheckIfEyeTrackingEnabled.enabled_ = enabled;
 		}
 
-		[MenuItem(CheckIfEyeTrackingEnabled.MENU_NAME, validate = true, priority = 604)]
+		[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableEyeTracking instead.", false)]
 		public static bool ValidateEnabled()
 		{
 			Menu.SetChecked(CheckIfEyeTrackingEnabled.MENU_NAME, enabled_);
@@ -887,12 +1097,12 @@ namespace Wave.XR.BuildCheck
 		}
 	}
 
-	[InitializeOnLoad]
+	[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableLipExpression instead.", false)]
 	public static class CheckIfLipExpressionEnabled
 	{
 		internal const string MENU_NAME = "Wave/Lip/Enable Lip Expression";
 
-		private static bool enabled_;
+		private static bool enabled_ = false;
 		static CheckIfLipExpressionEnabled()
 		{
 			CheckIfLipExpressionEnabled.enabled_ = EditorPrefs.GetBool(CheckIfLipExpressionEnabled.MENU_NAME, false);
@@ -906,13 +1116,7 @@ namespace Wave.XR.BuildCheck
 			};
 		}
 
-		[MenuItem(CheckIfLipExpressionEnabled.MENU_NAME, priority = 605)]
-		private static void ToggleAction()
-		{
-			/// Toggling action
-			PerformAction(!CheckIfLipExpressionEnabled.enabled_);
-		}
-
+		[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableLipExpression instead.", false)]
 		public static void PerformAction(bool enabled)
 		{
 			/// Set checkmark on menu item
@@ -925,7 +1129,7 @@ namespace Wave.XR.BuildCheck
 			CheckIfLipExpressionEnabled.enabled_ = enabled;
 		}
 
-		[MenuItem(CheckIfLipExpressionEnabled.MENU_NAME, validate = true, priority = 605)]
+		[Obsolete("CheckIfTrackerEnabled is deprecated. Please use WaveXRSettings EnableLipExpression instead.", false)]
 		public static bool ValidateEnabled()
 		{
 			Menu.SetChecked(CheckIfLipExpressionEnabled.MENU_NAME, enabled_);

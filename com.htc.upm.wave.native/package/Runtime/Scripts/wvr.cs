@@ -95,6 +95,7 @@ namespace Wave.Native
 		WVR_EventType_TrackerConnected = 4000,    /**< @ref WVR_TrackerId is connected. */
 		WVR_EventType_TrackerDisconnected = 4001,    /**< @ref WVR_TrackerId is disconnected. */
 		WVR_EventType_TrackerBatteryLevelUpdate = 4002,    /**< The battery level of @ref WVR_TrackerId has changed. Use @ref WVR_GetAcceBatteryLevel to check the current battery level. */
+		WVR_EventType_TrackerRoleChanged = 4003,    /**< @ref WVR_TrackerId is role changed. */
 
 		/** Input Event of the accessory region */
 		WVR_EventType_TrackerButtonPressed = 5000,     /**< @ref WVR_InputId status of @ref WVR_TrackerId changed to pressed. */
@@ -115,6 +116,7 @@ namespace Wave.Native
 		Disable,
 		Enable,
 		Default,
+        Dynamic,
 	}
 
     public enum WVR_DeviceType
@@ -1459,10 +1461,27 @@ namespace Wave.Native
 
 	public enum WVR_TrackerRole
 	{
-		WVR_TrackerRole_Undefined = 0,
-		WVR_TrackerRole_Standalone = 1,    // Tracker role is standalone.
-		WVR_TrackerRole_Pair1_Right = 2,    // Tracker role is the right of 1st pair.
-		WVR_TrackerRole_Pair1_Left = 3,    // Tracker role is the left of 1st pair.
+		WVR_TrackerRole_Undefined   = 0,
+		WVR_TrackerRole_Standalone  = 1,
+		WVR_TrackerRole_Pair1_Right = 2,
+		WVR_TrackerRole_Pair1_Left  = 3,
+
+		WVR_TrackerRole_Upper_Arm_Right = 32,
+		WVR_TrackerRole_Forearm_Right   = 33,
+		WVR_TrackerRole_Wrist_Right     = 34,
+		WVR_TrackerRole_Thigh_Right     = 35,
+		WVR_TrackerRole_Calf_Right      = 36,
+		WVR_TrackerRole_Ankle_Right     = 37,
+
+		WVR_TrackerRole_Upper_Arm_Left  = 47,
+		WVR_TrackerRole_Forearm_Left    = 48,
+		WVR_TrackerRole_Wrist_Left      = 49,
+		WVR_TrackerRole_Thigh_Left      = 50,
+		WVR_TrackerRole_Calf_Left       = 51,
+		WVR_TrackerRole_Ankle_Left      = 52,
+
+		WVR_TrackerRole_Chest = 62,
+		WVR_TrackerRole_Waist = 63
 	}
 
 	/**
@@ -1692,6 +1711,19 @@ namespace Wave.Native
 	public struct WVR_SpectatorState
 	{
 		public bool shouldRender;
+	}
+
+	public enum WVR_PassthroughImageQuality
+	{
+		DefaultMode = 0,  // default
+		PerformanceMode = 1,
+		QualityMode = 2,
+	}
+	
+	public enum WVR_PassthroughImageFocus
+	{
+		Scale = 0,  // default
+		View = 1
 	}
 
 	public delegate void WVR_RequestCompleteCallback(List<WVR_RequestResult> results);
@@ -2151,9 +2183,19 @@ namespace Wave.Native
 		{
 			return WVR_Base.Instance.TriggerTrackerVibration(trackerId, durationMicroSec, frequency, amplitude);
 		}
+		public static IntPtr WVR_GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize, ref UInt64 timestamp)
+		{
+			return WVR_Base.Instance.GetTrackerExtendedData(trackerId, ref exDataSize, ref timestamp);
+		}
+		[Obsolete("Please use new WVR_GetTrackerExtendedData() with timestamp.")]
 		public static IntPtr WVR_GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize)
 		{
-			return WVR_Base.Instance.GetTrackerExtendedData(trackerId, ref exDataSize);
+			UInt64 timestamp = 0;
+			return WVR_GetTrackerExtendedData(trackerId, ref exDataSize, ref timestamp);
+		}
+		public static WVR_Result WVR_GetTrackerDeviceName(WVR_TrackerId trackerId, ref UInt32 nameSize, ref IntPtr deviceName)
+		{
+			return WVR_Base.Instance.GetTrackerDeviceName(trackerId, ref nameSize, ref deviceName);
 		}
 
 		public static WVR_Result WVR_RegisterTrackerInfoCallback(ref WVR_TrackerInfoNotify notify)
@@ -2675,8 +2717,38 @@ namespace Wave.Native
 			return WVR_Base.Instance.SetChecker(enable);
 		}
 
-		#region Internal
-		public static string WVR_DeployRenderModelAssets(int deviceIndex, string renderModelName)
+		public static WVR_Result WVR_GetAvailableFrameRates(out uint[] frameRates)
+		{
+			return WVR_Base.Instance.WVR_GetAvailableFrameRates(out frameRates);
+		}
+
+		public static WVR_Result WVR_GetFrameRate(ref uint frameRate)
+		{
+			return WVR_Base.Instance.WVR_GetFrameRate(ref frameRate);
+		}
+
+		public static WVR_Result WVR_SetFrameRate(uint frameRate)
+		{
+			return WVR_Base.Instance.WVR_SetFrameRate(frameRate);
+		}
+
+		public static bool WVR_SetPassthroughImageQuality(WVR_PassthroughImageQuality quality)
+		{
+			return WVR_Base.Instance.WVR_SetPassthroughImageQuality(quality);
+		}
+
+		public static bool WVR_SetPassthroughImageFocus(WVR_PassthroughImageFocus focus)
+		{
+			return WVR_Base.Instance.WVR_SetPassthroughImageFocus(focus);
+		}
+
+        public static void WVR_EnableHandleDisplayChanged(bool enable)
+        {
+            WVR_Base.Instance.EnableHandleDisplayChanged(enable);
+        }
+
+        #region Internal
+        public static string WVR_DeployRenderModelAssets(int deviceIndex, string renderModelName)
 		{
 			return WVR_Base.Instance.DeployRenderModelAssets(deviceIndex, renderModelName);
 		}
@@ -3194,9 +3266,13 @@ namespace Wave.Native
 			{
 				return WVR_Result.WVR_Error_FeatureNotSupport;
 			}
-			public virtual IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize)
+			public virtual IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize, ref UInt64 timestamp)
 			{
 				return IntPtr.Zero;
+			}
+			public virtual WVR_Result GetTrackerDeviceName(WVR_TrackerId trackerId, ref UInt32 nameSize, ref IntPtr deviceName)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
 			}
 			public virtual WVR_Result RegisterTrackerInfoCallback(ref WVR_TrackerInfoNotify notify)
 			{
@@ -3719,10 +3795,41 @@ namespace Wave.Native
 				return false;
 			}
 
+			public virtual WVR_Result WVR_GetAvailableFrameRates(out uint[] frameRates)
+			{
+				// Fake data for editor preview
+				frameRates = new uint[] { 75, 90, 120 };
+				return WVR_Result.WVR_Success;
+			}
 
+			public virtual WVR_Result WVR_GetFrameRate(ref uint frameRate)
+			{
+				// Fake data for editor preview
+				frameRate = 90;
+				return WVR_Result.WVR_Success;
+			}
+			public virtual WVR_Result WVR_SetFrameRate(uint frameRate)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
 
-			#region Internal
-			public virtual string DeployRenderModelAssets(int deviceIndex, string renderModelName)
+			public virtual bool WVR_SetPassthroughImageQuality(WVR_PassthroughImageQuality quality)
+			{
+				return false;
+			}
+
+			public virtual bool WVR_SetPassthroughImageFocus(WVR_PassthroughImageFocus focus)
+			{
+				return false;
+			}
+
+            public virtual void EnableHandleDisplayChanged(bool enable)
+            {
+                return;
+            }
+
+            #region Internal
+            public virtual string DeployRenderModelAssets(int deviceIndex, string renderModelName)
 			{
 				return "";
 			}

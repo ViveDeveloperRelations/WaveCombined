@@ -140,6 +140,10 @@ namespace Wave.Generic.Sample
 				new SceneData(Entry, "324 Facial Expression", "FaceSample_v2"),
 				new SceneData(Entry, "325 Eye Tracking", "RaycastEyeTracking"),
 				new SceneData(Entry, "326 Spectator Test", "SpectatorTest", NoHelp, NotForPC),
+
+				new SceneData(Entry, "327 Scene Perception", "ScenePerceptionDemoEntrance", NoHelp, NotForPC),
+				new SceneData(NotEntry, NoTitle, "ScenePerceptionDemo(PlaneAnchor)", NoHelp, NotForPC),
+				new SceneData(NotEntry, NoTitle, "ScenePerceptionDemo(SceneMeshAnchor)", NoHelp, NotForPC),
 			};
 		}
 

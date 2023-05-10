@@ -340,10 +340,17 @@ namespace Wave.Native
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerExtendedData", CallingConvention = CallingConvention.Cdecl)]
-		public static extern IntPtr WVR_GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize);
-		public override IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize)
+		public static extern IntPtr WVR_GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize, ref UInt64 timestamp);
+		public override IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize, ref UInt64 timestamp)
 		{
-			return WVR_GetTrackerExtendedData(trackerId, ref exDataSize);
+			return WVR_GetTrackerExtendedData(trackerId, ref exDataSize, ref timestamp);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerDeviceName", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetTrackerDeviceName(WVR_TrackerId trackerId, ref UInt32 nameSize, IntPtr deviceName);
+		public override WVR_Result GetTrackerDeviceName(WVR_TrackerId trackerId, ref UInt32 nameSize, ref IntPtr deviceName)
+		{
+			return WVR_GetTrackerDeviceName(trackerId, ref nameSize, deviceName);
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_RegisterTrackerInfoCallback", CallingConvention = CallingConvention.Cdecl)]
@@ -1651,5 +1658,61 @@ namespace Wave.Native
 			WVR_ReleaseNaturalHandModel_Android(ref handModel);
 		}
 		#endregion
-	}
+
+		[DllImport("wvr_api", EntryPoint = "WVR_GetAvailableFrameRates", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetAvailableFrameRates_Android(uint frameRateCapacityInput, ref uint frameRateCountOutput, [In, Out] uint[] frameRates);
+		public override WVR_Result WVR_GetAvailableFrameRates(out uint[] frameRates)
+		{
+			frameRates = null;
+			uint frameRateCountOutput = 0;
+			WVR_Result result = WVR_GetAvailableFrameRates_Android(0, ref frameRateCountOutput, null);
+			if (result != WVR_Result.WVR_Success)
+				return result;
+
+			if (frameRateCountOutput == 0)
+			{
+				frameRates = null;
+				return result;
+			}
+
+			frameRates = new uint[frameRateCountOutput];
+			result = WVR_GetAvailableFrameRates_Android(frameRateCountOutput, ref frameRateCountOutput, frameRates);
+			return result;
+		}
+
+		[DllImport("wvr_api", EntryPoint = "WVR_GetFrameRate", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetFrameRate_Android(ref uint frameRate);
+		public override WVR_Result WVR_GetFrameRate(ref uint frameRate)
+		{
+			return WVR_GetFrameRate_Android(ref frameRate);
+		}
+
+		[DllImport("wvr_api", EntryPoint = "WVR_SetFrameRate", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_SetFrameRate_Android(uint frameRate);
+		public override WVR_Result WVR_SetFrameRate(uint frameRate)
+		{
+			return WVR_SetFrameRate_Android(frameRate);
+		}
+
+		[DllImport("wvr_api", EntryPoint = "WVR_SetPassthroughImageQuality", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_SetPassthroughImageQuality_Android(WVR_PassthroughImageQuality quality);
+		public override bool WVR_SetPassthroughImageQuality(WVR_PassthroughImageQuality quality)
+		{
+			return WVR_SetPassthroughImageQuality_Android(quality);
+		}
+
+		[DllImport("wvr_api", EntryPoint = "WVR_SetPassthroughImageFocus", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_SetPassthroughImageFocus_Android(WVR_PassthroughImageFocus focus);
+		public override bool WVR_SetPassthroughImageFocus(WVR_PassthroughImageFocus focus)
+		{
+			return WVR_SetPassthroughImageFocus_Android(focus);
+		}
+
+        [DllImport("wvr_api", EntryPoint = "WVR_EnableHandleDisplayChanged", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void WVR_EnableHandleDisplayChanged_Android(bool enable);
+        public override void EnableHandleDisplayChanged(bool enable)
+        {
+            WVR_EnableHandleDisplayChanged_Android(enable);
+        }
+    }
 }

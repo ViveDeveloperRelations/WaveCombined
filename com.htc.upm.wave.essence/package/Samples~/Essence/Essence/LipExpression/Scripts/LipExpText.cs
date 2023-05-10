@@ -33,7 +33,7 @@ namespace Wave.Essence.Samples.LipExpression
 			if (m_Text == null || LipExpManager.Instance == null) { return; }
 
 			float value = LipExpManager.Instance.GetLipExpression(m_LipExp);
-			m_Text.text = m_LipExp.ToString() + ": " + value;
+			m_Text.text = m_LipExp.ToString() + ": " + value.ToString("N5");
 		}
 	}
 }

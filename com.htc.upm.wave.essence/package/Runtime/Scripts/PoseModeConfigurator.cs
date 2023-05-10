@@ -1,4 +1,4 @@
-﻿// "Wave SDK
+// "Wave SDK
 // © 2020 HTC Corporation. All Rights Reserved.
 //
 // Unless otherwise required by copyright law and practice,
@@ -27,16 +27,16 @@ namespace Wave.Essence
 		}
 
 		#region Customized Settings
-		private XR_ControllerPoseMode m_RightControllerModeEx = XR_ControllerPoseMode.Panel;
+		private XR_ControllerPoseMode m_RightControllerModeEx = XR_ControllerPoseMode.Raw;
 		[Tooltip("Sets up the pose mode of the dominant controller.")]
 		[SerializeField]
-		private XR_ControllerPoseMode m_RightControllerMode = XR_ControllerPoseMode.Panel;
+		private XR_ControllerPoseMode m_RightControllerMode = XR_ControllerPoseMode.Raw;
 		public XR_ControllerPoseMode RightControllerMode { get { return m_RightControllerMode; } set { m_RightControllerMode = value; } }
 
-		private XR_ControllerPoseMode m_LeftControllerModeEx = XR_ControllerPoseMode.Panel;
+		private XR_ControllerPoseMode m_LeftControllerModeEx = XR_ControllerPoseMode.Raw;
 		[Tooltip("Sets up the pose mode of the non-dominant controller.")]
 		[SerializeField]
-		private XR_ControllerPoseMode m_LeftControllerMode = XR_ControllerPoseMode.Panel;
+		private XR_ControllerPoseMode m_LeftControllerMode = XR_ControllerPoseMode.Raw;
 		public XR_ControllerPoseMode LeftControllerMode { get { return m_LeftControllerMode; } set { m_LeftControllerMode = value; } }
 		#endregion
 

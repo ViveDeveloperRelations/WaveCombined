@@ -139,8 +139,12 @@ namespace Wave.Essence.Tracker
 					ss_TrackerTouchEx[s_TrackerIds[i]][id] = false;
 				}
 
+				s_TrackerTimestamp.Add(s_TrackerIds[i], 0);
 				s_TrackerBattery.Add(s_TrackerIds[i], 0);
 				s_TrackerExtData.Add(s_TrackerIds[i], new Int32[12]);
+
+				s_HasTrackerDeviceName.Add(s_TrackerIds[i], false);
+				s_TrackerDeviceName.Add(s_TrackerIds[i], "");
 			}
 		}
 
@@ -149,6 +153,7 @@ namespace Wave.Essence.Tracker
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_TrackerConnected, OnTrackerConnected);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_TrackerDisconnected, OnTrackerDisconnected);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_TrackerBatteryLevelUpdate, OnTrackerBatteryLevelUpdate);
+			SystemEvent.Listen(WVR_EventType.WVR_EventType_TrackerRoleChanged, OnTrackerRoleChanged);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_TrackerButtonPressed, OnTrackerButtonPressed);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_TrackerButtonUnpressed, OnTrackerButtonUnpressed);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_TrackerTouchTapped, OnTrackerTouchTapped);
@@ -161,6 +166,7 @@ namespace Wave.Essence.Tracker
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_TrackerConnected, OnTrackerConnected);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_TrackerDisconnected, OnTrackerDisconnected);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_TrackerBatteryLevelUpdate, OnTrackerBatteryLevelUpdate);
+			SystemEvent.Remove(WVR_EventType.WVR_EventType_TrackerRoleChanged, OnTrackerRoleChanged);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_TrackerButtonPressed, OnTrackerButtonPressed);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_TrackerButtonUnpressed, OnTrackerButtonUnpressed);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_TrackerTouchTapped, OnTrackerTouchTapped);
@@ -184,6 +190,7 @@ namespace Wave.Essence.Tracker
 				for (int i = 0; i < s_TrackerIds.Length; i++)
 				{
 					DEBUG("Update() " + s_TrackerIds[i]
+						+ ", name: " + s_TrackerDeviceName[s_TrackerIds[i]]
 						+ ", connection: " + s_TrackerConnection[s_TrackerIds[i]]
 						+ ", valid: " + s_TrackerPoses[s_TrackerIds[i]].valid
 						+ ", role: " + s_TrackerRole[s_TrackerIds[i]]
@@ -225,6 +232,9 @@ namespace Wave.Essence.Tracker
 
 					DEBUG("Resume() 7.check " + s_TrackerIds[i] + " battery.");
 					CheckTrackerBattery(s_TrackerIds[i]);
+
+					DEBUG("Resume() 8.check " + s_TrackerIds[i] + " name.");
+					UpdateTrackerDeviceName(s_TrackerIds[i]);
 				}
 			}
 		}
@@ -258,6 +268,9 @@ namespace Wave.Essence.Tracker
 				// For WVR_TrackerCapabilities.supportsBatteryLevel
 				DEBUG("Start() 7.check " + s_TrackerIds[i] + " battery.");
 				CheckTrackerBattery(s_TrackerIds[i]);
+
+				DEBUG("Start() 8.check " + s_TrackerIds[i] + " name.");
+				UpdateTrackerDeviceName(s_TrackerIds[i]);
 			}
 		}
 		#endregion
@@ -318,7 +331,7 @@ namespace Wave.Essence.Tracker
 
 			SetTrackerStatus(TrackerStatus.Starting);
 			WVR_Result result = Interop.WVR_StartTracker();
-			switch(result)
+			switch (result)
 			{
 				case WVR_Result.WVR_Success:
 					SetTrackerStatus(TrackerStatus.Available);
@@ -418,6 +431,7 @@ namespace Wave.Essence.Tracker
 				CheckTrackerCapbility(s_TrackerIds[i]);
 				CheckTrackerInputs(s_TrackerIds[i]);
 				CheckTrackerButtonAnalog(s_TrackerIds[i]);
+				UpdateTrackerDeviceName(s_TrackerIds[i]);
 			}
 		}
 		private void StopTrackerThread()
@@ -494,6 +508,7 @@ namespace Wave.Essence.Tracker
 			CheckTrackerButtonAnalog(trackerId);
 			CheckAllTrackerButtons(trackerId);
 			CheckTrackerBattery(trackerId);
+			UpdateTrackerDeviceName(trackerId);
 		}
 		private void OnTrackerConnected(WVR_Event_t systemEvent)
 		{
@@ -525,13 +540,19 @@ namespace Wave.Essence.Tracker
 		{
 			if (IsTrackerConnected(trackerId))
 			{
-				s_TrackerRole[trackerId] = (Interop.WVR_GetTrackerRole(trackerId.Id())).Id();
+				s_TrackerRole[trackerId] = Interop.WVR_GetTrackerRole(trackerId.Id()).Id();
 				DEBUG("CheckTrackerRole() " + trackerId + " role: " + s_TrackerRole[trackerId]);
 			}
 			else
 			{
 				s_TrackerRole[trackerId] = TrackerRole.Undefined;
 			}
+		}
+		private void OnTrackerRoleChanged(WVR_Event_t systemEvent)
+		{
+			TrackerId trackerId = systemEvent.tracker.trackerId.Id();
+			DEBUG("OnTrackerRoleChanged() " + trackerId);
+			CheckTrackerRole(trackerId);
 		}
 		#endregion
 
@@ -901,6 +922,7 @@ namespace Wave.Essence.Tracker
 		#region Extended Data
 		const int kTrackerExtDataTypeSize = 4;
 		private Dictionary<TrackerId, Int32[]> s_TrackerExtData = new Dictionary<TrackerId, Int32[]>();
+		private Dictionary<TrackerId, UInt64> s_TrackerTimestamp = new Dictionary<TrackerId, UInt64>();
 		private void UpdateTrackerExtData()
 		{
 			for (int i = 0; i < s_TrackerIds.Length; i++)
@@ -908,8 +930,10 @@ namespace Wave.Essence.Tracker
 				if (!IsTrackerConnected(s_TrackerIds[i])) { continue; }
 
 				Int32 exDataSize = 0;
-				IntPtr exData = Interop.WVR_GetTrackerExtendedData(s_TrackerIds[i].Id(), ref exDataSize);
+				UInt64 timestamp = 0;
+				IntPtr exData = Interop.WVR_GetTrackerExtendedData(s_TrackerIds[i].Id(), ref exDataSize, ref timestamp);
 
+				s_TrackerTimestamp[s_TrackerIds[i]] = timestamp;
 				if (exDataSize > 0)
 				{
 					s_TrackerExtData[s_TrackerIds[i]] = new Int32[exDataSize];
@@ -918,6 +942,40 @@ namespace Wave.Essence.Tracker
 						s_TrackerExtData[s_TrackerIds[i]][d] = Marshal.ReadInt32(exData, d * kTrackerExtDataTypeSize);
 					}
 				}
+			}
+		}
+		#endregion
+
+		#region Device Name
+		private Dictionary<TrackerId, bool> s_HasTrackerDeviceName = new Dictionary<TrackerId, bool>();
+		private Dictionary<TrackerId, string> s_TrackerDeviceName = new Dictionary<TrackerId, string>();
+		private void UpdateTrackerDeviceName(TrackerId trackerId)
+		{
+			if (IsTrackerConnected(trackerId))
+			{
+				UInt32 nameSize = 0;
+				IntPtr deviceNamePtr = IntPtr.Zero;
+				WVR_Result result = Interop.WVR_GetTrackerDeviceName(trackerId.Id(), ref nameSize, ref deviceNamePtr);
+				if (result == WVR_Result.WVR_Success && nameSize > 0)
+				{
+					deviceNamePtr = Marshal.AllocHGlobal((int)nameSize);
+					result = Interop.WVR_GetTrackerDeviceName(trackerId.Id(), ref nameSize, ref deviceNamePtr);
+					s_HasTrackerDeviceName[trackerId] = (result == WVR_Result.WVR_Success);
+					if (s_HasTrackerDeviceName[trackerId])
+					{
+						s_TrackerDeviceName[trackerId] = Marshal.PtrToStringAnsi(deviceNamePtr);
+					}
+				}
+				else
+				{
+					s_HasTrackerDeviceName[trackerId] = false;
+				}
+				Marshal.FreeHGlobal(deviceNamePtr);
+				DEBUG("UpdateTrackerDeviceName() " + trackerId + " nameSize: " + nameSize + ", " + s_TrackerDeviceName[trackerId]);
+			}
+			else
+			{
+				s_HasTrackerDeviceName[trackerId] = false;
 			}
 		}
 		#endregion
@@ -1110,6 +1168,16 @@ namespace Wave.Essence.Tracker
 		public Int32[] GetTrackerExtData(TrackerId trackerId)
 		{
 			return s_TrackerExtData[trackerId];
+		}
+		public Int32[] GetTrackerExtData(TrackerId trackerId, out UInt64 timestamp)
+		{
+			timestamp = s_TrackerTimestamp[trackerId];
+			return GetTrackerExtData(trackerId);
+		}
+		public bool GetTrackerDeviceName(TrackerId trackerId, out string trackerName)
+		{
+			trackerName = s_TrackerDeviceName[trackerId];
+			return s_HasTrackerDeviceName[trackerId];
 		}
 		#endregion
 	}

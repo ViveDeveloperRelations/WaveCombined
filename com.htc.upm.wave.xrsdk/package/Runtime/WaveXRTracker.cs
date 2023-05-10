@@ -66,6 +66,16 @@ namespace Wave.OpenXR
 		const string kTracker7SN = "HTC-220801-Tracker7";
 		const string kTracker8SN = "HTC-220801-Tracker8";
 
+		const string kTracker0Role = "TrackerRole0";
+		const string kTracker1Role = "TrackerRole1";
+		const string kTracker2Role = "TrackerRole2";
+		const string kTracker3Role = "TrackerRole3";
+		const string kTracker4Role = "TrackerRole4";
+		const string kTracker5Role = "TrackerRole5";
+		const string kTracker6Role = "TrackerRole6";
+		const string kTracker7Role = "TrackerRole7";
+		const string kTracker8Role = "TrackerRole8";
+
 		/// <summary> Standalone Tracker Characteristics </summary>
 		public const InputDeviceCharacteristics kAloneTrackerCharacteristics = (
 			InputDeviceCharacteristics.TrackedDevice
@@ -82,7 +92,7 @@ namespace Wave.OpenXR
 		);
 		#endregion
 
-		public enum TrackerId
+		public enum TrackerId : UInt32
 		{
 			Tracker0 = 0,
 			Tracker1 = 1,
@@ -121,14 +131,68 @@ namespace Wave.OpenXR
 			if (trackerId == TrackerId.Tracker8) { return kTracker8SN; }
 			return kTracker0SN;
 		}
-
-		public enum TrackerRole
+		public static string RoleKey(this TrackerId trackerId)
 		{
-			Undefined = 0,
-			Standalone = 1,
-			Pair1_Right = 2,
-			Pair1_Left = 3,
+			if (trackerId == TrackerId.Tracker0) { return kTracker0Role; }
+			if (trackerId == TrackerId.Tracker1) { return kTracker1Role; }
+			if (trackerId == TrackerId.Tracker2) { return kTracker2Role; }
+			if (trackerId == TrackerId.Tracker3) { return kTracker3Role; }
+			if (trackerId == TrackerId.Tracker4) { return kTracker4Role; }
+			if (trackerId == TrackerId.Tracker5) { return kTracker5Role; }
+			if (trackerId == TrackerId.Tracker6) { return kTracker6Role; }
+			if (trackerId == TrackerId.Tracker7) { return kTracker7Role; }
+			if (trackerId == TrackerId.Tracker8) { return kTracker8Role; }
+			return kTracker0Role;
 		}
+
+		public enum TrackerRole : UInt32
+		{
+			Undefined   = 0,
+			Standalone  = 1,
+			Pair1_Right = 2,
+			Pair1_Left  = 3,
+
+			Upper_Arm_Right = 32,
+			Forearm_Right   = 33,
+			Wrist_Right     = 34,
+			Thigh_Right     = 35,
+			Calf_Right      = 36,
+			Ankle_Right     = 37,
+
+			Upper_Arm_Left  = 47,
+			Forearm_Left    = 48,
+			Wrist_Left      = 49,
+			Thigh_Left      = 50,
+			Calf_Left       = 51,
+			Ankle_Left      = 52,
+
+			Chest = 62,
+			Waist = 63
+		}
+		internal static TrackerRole[] s_TrackerRoles = new TrackerRole[]
+		{
+			TrackerRole.Undefined,	 // 0
+			TrackerRole.Standalone,	 // 1
+			TrackerRole.Pair1_Right, // 2
+			TrackerRole.Pair1_Left,	 // 3
+
+			TrackerRole.Upper_Arm_Right, // 32
+			TrackerRole.Forearm_Right,   // 33
+			TrackerRole.Wrist_Right,     // 34
+			TrackerRole.Thigh_Right,     // 35
+			TrackerRole.Calf_Right,      // 36
+			TrackerRole.Ankle_Right,     // 37
+
+			TrackerRole.Upper_Arm_Left,  // 47
+			TrackerRole.Forearm_Left,    // 48
+			TrackerRole.Wrist_Left,      // 49
+			TrackerRole.Thigh_Left,      // 50
+			TrackerRole.Calf_Left,       // 51
+			TrackerRole.Ankle_Left,      // 52
+
+			TrackerRole.Chest, // 62
+			TrackerRole.Waist, // 63
+		};
 
 		public static bool IsTrackerDevice(InputDevice input, TrackerId trackerId)
 		{
@@ -226,7 +290,15 @@ namespace Wave.OpenXR
 
 		public static TrackerRole GetRole(TrackerId trackerId)
 		{
-			for (int i = 0; i < s_InputDevices.Count; i++)
+			UInt32 roleId = 0;
+			SettingsHelper.GetInt(trackerId.RoleKey(), ref roleId);
+			for (int i = 0; i < s_TrackerRoles.Length; i++)
+			{
+				if (roleId == (UInt32)s_TrackerRoles[i])
+					return s_TrackerRoles[i];
+			}
+
+			/*for (int i = 0; i < s_InputDevices.Count; i++)
 			{
 				if (!s_InputDevices[i].isValid) { continue; }
 
@@ -240,7 +312,7 @@ namespace Wave.OpenXR
 
 				if (s_InputDevices[i].characteristics.Equals(kAloneTrackerCharacteristics))
 					return TrackerRole.Standalone;
-			}
+			}*/
 
 
 			return TrackerRole.Undefined;

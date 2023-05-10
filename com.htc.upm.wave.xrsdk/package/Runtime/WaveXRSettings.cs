@@ -196,20 +196,28 @@ namespace Wave.XR.Settings
         #endregion
 
         #region Eye
-        // Expression
-        [SerializeField, Tooltip("Select to enable the Eye Expression feature when AP starts.")]
-        public bool EnableEyeExpression = false;
-        public const string EnableEyeExpressionText = "EnableEyeExpression";
         // Tracking
         [SerializeField, Tooltip("Select to enable the Eye Tracking feature when AP starts.")]
         public bool EnableEyeTracking = false;
         public const string EnableEyeTrackingText = "EnableEyeTracking";
+        // Expression
+        [SerializeField, Tooltip("Select to enable the Eye Expression feature when AP starts.")]
+        public bool EnableEyeExpression = false;
+        public const string EnableEyeExpressionText = "EnableEyeExpression";
         #endregion
 
         #region Lip Expression
         [SerializeField, Tooltip("Select to enable the Lip Expression feature when AP starts.")]
         public bool EnableLipExpression = false;
         public const string EnableLipExpressionText = "EnableLipExpression";
+        #endregion
+
+        #region Scene Perception
+        [SerializeField, Tooltip("Select to enable the Scene Perception feature.")]
+        public bool EnableScenePerception = false;
+
+        [SerializeField, Tooltip("Enable this option if you need to use Scene Mesh.")]
+        public bool EnableSceneMesh = false;
         #endregion
 
         public bool enableAutoFallbackForMultiLayerProperty
