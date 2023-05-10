@@ -122,6 +122,8 @@ namespace Wave.Generic.Sample
 				new SceneData(Entry, "316 Hand Model Test", "HandModelTest", NoHelp, NotForPC),
 				new SceneData(Entry, "317 Battery Test", "Battery_Test", NoHelp, NotForPC),
 
+				new SceneData(Entry, "318 Mirror Test", "MirrorTest", NoHelp, NotForPC),
+
 				new SceneData(Entry, "501 IME Test", "IMETest", NoHelp, NotForPC),
 			};
 		}

@@ -465,8 +465,7 @@ namespace Wave.Essence.Editor
 			{
 				GUILayout.BeginVertical(EditorStyles.helpBox);
 				GUILayout.Label("CameraTexture", EditorStyles.boldLabel);
-				GUILayout.Label("This feature provides a way to access native camera and pose info.", new GUIStyle(EditorStyles.label) { wordWrap = true });
-				GUILayout.Label("The feature will be imported at Assets/Wave/Essence/CameraTexture.", EditorStyles.label);
+				GUILayout.Label("This feature is deprecated and is no longer supported.", new GUIStyle(EditorStyles.label) { wordWrap = true });
 				GUILayout.Space(5f);
 				if (featureCameraTextureNeedUpdate)
 				{

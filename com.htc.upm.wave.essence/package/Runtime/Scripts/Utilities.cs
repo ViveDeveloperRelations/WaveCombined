@@ -134,7 +134,7 @@ namespace Wave.Essence
 		public static XR_InteractionMode InteractionMode
 		{
 			get { return WaveEssence.Instance.GetInteractionMode(); }
-			set { WaveEssence.Instance.SetInteractionMode(value); }
+			//obsolete { WaveEssence.Instance.SetInteractionMode(value); }
 		}
 	} // class ClientInterface
 

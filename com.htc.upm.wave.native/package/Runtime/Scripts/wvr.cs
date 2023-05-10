@@ -1347,6 +1347,7 @@ namespace Wave.Native
 			return WVR_Base.Instance.GetArena();
 		}
 
+		[Obsolete("This API is deprecated and is no longer supported.", true)]
 		public static bool WVR_SetArena(ref WVR_Arena_t arena)
 		{
 			return WVR_Base.Instance.SetArena(ref arena);
@@ -1600,13 +1601,13 @@ namespace Wave.Native
 			return WVR_Base.Instance.IsAdaptiveQualityEnabled();
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", false)]
+        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static bool WVR_StartCamera(ref WVR_CameraInfo_t info)
 		{
 			return WVR_Base.Instance.StartCamera(ref info);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", false)]
+        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static void WVR_StopCamera()
 		{
 			WVR_Base.Instance.StopCamera();
@@ -1622,25 +1623,25 @@ namespace Wave.Native
 			return WVR_Base.Instance.GetCameraIntrinsic(position, ref intrinsic);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", false)]
+        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static bool WVR_GetCameraFrameBuffer(IntPtr pFramebuffer, uint frameBufferSize)
 		{
 			return WVR_Base.Instance.GetCameraFrameBuffer(pFramebuffer, frameBufferSize);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", false)]
+        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static bool WVR_GetFrameBufferWithPoseState(IntPtr frameBuffer, uint frameBufferSize, WVR_PoseOriginModel origin, uint predictInMs, ref WVR_PoseState_t poseState)
 		{
 			return WVR_Base.Instance.GetFrameBufferWithPoseState(frameBuffer, frameBufferSize, origin, predictInMs, ref poseState);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", false)]
+        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static bool WVR_DrawTextureWithBuffer(IntPtr textureId, WVR_CameraImageFormat imgFormat, IntPtr frameBuffer, uint size, uint width, uint height, bool enableCropping, bool clearClampRegion)
 		{
 			return WVR_Base.Instance.DrawTextureWithBuffer(textureId, imgFormat, frameBuffer, size, width, height, enableCropping, clearClampRegion);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", false)]
+        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static void WVR_ReleaseCameraTexture()
 		{
 			WVR_Base.Instance.ReleaseCameraTexture();
@@ -1675,7 +1676,7 @@ namespace Wave.Native
 		{
 			return WVR_Base.Instance.GetDefaultControllerRole();
 		}
-		[System.Obsolete("This is an obsolete function.")]
+		[System.Obsolete("This is an obsolete function.", true)]
 		public static bool WVR_SetInteractionMode(WVR_InteractionMode mode)
 		{
 			return WVR_Base.Instance.SetInteractionMode(mode);
@@ -2163,6 +2164,7 @@ namespace Wave.Native
 			}
 
 			// Set up arena.
+			[Obsolete("This API is deprecated and is no longer supported.", true)]
 			public virtual bool SetArena(ref WVR_Arena_t arena)
 			{
 				return false;
@@ -2393,13 +2395,13 @@ namespace Wave.Native
 			}
 
             // wvr_camera.h
-            [Obsolete("This API is deprecated and is no longer supported.", false)]
+            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual bool StartCamera(ref WVR_CameraInfo_t info)
 			{
 				return false;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", false)]
+            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual void StopCamera()
 			{
 			}
@@ -2414,25 +2416,25 @@ namespace Wave.Native
 				return true;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", false)]
+            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual bool GetCameraFrameBuffer(IntPtr pFramebuffer, uint frameBufferSize)
 			{
 				return false;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", false)]
+            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual bool GetFrameBufferWithPoseState(IntPtr frameBuffer, uint frameBufferSize, WVR_PoseOriginModel origin, uint predictInMs, ref WVR_PoseState_t poseState)
 			{
 				return false;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", false)]
+            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual bool DrawTextureWithBuffer(IntPtr textureId, WVR_CameraImageFormat imgFormat, IntPtr frameBuffer, uint size, uint width, uint height, bool enableCropping, bool clearClampRegion)
 			{
 				return false;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", false)]
+            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual void ReleaseCameraTexture()
 			{
 			}
@@ -2466,6 +2468,7 @@ namespace Wave.Native
 				return WVR_DeviceType.WVR_DeviceType_Invalid;
 			}
 
+			[System.Obsolete("This is an obsolete function.", true)]
 			public virtual bool SetInteractionMode(WVR_InteractionMode mode)
 			{
 				return true;

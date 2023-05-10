@@ -944,6 +944,8 @@ namespace Wave.Essence
 			m_InteractionMode = (XR_InteractionMode)Interop.WVR_GetInteractionMode();
 			DEBUG("UpdateInteractionMode() m_InteractionMode = " + m_InteractionMode);
 		}
+
+		[System.Obsolete("This is an obsolete function.", true)]
 		public void SetInteractionMode(XR_InteractionMode mode)
 		{
 			if (Interop.WVR_SetInteractionMode((WVR_InteractionMode)mode))
@@ -952,6 +954,7 @@ namespace Wave.Essence
 				DEBUG("SetInteractionMode() " + m_InteractionMode);
 			}
 		}
+
 		public XR_InteractionMode GetInteractionMode()
 		{
 			return m_InteractionMode;

@@ -102,6 +102,7 @@ namespace Wave.Native
 		#endregion
 
 		#region Interaction Mode
+		[System.Obsolete("This is an obsolete function.", true)]
 		public override bool SetInteractionMode(WVR_InteractionMode mode)
 		{
 			return system.SetInteractionMode(mode);
@@ -123,6 +124,7 @@ namespace Wave.Native
 		#endregion
 
 		#region Arena
+		[System.Obsolete("This API is deprecated and is no longer supported.", true)]
 		public override bool SetArena(ref WVR_Arena_t arena)
 		{
 			return system.SetArena(ref arena);
