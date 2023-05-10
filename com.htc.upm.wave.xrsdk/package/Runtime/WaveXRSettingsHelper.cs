@@ -63,10 +63,14 @@ namespace Wave.XR.Settings
                 SetInt("displayGamutPreference" + i, (uint)gamut);
             }
 
-            #endregion rendering
-        }
+			#endregion rendering
 
-        public const string NameSRGB = "sRGB";
+			#region Tracker
+			SetBool(WaveXRSettings.EnableTrackerText, appSettings.EnableTracker);
+			#endregion
+		}
+
+		public const string NameSRGB = "sRGB";
         public const string NameUseRenderMask = "useRenderMask";
 		public const string NameEnableTimeWarpStabilizedMode = "enableTimeWarpStabilizedMode";
 		public const string NameUseAdaptiveQuality = "useAdaptiveQuality";

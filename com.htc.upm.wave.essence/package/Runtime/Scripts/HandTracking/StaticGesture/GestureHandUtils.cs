@@ -225,7 +225,7 @@ namespace Wave.Essence.Hand.StaticGesture
 			return gesture;
 		}
 		/// <summary> Retrieves SDK or custom defined left or right hand gesture types. </summary>
-		public static string GetOneHandGesture(bool isLeftHand)
+		public static string GetSingleHandGesture(bool isLeftHand)
 		{
 			// 1. Checks the engine and SDK pre-defined gesture.
 			GestureType gesture = GetGesture(isLeftHand);

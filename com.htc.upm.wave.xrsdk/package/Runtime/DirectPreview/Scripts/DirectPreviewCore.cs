@@ -151,10 +151,10 @@ namespace Wave.XR.DirectPreview
 			EnableDirectPreview = EditorPrefs.GetBool("Wave/DirectPreview/EnableDirectPreview", false);
 			
 			wifi_ip_state = EditorPrefs.GetString("wifi_ip_state");
-			bool tPreview = EditorPrefs.GetBool("EnablePreviewImage");
-			saveLog = EditorPrefs.GetBool("DllTraceLogToFile");
-			saveImage = EditorPrefs.GetBool("OutputImagesToFile");
-			connectType = EditorPrefs.GetInt("ConnectType");
+			bool tPreview = EditorPrefs.GetBool("EnablePreviewImage", true);
+			saveLog = EditorPrefs.GetBool("DllTraceLogToFile", false);
+			saveImage = EditorPrefs.GetBool("OutputImagesToFile", false);
+			connectType = EditorPrefs.GetInt("ConnectType", 1);
 			string ipaddr = wifi_ip_state;
 			System.IntPtr ptrIPaddr = Marshal.StringToHGlobalAnsi(ipaddr);
 
@@ -163,13 +163,13 @@ namespace Wave.XR.DirectPreview
 				PrintDebug("Register direct preview print callback");
 				WVR_SetPrintCallback_S(PrintLog);
 
-				if (connectType == 1)
-				{
-					if (dpServerProcessChecker())
-						UnityEngine.Debug.Log("dpServer.exe is running in task list.");
-					else
-						UnityEngine.Debug.LogWarning("There's no dpServer.exe running in task list.");
-				}
+				//if (connectType == 1)
+				//{
+				//	if (dpServerProcessChecker())
+				//		UnityEngine.Debug.Log("dpServer.exe is running in task list.");
+				//	else
+				//		UnityEngine.Debug.LogWarning("There's no dpServer.exe running in task list.");
+				//}
 
 				EnableDP(true, (SIM_ConnectType)connectType, ptrIPaddr, tPreview, saveLog, saveImage);
 				PrintDebug("Enable Direct Preview: " + true + ", connection: " + connectType + ", IP: " + ipaddr + ", preview: " + tPreview + ", log: " + saveLog + ", image: " + saveImage);

@@ -30,8 +30,8 @@ namespace Wave.XR.DirectPreview.Editor
 			PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel22;
 		}
 
-		[UnityEditor.MenuItem("Wave/DirectPreview/Install Device APK", priority = 801)]
-		static void InstallSimulator()
+		//[UnityEditor.MenuItem("Wave/DirectPreview/Install Device APK", priority = 801)]
+		public static void InstallSimulator()
 		{
 			UninstallSimulatorInner();
 			InstallSimulatorInner();
@@ -39,16 +39,16 @@ namespace Wave.XR.DirectPreview.Editor
 			PushConfigInner();
 		}
 
-		[UnityEditor.MenuItem("Wave/DirectPreview/Start Device APK", priority = 802)]
-		static void StartSimulator()
+		//[UnityEditor.MenuItem("Wave/DirectPreview/Start Device APK", priority = 802)]
+        public static void StartSimulator()
 		{
 			StopSimulatorInner();
 			KillSimulatorInner();
 			StartSimulatorInner();
 		}
 
-		[UnityEditor.MenuItem("Wave/DirectPreview/Stop Device APK", priority = 803)]
-		static void StopSimulator()
+		//[UnityEditor.MenuItem("Wave/DirectPreview/Stop Device APK", priority = 803)]
+        public static void StopSimulator()
 		{
 			StopSimulatorInner();
 			KillSimulatorInner();
@@ -80,7 +80,7 @@ namespace Wave.XR.DirectPreview.Editor
 			}
 		}
 
-		public static void InstallSimulatorInner()
+        public static void InstallSimulatorInner()
 		{
 			try
 			{

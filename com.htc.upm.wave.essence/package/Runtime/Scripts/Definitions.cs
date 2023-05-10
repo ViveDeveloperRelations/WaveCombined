@@ -165,4 +165,16 @@ namespace Wave.Essence
 		Panel = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Panel,
 		Handle = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Handle,
 	}
+
+	public static class DefinitionExtension
+	{
+		public static string Name(this XR_Device device)
+		{
+			if (device == XR_Device.Head) { return "Head"; }
+			if (device == XR_Device.Dominant || device == XR_Device.Right) { return "Right"; }
+			if (device == XR_Device.NonDominant || device == XR_Device.Left) { return "Left"; }
+
+			return "Unknown";
+		}
+	}
 }

@@ -653,13 +653,14 @@ namespace Wave.Native
 			return axis;
 		}
 
-		static List<string> s_JoystickNames = new List<string>();
+		static string[] s_JoystickNames = new string[] { };
 		public static string[] GetJoystickNames()
 		{
-			s_JoystickNames.Clear();
 #if ENABLE_LEGACY_INPUT_MANAGER
-		return Input.GetJoystickNames();
+			s_JoystickNames = Input.GetJoystickNames();
 #elif ENABLE_INPUT_SYSTEM
+			List<string> joysticks = new List<string>();
+
 			// Find all gamepads and joysticks.
 			var devices = InputSystem.devices;
 			for (var i = 0; i < devices.Count; i++)
@@ -668,11 +669,13 @@ namespace Wave.Native
 				if (device is Joystick)
 				{
 					Debug.Log("Found joystick " + device);
-					s_JoystickNames.Add(device.name);
+					joysticks.Add(device.name);
 				}
 			}
+
+			s_JoystickNames = joysticks.ToArray();
 #endif
-			return s_JoystickNames.ToArray();
+			return s_JoystickNames;
 		}
 	}
 }

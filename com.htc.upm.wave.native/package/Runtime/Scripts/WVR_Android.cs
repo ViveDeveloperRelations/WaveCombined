@@ -219,6 +219,99 @@ namespace Wave.Native
 		}
 		#endregion
 
+		#region wvr_tracker.h
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StartTracker", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StartTracker();
+		public override WVR_Result StartTracker()
+		{
+			return WVR_StartTracker();
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StopTracker", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_StopTracker();
+		public override void StopTracker()
+		{
+			WVR_StopTracker();
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_IsTrackerConnected", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_IsTrackerConnected(WVR_TrackerId trackerId);
+		public override bool IsTrackerConnected(WVR_TrackerId trackerId)
+		{
+			return WVR_IsTrackerConnected(trackerId);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerRole", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_TrackerRole WVR_GetTrackerRole(WVR_TrackerId trackerId);
+		public override WVR_TrackerRole GetTrackerRole(WVR_TrackerId trackerId)
+		{
+			return WVR_GetTrackerRole(trackerId);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerCapabilities", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetTrackerCapabilities(WVR_TrackerId trackerId, ref WVR_TrackerCapabilities capabilities);
+		public override WVR_Result GetTrackerCapabilities(WVR_TrackerId trackerId, ref WVR_TrackerCapabilities capabilities)
+		{
+			return WVR_GetTrackerCapabilities(trackerId, ref capabilities);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerPoseState", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetTrackerPoseState(WVR_TrackerId trackerId, WVR_PoseOriginModel originModel, UInt32 predictedMilliSec, ref WVR_PoseState_t poseState);
+		public override WVR_Result GetTrackerPoseState(WVR_TrackerId trackerId, WVR_PoseOriginModel originModel, UInt32 predictedMilliSec, ref WVR_PoseState_t poseState)
+		{
+			return WVR_GetTrackerPoseState(trackerId, originModel, predictedMilliSec, ref poseState);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerInputDeviceCapability", CallingConvention = CallingConvention.Cdecl)]
+		public static extern Int32 WVR_GetTrackerInputDeviceCapability(WVR_TrackerId trackerId, WVR_InputType inputType);
+		public override Int32 GetTrackerInputDeviceCapability(WVR_TrackerId trackerId, WVR_InputType inputType)
+		{
+			return WVR_GetTrackerInputDeviceCapability(trackerId, inputType);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerInputDeviceAnalogType", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_AnalogType WVR_GetTrackerInputDeviceAnalogType(WVR_TrackerId trackerId, WVR_InputId id);
+		public override WVR_AnalogType GetTrackerInputDeviceAnalogType(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return WVR_GetTrackerInputDeviceAnalogType(trackerId, id);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerInputButtonState", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_GetTrackerInputButtonState(WVR_TrackerId trackerId, WVR_InputId id);
+		public override bool GetTrackerInputButtonState(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return WVR_GetTrackerInputButtonState(trackerId, id);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerInputTouchState", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_GetTrackerInputTouchState(WVR_TrackerId trackerId, WVR_InputId id);
+		public override bool GetTrackerInputTouchState(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return WVR_GetTrackerInputTouchState(trackerId, id);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerInputAnalogAxis", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Axis_t WVR_GetTrackerInputAnalogAxis(WVR_TrackerId trackerId, WVR_InputId id);
+		public override WVR_Axis_t GetTrackerInputAnalogAxis(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return WVR_GetTrackerInputAnalogAxis(trackerId, id);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerBatteryLevel", CallingConvention = CallingConvention.Cdecl)]
+		public static extern float WVR_GetTrackerBatteryLevel(WVR_TrackerId trackerId);
+		public override float GetTrackerBatteryLevel(WVR_TrackerId trackerId)
+		{
+			return WVR_GetTrackerBatteryLevel(trackerId);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_TriggerTrackerVibration", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_TriggerTrackerVibration(WVR_TrackerId trackerId, UInt32 durationMicroSec = 65535, UInt32 frequency = 0, float amplitude = 0.0f);
+		public override WVR_Result TriggerTrackerVibration(WVR_TrackerId trackerId, UInt32 durationMicroSec = 65535, UInt32 frequency = 0, float amplitude = 0.0f)
+		{
+			return WVR_TriggerTrackerVibration(trackerId, durationMicroSec, frequency, amplitude);
+		}
+		#endregion
+
 		#region wvr_arena.h
 		// Get current attributes of arena.
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetArena", CallingConvention = CallingConvention.Cdecl)]

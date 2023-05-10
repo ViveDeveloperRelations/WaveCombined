@@ -32,7 +32,10 @@ namespace Wave.Essence
 			if (GraphicsSettings.renderPipelineAsset != null)
 			{
 				isShaderStrippingEnabled = false;
+				EditorPrefs.SetBool(EditorPrefEntry, isShaderStrippingEnabled);
+				Menu.SetChecked(MenuItem, isShaderStrippingEnabled);
 				Debug.Log("Wave Essence Shader Stripping: Current Rendering Pipeline not supported.");
+				return false;
 			}
 
 #endif

@@ -13,6 +13,10 @@ using Wave.Native;
 using Wave.Essence.Events;
 using System.Collections.Generic;
 using System;
+using UnityEngine.Profiling;
+#if UNITY_EDITOR
+using Wave.Essence.Editor;
+#endif
 
 #if ENABLE_INPUT_SYSTEM
 using Wave.Essence.HIDPlugin;
@@ -75,6 +79,11 @@ namespace Wave.Essence
 		void Awake()
 		{
 			instance = this;
+
+#if UNITY_EDITOR
+			if (WaveEditor.Instance != null)
+				DEBUG("Awake() WaveEditor is initialized.");
+#endif
 
 			for (int i = 0; i < Enum.GetNames(typeof(WVR_DeviceType)).Length; i++)
 				m_Connected.Add((WVR_DeviceType)i, false);
@@ -481,9 +490,15 @@ namespace Wave.Essence
 		}
 		private void UpdateEventButtons()
 		{
+			Profiler.BeginSample("UpdateEventButtonsHmd");
 			UpdateEventButtonsHmd();
+			Profiler.EndSample();
+			Profiler.BeginSample("UpdateEventButtonsController");
 			UpdateEventButtonsController(WVR_DeviceType.WVR_DeviceType_Controller_Left);
+			Profiler.EndSample();
+			Profiler.BeginSample("UpdateEventButtonsController");
 			UpdateEventButtonsController(WVR_DeviceType.WVR_DeviceType_Controller_Right);
+			Profiler.EndSample();
 		}
 
 		// Event states.

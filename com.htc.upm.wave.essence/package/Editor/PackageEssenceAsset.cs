@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -11,6 +11,7 @@ namespace Wave.Essence.Editor
 		public bool importedInputModulePackage = false;
 		public bool importedHandModelPackage = false;
 		public bool importedInteractionModePackage = false;
+		public bool importedTrackerModelPackage = false;
 	}
 }
 #endif

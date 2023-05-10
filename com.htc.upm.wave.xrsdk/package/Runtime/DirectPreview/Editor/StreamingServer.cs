@@ -24,13 +24,13 @@ namespace Wave.XR.DirectPreview.Editor
 	{
 		public static Process myProcess = new Process();
 
-		[UnityEditor.MenuItem("Wave/DirectPreview/Start Streaming Server", priority = 701)]
+		//[UnityEditor.MenuItem("Wave/DirectPreview/Start Streaming Server", priority = 701)]
 		static void StartStreamingServerMenu()
 		{
 			StartStreamingServer();
 		}
 
-		[UnityEditor.MenuItem("Wave/DirectPreview/Stop Streaming Server", priority = 702)]
+		//[UnityEditor.MenuItem("Wave/DirectPreview/Stop Streaming Server", priority = 702)]
 		static void StopStreamingServerMenu()
 		{
 			StopStreamingServer();

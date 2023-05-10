@@ -8,6 +8,7 @@
 // conditions signed by you and all SDK and API requirements,
 // specifications, and documentation provided by HTC to You."
 
+using System;
 using System.Runtime.InteropServices;
 
 namespace Wave.Native
@@ -237,6 +238,61 @@ namespace Wave.Native
 		public override bool GetControllerPoseMode(WVR_DeviceType type, ref WVR_ControllerPoseMode mode)
 		{
 			return system.GetControllerPoseMode(type, ref mode);
+		}
+		#endregion
+
+		#region Bracelet
+		public override WVR_Result StartTracker()
+		{
+			return system.StartTracker();
+		}
+		public override void StopTracker()
+		{
+			system.StopTracker();
+		}
+		public override bool IsTrackerConnected(WVR_TrackerId trackerId)
+		{
+			return system.IsTrackerConnected(trackerId);
+		}
+		public override WVR_TrackerRole GetTrackerRole(WVR_TrackerId trackerId)
+		{
+			return system.GetTrackerRole(trackerId);
+		}
+		public override WVR_Result GetTrackerCapabilities(WVR_TrackerId trackerId, ref WVR_TrackerCapabilities capabilities)
+		{
+			return system.GetTrackerCapabilities(trackerId, ref capabilities);
+		}
+		public override WVR_Result GetTrackerPoseState(WVR_TrackerId trackerId, WVR_PoseOriginModel originModel, UInt32 predictedMilliSec, ref WVR_PoseState_t poseState)
+		{
+			return system.GetTrackerPoseState(trackerId, originModel, predictedMilliSec, ref poseState);
+		}
+		public override Int32 GetTrackerInputDeviceCapability(WVR_TrackerId trackerId, WVR_InputType inputType)
+		{
+			return system.GetTrackerInputDeviceCapability(trackerId, inputType);
+		}
+		public override WVR_AnalogType GetTrackerInputDeviceAnalogType(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return system.GetTrackerInputDeviceAnalogType(trackerId, id);
+		}
+		public override bool GetTrackerInputButtonState(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return system.GetTrackerInputButtonState(trackerId, id);
+		}
+		public override bool GetTrackerInputTouchState(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return system.GetTrackerInputTouchState(trackerId, id);
+		}
+		public override WVR_Axis_t GetTrackerInputAnalogAxis(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return system.GetTrackerInputAnalogAxis(trackerId, id);
+		}
+		public override float GetTrackerBatteryLevel(WVR_TrackerId trackerId)
+		{
+			return system.GetTrackerBatteryLevel(trackerId);
+		}
+		public override WVR_Result TriggerTrackerVibration(WVR_TrackerId trackerId, UInt32 durationMicroSec = 65535, UInt32 frequency = 0, float amplitude = 0.0f)
+		{
+			return system.TriggerTrackerVibration(trackerId, durationMicroSec, frequency, amplitude);
 		}
 		#endregion
 

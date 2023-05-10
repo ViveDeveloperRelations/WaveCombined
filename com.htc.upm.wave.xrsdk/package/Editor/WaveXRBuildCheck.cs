@@ -20,12 +20,15 @@ using UnityEngine;
 using UnityEditor.XR.Management.Metadata;
 using UnityEngine.XR.Management;
 using System.Xml;
+using Wave.XR.Settings;
 
 namespace Wave.XR.BuildCheck
 {
 	static class CustomBuildProcessor
 	{
-		const string CustomAndroidManifestPathSrc = "Assets/Wave/XR/Platform/Android/AndroidManifest.xml";
+		private static string WaveXRPath = "Assets/Wave/XR";
+
+		const string CustomAndroidManifestPathSrc = "/Platform/Android/AndroidManifest.xml";
 		const string AndroidManifestPathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/AndroidManifest.xml";
 		const string AndroidManifestPathDest = "Assets/Plugins/Android/AndroidManifest.xml";
 		const string ForceBuildWVR = "ForceBuildWVR.txt";
@@ -34,50 +37,76 @@ namespace Wave.XR.BuildCheck
 
 		internal static void AddHandtrackingAndroidManifest()
 		{
+			WaveXRSettings settings;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+				WaveXRPath = settings.waveXRFolder;
+
 			if (File.Exists(AndroidManifestPathDest)) 
 				if (!checkHandtrackingFeature(AndroidManifestPathDest))
-					appendFile(AndroidManifestPathDest);
-			if (File.Exists(CustomAndroidManifestPathSrc))
-				if (!checkHandtrackingFeature(CustomAndroidManifestPathSrc))
-					appendFile(CustomAndroidManifestPathSrc);
+					appendFile(AndroidManifestPathDest, true);
+			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+				if (!checkHandtrackingFeature(WaveXRPath + CustomAndroidManifestPathSrc))
+					appendFile(WaveXRPath + CustomAndroidManifestPathSrc, true);
 		}
 
 		static void CopyAndroidManifest()
 		{
 			const string PluginAndroidPath = "Assets/Plugins/Android";
+			WaveXRSettings settings;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+				WaveXRPath = settings.waveXRFolder;
+
 			if (!Directory.Exists(PluginAndroidPath))
 				Directory.CreateDirectory(PluginAndroidPath);
 			isAndroidManifestPathDestExisted = File.Exists(AndroidManifestPathDest);
 			if (isAndroidManifestPathDestExisted)
 			{
 				Debug.Log("Using the Android Manifest at Assets/Plugins/Android");
+				if (settings != null && settings.supportedFPS != WaveXRSettings.SupportedFPS.HMD_Default && !checkDefSupportedFPS(AndroidManifestPathDest))
+				{
+					appendFile(AndroidManifestPathDest, false, settings.supportedFPS);
+				}
 				return; // not to overwrite existed AndroidManifest.xml
 			}
-			if (File.Exists(CustomAndroidManifestPathSrc))
+
+			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
 			{
-				Debug.Log("Using the Android Manifest at Assets/Wave/XR/Platform/Android");
-				File.Copy(CustomAndroidManifestPathSrc, AndroidManifestPathDest, false);
+				Debug.Log("Using the Android Manifest at " + WaveXRPath + "/Platform/Android");
+				File.Copy(WaveXRPath + CustomAndroidManifestPathSrc, AndroidManifestPathDest, false);
 			}
 			else if (File.Exists(AndroidManifestPathSrc))
 			{
 				Debug.Log("Using the Android Manifest at Packages/com.htc.upm.wave.xrsdk/Runtime/Android");
 				File.Copy(AndroidManifestPathSrc, AndroidManifestPathDest, false);
 			}
+			
 			if (EditorPrefs.GetBool(CheckIfHandTrackingEnabled.MENU_NAME, false) && !checkHandtrackingFeature(AndroidManifestPathDest))
-				appendFile(AndroidManifestPathDest);
+			{
+				appendFile(AndroidManifestPathDest, true, settings.supportedFPS);
+			}
+			else if (settings != null && settings.supportedFPS != WaveXRSettings.SupportedFPS.HMD_Default)
+			{
+				appendFile(AndroidManifestPathDest, false, settings.supportedFPS);
+			}
 		}
 
-		static void appendFile(string filename)
+		static void appendFile(string filename, bool handtracking = false, WaveXRSettings.SupportedFPS supportedFPS = WaveXRSettings.SupportedFPS.HMD_Default)
 		{
 			string line;
 
 			// Read the file and display it line by line.  
 			StreamReader file1 = new StreamReader(filename);
 			StreamWriter file2 = new StreamWriter(filename + ".tmp");
+			bool appendFPS120 = supportedFPS == WaveXRSettings.SupportedFPS._120;
 			while ((line = file1.ReadLine()) != null)
 			{
-				System.Console.WriteLine(line);
-				if (line.Contains("</manifest>"))
+				if (line.Contains("</application>") && appendFPS120)
+				{
+					file2.WriteLine("		<meta-data android:name=\"com.htc.vr.content.SupportedFPS\" android:value=\"120\" />");
+				}
+				if (line.Contains("</manifest>") && handtracking)
 				{
 					file2.WriteLine("	<uses-feature android:name=\"wave.feature.handtracking\" android:required=\"true\" />");
 				}
@@ -104,6 +133,25 @@ namespace Wave.XR.BuildCheck
 					string required = metadataNode.Attributes["android:required"].Value;
 
 					if (name.Equals("wave.feature.handtracking"))
+						return true;
+				}
+			}
+			return false;
+		}
+
+		static bool checkDefSupportedFPS(string filename)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(filename);
+			XmlNodeList metadataNodeList = doc.SelectNodes("/manifest/application/meta-data");
+
+			if (metadataNodeList != null)
+			{
+				foreach (XmlNode metadataNode in metadataNodeList)
+				{
+					string name = metadataNode.Attributes["android:name"].Value;
+
+					if (name.Equals("com.htc.vr.content.SupportedFPS"))
 						return true;
 				}
 			}

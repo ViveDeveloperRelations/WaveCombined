@@ -12,11 +12,12 @@
 using UnityEditor;
 using UnityEngine;
 using System;
+using System.Diagnostics;
 
 #if UNITY_EDITOR && UNITY_EDITOR_WIN
 namespace Wave.XR.DirectPreview.Editor
 {
-	public class DirectPreviewConfig : EditorWindow
+	public class DirectPreviewControlPanel : EditorWindow
 	{
 		private const string DEVICE_WIFI_ADDRESS = "wifi_ip_state";
 		private const string ENABLE_PREVIEW_IMAGE = "EnablePreviewImage";
@@ -37,7 +38,6 @@ namespace Wave.XR.DirectPreview.Editor
 
 		private bool bOutputImagesToFile = false;
 		private bool aOutputImagesToFile = false;
-		private int heightOffset = 30;
 
 		// 	Connection Type
 		private string[] ConnectTypeString = new string[] { "USB", "Wi-Fi" };
@@ -63,48 +63,48 @@ namespace Wave.XR.DirectPreview.Editor
 		private int selectedTargetDeviceValue = 1;
 		private int prevTargetDeviceValue = 1;
 
-		void OnGUI()
-		{
-			int height = heightOffset / 2;
+        private bool configFoldout = true;
 
-			if (!EditorPrefs.HasKey(CONNECTTYPE))
-			{
-				prevConnectTypeValue = 1; // Wifi
-			}
-			else
-			{
-				prevConnectTypeValue = EditorPrefs.GetInt(CONNECTTYPE);
-			}
+        private static readonly string PREF_IS_ADB_EXIST = "IsAdbExist";
 
-			selectedConnectTypeValue = EditorGUI.IntPopup(new Rect(0, height, position.width, 20), "Connect Type: ", prevConnectTypeValue, ConnectTypeString, ConnectTypeValue);
+        public void Awake()
+        {
+            isAdbExist = EditorPrefs.GetBool(PREF_IS_ADB_EXIST, isAdbExist);
+        }
 
-			if (prevConnectTypeValue != selectedConnectTypeValue)
-				EditorPrefs.SetInt(CONNECTTYPE, selectedConnectTypeValue);
-			if (selectedConnectTypeValue == 0)
-			{
-				height += heightOffset;
-				EditorGUI.LabelField(new Rect(0, height, position.width, 20), "Use USB to get data (Pose/Event/...) from device");
+        void ShowConfig()
+        {
+            if (!EditorPrefs.HasKey(CONNECTTYPE))
+            {
+                prevConnectTypeValue = 1; // Wifi
+            }
+            else
+            {
+                prevConnectTypeValue = EditorPrefs.GetInt(CONNECTTYPE);
+            }
 
-				height += heightOffset;
-				EditorGUI.LabelField(new Rect(0, height, position.width, 20), "Note: HMD will NOT show images.");
-			}
-			else
-			{
-				height += heightOffset;
-				EditorGUI.LabelField(new Rect(0, height, position.width, 20), "Use Wi-Fi to get data from device and show images on HMD.");
+            selectedConnectTypeValue = EditorGUILayout.IntPopup("Connect Type: ", prevConnectTypeValue, ConnectTypeString, ConnectTypeValue);
 
-				height += heightOffset;
-				EditorGUI.LabelField(new Rect(0, height, position.width, 20), "Suggest to use 5G Wi-Fi to get better performance.");
+            if (prevConnectTypeValue != selectedConnectTypeValue)
+                EditorPrefs.SetInt(CONNECTTYPE, selectedConnectTypeValue);
+            if (selectedConnectTypeValue == 0)
+            {
+                EditorGUILayout.LabelField("Use USB to get data (Pose/Event/...) from device\n" +
+                    "Note: HMD will NOT show images.", GUILayout.Height(40));
+            }
+            else
+            {
+                EditorGUILayout.LabelField("Use Wi-Fi to get data from device and show images on HMD.\n" +
+                    "Suggest to use 5G Wi-Fi to get better performance.", GUILayout.Height(40));
 
-				wifi_ip_textField = EditorPrefs.GetString(DEVICE_WIFI_ADDRESS);
-				height += heightOffset;
-				bwifi_ip_textField = EditorGUI.TextField(new Rect(0, height, 400, 20), "Device Wi-Fi IP: ", wifi_ip_textField);
+                wifi_ip_textField = EditorPrefs.GetString(DEVICE_WIFI_ADDRESS);
+                bwifi_ip_textField = EditorGUILayout.TextField("Device Wi-Fi IP: ", wifi_ip_textField);
 
-				if (!bwifi_ip_textField.Equals(""))
-				{
-					EditorPrefs.SetString(DEVICE_WIFI_ADDRESS, bwifi_ip_textField);
-				}
-				/*
+                if (!bwifi_ip_textField.Equals(""))
+                {
+                    EditorPrefs.SetString(DEVICE_WIFI_ADDRESS, bwifi_ip_textField);
+                }
+                /*
 				isCurrentIsDllLogSavedState = EditorPrefs.GetBool(DLL_TRACE_LOG_TO_FILE);
 
 				isDllLogSavedFlagToggle = EditorGUI.Toggle(new Rect(0, 100, position.width, 20), "Save log to file", isCurrentIsDllLogSavedState);
@@ -118,104 +118,188 @@ namespace Wave.XR.DirectPreview.Editor
 					EditorPrefs.SetBool(DLL_TRACE_LOG_TO_FILE, false);
 				}*/
 
-				height += heightOffset;
+                if (!EditorPrefs.HasKey(ENABLE_PREVIEW_IMAGE))
+                {
+                    isCurrentRenderImageState = true;
+                }
+                else
+                {
+                    isCurrentRenderImageState = EditorPrefs.GetBool(ENABLE_PREVIEW_IMAGE);
+                }
 
-				if (!EditorPrefs.HasKey(ENABLE_PREVIEW_IMAGE))
-				{
-					isCurrentRenderImageState = true;
-				}
-				else
-				{
-					isCurrentRenderImageState = EditorPrefs.GetBool(ENABLE_PREVIEW_IMAGE);
-				}
+                
+                isRenderImageToggle = EditorGUILayout.Toggle("Enable preview image: ", isCurrentRenderImageState);
 
-				isRenderImageToggle = EditorGUI.Toggle(new Rect(0, height, position.width, 20), "Enable preview image: ", isCurrentRenderImageState);
+                if (isRenderImageToggle)
+                {
+                    EditorPrefs.SetBool(ENABLE_PREVIEW_IMAGE, true);
+                }
+                else
+                {
+                    EditorPrefs.SetBool(ENABLE_PREVIEW_IMAGE, false);
+                }
 
-				if (isRenderImageToggle)
-				{
-					EditorPrefs.SetBool(ENABLE_PREVIEW_IMAGE, true);
-				}
-				else
-				{
-					EditorPrefs.SetBool(ENABLE_PREVIEW_IMAGE, false);
-				}
+                if (isRenderImageToggle)
+                {
+                    if (!EditorPrefs.HasKey(UPDATE_FREQUENCY))
+                    {
+                        prevSelectedfps = 0; // Based on runtime target FPS
+                    }
+                    else
+                    {
+                        prevSelectedfps = EditorPrefs.GetInt(UPDATE_FREQUENCY);
+                    }
 
-				if (isRenderImageToggle)
-				{
-					height += heightOffset;
-					if (!EditorPrefs.HasKey(UPDATE_FREQUENCY))
-					{
-						prevSelectedfps = 0; // Based on runtime target FPS
-					}
-					else
-					{
-						prevSelectedfps = EditorPrefs.GetInt(UPDATE_FREQUENCY);
-					}
+                    selectedFPS = EditorGUILayout.IntPopup("Update frequency: ", prevSelectedfps, names, fps);
 
-					selectedFPS = EditorGUI.IntPopup(new Rect(0, height, position.width, 20), "Update frequency: ", prevSelectedfps, names, fps);
+                    if (prevSelectedfps != selectedFPS)
+                    {
+                        UnityEngine.Debug.Log("Set frequency " + selectedFPS);
+                        EditorPrefs.SetInt(UPDATE_FREQUENCY, selectedFPS);
+                    }
+                    // target device
+                    if (!EditorPrefs.HasKey(TARGET_DEVICE))
+                    {
+                        prevTargetDeviceValue = 0; // Based on runtime target FPS
+                    }
+                    else
+                    {
+                        prevTargetDeviceValue = EditorPrefs.GetInt(TARGET_DEVICE);
+                    }
 
-					if (prevSelectedfps != selectedFPS)
-					{
-						UnityEngine.Debug.Log("Set frequency " + selectedFPS);
-						EditorPrefs.SetInt(UPDATE_FREQUENCY, selectedFPS);
-					}
-					// target device
-					height += heightOffset;
-					if (!EditorPrefs.HasKey(TARGET_DEVICE))
-					{
-						prevTargetDeviceValue = 0; // Based on runtime target FPS
-					}
-					else
-					{
-						prevTargetDeviceValue = EditorPrefs.GetInt(TARGET_DEVICE);
-					}
+                    selectedTargetDeviceValue = EditorGUILayout.IntPopup("Render target device: ", prevTargetDeviceValue, TargetDeviceString, TargetDeviceValue);
 
-					selectedTargetDeviceValue = EditorGUI.IntPopup(new Rect(0, height, position.width, 20), "Render target device: ", prevTargetDeviceValue, TargetDeviceString, TargetDeviceValue);
+                    if (prevTargetDeviceValue != selectedTargetDeviceValue)
+                    {
+                        UnityEngine.Debug.Log("Render target device " + selectedTargetDeviceValue);
+                        EditorPrefs.SetInt(TARGET_DEVICE, selectedTargetDeviceValue);
+                    }
+                    EditorGUILayout.LabelField("Please re-install Device APK if changed target device.");
+                    //--
 
-					if (prevTargetDeviceValue != selectedTargetDeviceValue)
-					{
-						UnityEngine.Debug.Log("Render target device " + selectedTargetDeviceValue);
-						EditorPrefs.SetInt(TARGET_DEVICE, selectedTargetDeviceValue);
-					}
-					height += heightOffset;
-					EditorGUI.LabelField(new Rect(0, height, position.width, 20), "Please re-install Device APK if changed target device.");
-					//--
+                    if (!EditorPrefs.HasKey(TARGET_SIZE_RATIO))
+                    {
+                        prevTargetSizeRatio = 4; // Target size ratio = 0.4f
+                    }
+                    else
+                    {
+                        prevTargetSizeRatio = EditorPrefs.GetInt(TARGET_SIZE_RATIO);
+                    }
 
-					height += heightOffset;
-					if (!EditorPrefs.HasKey(TARGET_SIZE_RATIO))
-					{
-						prevTargetSizeRatio = 4; // Target size ratio = 0.4f
-					}
-					else
-					{
-						prevTargetSizeRatio = EditorPrefs.GetInt(TARGET_SIZE_RATIO);
-					}
+                    selectedTargetSizeRatio = EditorGUILayout.IntPopup("Preview image ratio: ", prevTargetSizeRatio, targetSizeRatioString, targetSizeRatio);
 
-					selectedTargetSizeRatio = EditorGUI.IntPopup(new Rect(0, height, position.width, 20), "Preview image ratio: ", prevTargetSizeRatio, targetSizeRatioString, targetSizeRatio);
+                    if (prevTargetSizeRatio != selectedTargetSizeRatio)
+                    {
+                        EditorPrefs.SetInt(TARGET_SIZE_RATIO, selectedTargetSizeRatio);
+                    }
 
-					if (prevTargetSizeRatio != selectedTargetSizeRatio)
-					{
-						EditorPrefs.SetInt(TARGET_SIZE_RATIO, selectedTargetSizeRatio);
-					}
+                    bOutputImagesToFile = EditorPrefs.GetBool(OUTPUT_IMAGE_TO_FILE);
 
-					height += heightOffset;
-					bOutputImagesToFile = EditorPrefs.GetBool(OUTPUT_IMAGE_TO_FILE);
+                    aOutputImagesToFile = EditorGUILayout.Toggle("Regularly save images: ", bOutputImagesToFile);
 
-					aOutputImagesToFile = EditorGUI.Toggle(new Rect(0, height, position.width, 20), "Regularly save images: ", bOutputImagesToFile);
+                    if (aOutputImagesToFile)
+                    {
+                        EditorPrefs.SetBool(OUTPUT_IMAGE_TO_FILE, true);
+                    }
+                    else
+                    {
+                        EditorPrefs.SetBool(OUTPUT_IMAGE_TO_FILE, false);
+                    }
+                }
+            }
+        }
 
-					if (aOutputImagesToFile)
-					{
-						EditorPrefs.SetBool(OUTPUT_IMAGE_TO_FILE, true);
-					}
-					else
-					{
-						EditorPrefs.SetBool(OUTPUT_IMAGE_TO_FILE, false);
-					}
-				}
-			}
+        public static bool isAdbChecked = false;
+        public static bool isAdbExist = false;
 
-			this.Repaint();
+        public void CheckAdbExist()
+        {
+            if (isAdbChecked && isAdbExist)
+                return;
+
+            isAdbChecked = true;
+            try
+            {
+                Process myProcess = new Process();
+                myProcess.StartInfo.FileName = "C:\\Windows\\system32\\cmd.exe";
+                myProcess.StartInfo.Arguments = "/c where /Q adb";
+                myProcess.Start();
+                myProcess.WaitForExit();
+                int ExitCode = myProcess.ExitCode;
+                if (ExitCode == 0)
+                {
+                    UnityEngine.Debug.Log("adb.exe exist in path.");
+                    isAdbExist = true;
+                    EditorPrefs.SetBool(PREF_IS_ADB_EXIST, true);
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("adb.exe does not exist in path.");
+                    isAdbExist = false;
+                    EditorPrefs.SetBool(PREF_IS_ADB_EXIST, false);
+                }
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError(e);
+            }
+        }
+
+        void ShowButtons()
+        {
+            if (GUILayout.Button("Start streaming server"))
+            {
+                StreamingServer.StartStreamingServer();
+                configFoldout = false;
+            }
+            if (GUILayout.Button("Stop streaming server"))
+            {
+                StreamingServer.StopStreamingServer();
+            }
+            if (GUILayout.Button("Start Device APK"))
+            {
+                DirectPreviewAPK.StartSimulator();
+                configFoldout = false;
+            }
+            if (GUILayout.Button("Stop Device APK"))
+            {
+                DirectPreviewAPK.StopSimulator();
+            }
+            if (GUILayout.Button("Install Device APK"))
+            {
+                DirectPreviewAPK.InstallSimulator();
+            }
+        }
+
+        void OnGUI()
+		{
+            if (Application.isPlaying)
+            {
+                EditorGUILayout.HelpBox("Application is Playing\n" + "Before any DirectPreview operation, please stop playing.", MessageType.None);
+                return;
+            }
+
+            if (!isAdbChecked)
+                CheckAdbExist();
+
+            if (!isAdbExist)
+                EditorGUILayout.HelpBox("Adb does not exist.\n" +
+                    "Please set \"<your android sdk>\\platform-tools\" into your environment path, and then reboot your PC to take effect."
+                    , MessageType.Error);
+
+            configFoldout = EditorGUILayout.Foldout(configFoldout, "Config");
+            if (configFoldout)
+            {
+                EditorGUI.indentLevel++;
+                ShowConfig();
+                EditorGUI.indentLevel--;
+            }
+
+            ShowButtons();
+
+            this.Repaint();
 		}
+
 		void OnInspectorUpdate()
 		{
 			Repaint();
@@ -228,7 +312,7 @@ namespace Wave.XR.DirectPreview.Editor
 		private const string MENU_NAME = "Wave/DirectPreview/EnableDirectPreview";
 
 		private static bool enabled_;
-		private const string DIRECT_PREVIEW_OPTIONS_MENU_NAME = "Wave/DirectPreview/DirectPreviewOptions";
+		private const string DIRECT_PREVIEW_CONTROL_PANEL_MENU_NAME = "Wave/DirectPreview/ControlPanel";
 		/// Called on load thanks to the InitializeOnLoad attribute
 		static CheckIfSimulatorEnabled()
 		{
@@ -253,11 +337,11 @@ namespace Wave.XR.DirectPreview.Editor
 			if (!CheckIfSimulatorEnabled.enabled_)
 			{
 
-				if (!EditorPrefs.GetBool(CheckIfSimulatorEnabled.DIRECT_PREVIEW_OPTIONS_MENU_NAME))
+				if (!EditorPrefs.GetBool(CheckIfSimulatorEnabled.DIRECT_PREVIEW_CONTROL_PANEL_MENU_NAME))
 				{
-					EditorWindow window = EditorWindow.GetWindow(typeof(DirectPreviewConfig));
+                    DirectPreviewControlPanel window = (DirectPreviewControlPanel)EditorWindow.GetWindow<DirectPreviewControlPanel>("DirectPreview");
 					window.Show();
-					EditorPrefs.SetBool(CheckIfSimulatorEnabled.DIRECT_PREVIEW_OPTIONS_MENU_NAME, true);
+                    EditorPrefs.SetBool(CheckIfSimulatorEnabled.DIRECT_PREVIEW_CONTROL_PANEL_MENU_NAME, true);
 				}
 
 				//switchGaphicsEmulationInner(true);
@@ -288,12 +372,12 @@ namespace Wave.XR.DirectPreview.Editor
 			return true;
 		}
 
-		[MenuItem(CheckIfSimulatorEnabled.DIRECT_PREVIEW_OPTIONS_MENU_NAME, priority = 602)]
+		[MenuItem(CheckIfSimulatorEnabled.DIRECT_PREVIEW_CONTROL_PANEL_MENU_NAME, priority = 602)]
 		private static void OptToggleAction()
 		{
-			EditorWindow window = EditorWindow.GetWindow(typeof(DirectPreviewConfig));
-			window.Show();
-		}
+            DirectPreviewControlPanel window = (DirectPreviewControlPanel)EditorWindow.GetWindow<DirectPreviewControlPanel>("DirectPreview");
+            window.Show();
+        }
 		//// Switch to emulation mode.
 		//public static void switchGaphicsEmulationInner(bool isSwitchGaphicsEmulation)
 		//{
