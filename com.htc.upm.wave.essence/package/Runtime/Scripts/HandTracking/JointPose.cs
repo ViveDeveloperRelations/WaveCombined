@@ -87,7 +87,7 @@ namespace Wave.Essence.Hand
 			if (m_HideWhenPoseInvalid && m_MeshRenderer != null)
 				m_MeshRenderer.enabled = Valid;
 
-			gameObject.transform.position = Position;
+			gameObject.transform.localPosition = Position;
 			//DEBUG("Update() {" + gameObject.transform.position.x.ToString() + ", " + gameObject.transform.position.y.ToString() + ", " + gameObject.transform.position.z.ToString() + ")");
 		}
 	}

@@ -2115,11 +2115,20 @@ namespace Wave.Native
 		private Vector3 leftYawRotation = new Vector3(0, 0.1f, 0), rightYawRotation = new Vector3(0, -0.1f, 0);
 		private Quaternion leftYawOrientation = Quaternion.identity, rightYawOrientation = Quaternion.identity;
 		private int boneCount = 0, boneCountAdder = 1;
+		private float pinchStrengthLeft = 0, pinchStrengthRight = 0.5f;
 		private void UpdateBonesAndHandTrackingData()
 		{
 			// Move the bone position continuously.
 			if (boneCount == 100 || boneCount == -100)
+			{
 				boneCountAdder *= -1;
+
+				pinchStrengthLeft += .1f;
+				pinchStrengthLeft %= 1;
+
+				pinchStrengthRight += .1f;
+				pinchStrengthRight %= 1;
+			}
 			boneCount += boneCountAdder;
 			leftYawRotation.y += 0.1f * boneCountAdder;
 			leftYawOrientation = Quaternion.Euler(leftYawRotation);
@@ -2561,6 +2570,8 @@ namespace Wave.Native
 				Marshal.StructureToPtr(s_HandJointsFlag[i], ulong_ptr, false);
 				offset += Marshal.SizeOf(ulong_type);
 			}*/
+
+			handTrackerInfo.strength = 0.2f;
 		}
 		public WVR_Result GetHandTrackerInfo(WVR_HandTrackerType tracker, ref WVR_HandTrackerInfo_t info)
 		{
@@ -2695,13 +2706,14 @@ namespace Wave.Native
 			/// Fills WVR_HandPoseData_t
 			pose.timestamp = Time.frameCount;
 			pose.left.state.type = WVR_HandPoseType.WVR_HandPoseType_Pinch;
+			pose.left.pinch.strength = pinchStrengthLeft;
 			pose.left.pinch.origin = leftBonesPosition[(int)HandJointType.Wrist_L];
 			pose.left.pinch.direction = GetOpenGLVector(leftPinchDirection);
 
 			pose.right.state.type = WVR_HandPoseType.WVR_HandPoseType_Pinch;
 			pose.right.pinch.state.type = WVR_HandPoseType.WVR_HandPoseType_Pinch;
 			pose.right.pinch.finger = WVR_FingerType.WVR_FingerType_Index;
-			pose.right.pinch.strength = 0.5f;
+			pose.right.pinch.strength = pinchStrengthRight;
 			pose.right.pinch.origin = rightBonesPosition[(int)HandJointType.Wrist_R];
 			pose.right.pinch.direction = GetOpenGLVector(rightPinchDirection);
 

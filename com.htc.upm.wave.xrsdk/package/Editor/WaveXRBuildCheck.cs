@@ -19,6 +19,7 @@ using Wave.XR.Loader;
 using UnityEngine;
 using UnityEditor.XR.Management.Metadata;
 using UnityEngine.XR.Management;
+using System.Xml;
 
 namespace Wave.XR.BuildCheck
 {
@@ -30,6 +31,16 @@ namespace Wave.XR.BuildCheck
 		const string ForceBuildWVR = "ForceBuildWVR.txt";
 
 		static bool isAndroidManifestPathDestExisted = false;
+
+		internal static void AddHandtrackingAndroidManifest()
+		{
+			if (File.Exists(AndroidManifestPathDest)) 
+				if (!checkHandtrackingFeature(AndroidManifestPathDest))
+					appendFile(AndroidManifestPathDest);
+			if (File.Exists(CustomAndroidManifestPathSrc))
+				if (!checkHandtrackingFeature(CustomAndroidManifestPathSrc))
+					appendFile(CustomAndroidManifestPathSrc);
+		}
 
 		static void CopyAndroidManifest()
 		{
@@ -52,6 +63,51 @@ namespace Wave.XR.BuildCheck
 				Debug.Log("Using the Android Manifest at Packages/com.htc.upm.wave.xrsdk/Runtime/Android");
 				File.Copy(AndroidManifestPathSrc, AndroidManifestPathDest, false);
 			}
+			if (EditorPrefs.GetBool(CheckIfHandTrackingEnabled.MENU_NAME, false) && !checkHandtrackingFeature(AndroidManifestPathDest))
+				appendFile(AndroidManifestPathDest);
+		}
+
+		static void appendFile(string filename)
+		{
+			string line;
+
+			// Read the file and display it line by line.  
+			StreamReader file1 = new StreamReader(filename);
+			StreamWriter file2 = new StreamWriter(filename + ".tmp");
+			while ((line = file1.ReadLine()) != null)
+			{
+				System.Console.WriteLine(line);
+				if (line.Contains("</manifest>"))
+				{
+					file2.WriteLine("	<uses-feature android:name=\"wave.feature.handtracking\" android:required=\"true\" />");
+				}
+				file2.WriteLine(line);
+			}
+
+			file1.Close();
+			file2.Close();
+			File.Delete(filename);
+			File.Move(filename + ".tmp", filename);
+		}
+
+		static bool checkHandtrackingFeature(string filename)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(filename);
+			XmlNodeList metadataNodeList = doc.SelectNodes("/manifest/uses-feature");
+
+			if (metadataNodeList != null)
+			{
+				foreach (XmlNode metadataNode in metadataNodeList)
+				{
+					string name = metadataNode.Attributes["android:name"].Value;
+					string required = metadataNode.Attributes["android:required"].Value;
+
+					if (name.Equals("wave.feature.handtracking"))
+						return true;
+				}
+			}
+			return false;
 		}
 
 		static void DelAndroidManifest()
@@ -110,7 +166,8 @@ namespace Wave.XR.BuildCheck
             {
 				if (File.Exists(ForceBuildWVR))
 				{
-					SetBuildingWave();
+					//SetBuildingWave();
+					AddHandtrackingAndroidManifest();
 					CopyAndroidManifest();
 				}
 				else if (report.summary.platform == BuildTarget.Android && CheckIsBuildingWave())
@@ -140,5 +197,51 @@ namespace Wave.XR.BuildCheck
             }
         }
     }
+
+	[InitializeOnLoad]
+	public static class CheckIfHandTrackingEnabled
+	{
+		internal const string MENU_NAME = "Wave/HandTracking/EnableHandTracking";
+
+		private static bool enabled_;
+		static CheckIfHandTrackingEnabled()
+		{
+			CheckIfHandTrackingEnabled.enabled_ = EditorPrefs.GetBool(CheckIfHandTrackingEnabled.MENU_NAME, false);
+
+			/// Delaying until first editor tick so that the menu
+			/// will be populated before setting check state, and
+			/// re-apply correct action
+			EditorApplication.delayCall += () =>
+			{
+				PerformAction(CheckIfHandTrackingEnabled.enabled_);
+			};
+		}
+
+		[MenuItem(CheckIfHandTrackingEnabled.MENU_NAME, priority = 601)]
+		private static void ToggleAction()
+		{
+			/// Toggling action
+			PerformAction(!CheckIfHandTrackingEnabled.enabled_);
+		}
+
+		public static void PerformAction(bool enabled)
+		{
+			/// Set checkmark on menu item
+			Menu.SetChecked(CheckIfHandTrackingEnabled.MENU_NAME, enabled);
+			if (enabled)
+				CustomBuildProcessor.AddHandtrackingAndroidManifest();
+			/// Saving editor state
+			EditorPrefs.SetBool(CheckIfHandTrackingEnabled.MENU_NAME, enabled);
+
+			CheckIfHandTrackingEnabled.enabled_ = enabled;
+		}
+
+		[MenuItem(CheckIfHandTrackingEnabled.MENU_NAME, validate = true, priority = 601)]
+		public static bool ValidateEnabled()
+		{
+			Menu.SetChecked(CheckIfHandTrackingEnabled.MENU_NAME, enabled_);
+			return true;
+		}
+	}
 }
 #endif

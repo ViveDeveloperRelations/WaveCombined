@@ -134,7 +134,7 @@ namespace Wave.Essence
 		public static XR_InteractionMode InteractionMode
 		{
 			get { return WaveEssence.Instance.GetInteractionMode(); }
-			//obsolete { WaveEssence.Instance.SetInteractionMode(value); }
+			set { }
 		}
 	} // class ClientInterface
 
@@ -270,6 +270,7 @@ namespace Wave.Essence
 			return device;
 		}
 
+		#region Unity XR Buttons
 		public static bool KeyDown(XR_Device device, InputFeatureUsage<bool> button, bool adaptiveHanded = false)
 		{
 			bool isDown = false;
@@ -282,7 +283,54 @@ namespace Wave.Essence
 
 			return isDown;
 		}
+		public static float KeyAxis1D(XR_Device device, InputFeatureUsage<float> button, bool adaptiveHanded = false)
+		{
+			float axis = 0;
 
+			if (KeyAxis1D(device, button, out float value)) { axis = value; }
+
+			return axis;
+		}
+		public static bool KeyAxis1D(XR_Device device, InputFeatureUsage<float> button, out float axis1d, bool adaptiveHanded = false)
+		{
+			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
+			if (input_device.isValid)
+			{
+				if (input_device.TryGetFeatureValue(button, out float value))
+				{
+					axis1d = value;
+					return true;
+				}
+			}
+
+			axis1d = 0;
+			return false;
+		}
+		public static Vector2 KeyAxis2D(XR_Device device, InputFeatureUsage<Vector2> button, bool adaptiveHanded = false)
+		{
+			Vector2 axis = Vector2.zero;
+
+			if (KeyAxis2D(device, button, out Vector2 value)) { axis = value; }
+
+			return axis;
+		}
+		public static bool KeyAxis2D(XR_Device device, InputFeatureUsage<Vector2> button, out Vector2 axis2d, bool adaptiveHanded = false)
+		{
+			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
+			if (input_device.isValid)
+			{
+				if (input_device.TryGetFeatureValue(button, out Vector2 value))
+				{
+					axis2d = value;
+					return true;
+				}
+			}
+
+			axis2d = Vector2.zero;
+			return false;
+		}
+		#endregion
+		#region Wave Buttons
 		public static bool ButtonPress(WVR_DeviceType device, WVR_InputId id, bool adaptiveHanded = false)
 		{
 			WVR_DeviceType adaptive_device = GetRoleDevice(device);
@@ -313,40 +361,14 @@ namespace Wave.Essence
 			WVR_DeviceType adaptive_device = GetRoleDevice(device);
 			return WaveEssence.Instance.ButtonUntouch(adaptive_device, id);
 		}
-
-		public static float KeyAxis1D(XR_Device device, InputFeatureUsage<float> button, bool adaptiveHanded = false)
-		{
-			float axis = 0;
-
-			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-			if (input_device.isValid)
-			{
-				if (input_device.TryGetFeatureValue(button, out float value))
-					axis = value;
-			}
-
-			return axis;
-		}
-		public static Vector2 KeyAxis2D(XR_Device device, InputFeatureUsage<Vector2> button, bool adaptiveHanded = false)
-		{
-			Vector2 axis = Vector2.zero;
-
-			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
-			if (input_device.isValid)
-			{
-				if (input_device.TryGetFeatureValue(button, out Vector2 value))
-					axis = value;
-			}
-
-			return axis;
-		}
-
 		public static Vector2 ButtonAxis(WVR_DeviceType device, WVR_InputId id, bool adaptiveHanded = false)
 		{
 			WVR_DeviceType adaptive_device = GetRoleDevice(device);
 			return WaveEssence.Instance.ButtonAxis(adaptive_device, id);
 		}
+		#endregion
 
+		#region XR Device Vibration
 		static readonly HapticCapabilities emptyHapticCapabilities = new HapticCapabilities();
 		public static bool TryGetHapticCapabilities(XR_Device device, out HapticCapabilities hapticCaps, bool adaptiveHanded = false)
 		{
@@ -377,6 +399,7 @@ namespace Wave.Essence
 
 			return false;
 		}
+		#endregion
 
 		public static bool IsTracked(XR_Device device, bool adaptiveHanded = false)
 		{
@@ -570,6 +593,43 @@ namespace Wave.Essence
 			return true;
 		}
 #endregion
+
+		/// <summary>
+		/// Retrieves a device's battery life with a valid value between 0~1 where 1 means full capacity or an invalid value of -1.
+		/// </summary>
+		public static float GetBatteryLevel(XR_Device device, bool adaptiveHanded = false)
+		{
+			float level = 0;
+
+			InputDevice input_device = GetRoleDevice(device, adaptiveHanded);
+			if (input_device.isValid)
+			{
+				if (input_device.TryGetFeatureValue(XR_Feature.batteryLevel, out float value))
+				{
+					level = value;
+				}
+			}
+
+			return level;
+		}
+
+		/// <summary>
+		/// When user wears the head mounted device, CommonUsages.userPresence is true.
+		/// </summary>
+		public static bool IsUserPresence()
+		{
+			bool userPresence = false;
+
+			InputDevice input_device = GetRoleDevice(XR_Device.Head);
+			if (input_device.isValid)
+			{
+				if (input_device.TryGetFeatureValue(XR_Feature.userPresence, out bool value))
+				{
+					userPresence = value;
+				}
+			}
+			return userPresence;
+		}
 	} // class WXRDevice
 
 	[Obsolete("Deprecated.")]

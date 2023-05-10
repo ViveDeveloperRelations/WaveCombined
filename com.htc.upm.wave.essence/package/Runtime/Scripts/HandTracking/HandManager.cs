@@ -147,7 +147,7 @@ namespace Wave.Essence.Hand
 		[Serializable]
 		public class GestureOption
 		{
-			public bool Enable = true;
+			public bool Enable = false;
 			public GestureSetter Gesture = new GestureSetter();
 		}
 
@@ -215,6 +215,7 @@ namespace Wave.Essence.Hand
 
 		private static HandManager m_Instance = null;
 		public static HandManager Instance { get { return m_Instance; } }
+		[Obsolete("Do NOT use! Use HandInputSwitch.Instance.PrimaryInput instead.")]
 		public static HandType PrimaryInput = HandType.Right;
 
 		private XR_InteractionMode interactionMode = XR_InteractionMode.Default;
@@ -228,6 +229,9 @@ namespace Wave.Essence.Hand
 			if (m_Instance == null)
 			{
 				m_Instance = this;
+                // TODO Cant use DontDestroyOnLoad to an object which is not put in transform root.
+                // TODO how to kill self?
+                // TODO how to spawn when access?
 				DontDestroyOnLoad(m_Instance);
 			}
 
@@ -241,13 +245,13 @@ namespace Wave.Essence.Hand
 			// 2. Checks if Natural Hand is supported.
 			if ((supportedFeature & (ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandTracking) == 0)
 			{
-				Log.w(LOG_TAG, "WVR_SupportedFeature_HandTracking is not enabled.", true);
+				Log.w(LOG_TAG, "Awake() WVR_SupportedFeature_HandTracking is not enabled.", true);
 				SetHandTrackerStatus(TrackerType.Natural, TrackerStatus.NoSupport);
 			}
 			// 3. Checks if WVR_SupportedFeature electronic hand is supported.
 			if ((supportedFeature & (ulong)WVR_SupportedFeature.WVR_SupportedFeature_ElectronicHand) == 0)
 			{
-				Log.w(LOG_TAG, "WVR_SupportedFeature_ElectronicHand is not enabled.", true);
+				Log.w(LOG_TAG, "Awake() WVR_SupportedFeature_ElectronicHand is not enabled.", true);
 				SetHandTrackerStatus(TrackerType.Electronic, TrackerStatus.NoSupport);
 			}
 
@@ -255,6 +259,9 @@ namespace Wave.Essence.Hand
 
 			m_GestureOptions.Gesture.UpdateOptionValue();
 			m_GestureOptionValue = m_GestureOptions.Gesture.optionValue;
+
+			if (HandInputSwitch.Instance != null)
+				Log.i(LOG_TAG, "Awake() Loaded HandInputSwitch.", true);
 		}
 		void Start()
 		{
@@ -312,6 +319,11 @@ namespace Wave.Essence.Hand
 					// Even calls to the function, StartHandGesture still confirms the start conditions.
 					StartHandGesture();
 				}
+			}
+			else
+			{
+				if (GetHandGestureStatus() == GestureStatus.Available)
+					StopHandGesture();
 			}
 
 			GetHandTrackingData(TrackerType.Natural);
@@ -433,6 +445,10 @@ namespace Wave.Essence.Hand
 
 			SetHandGestureStatus(GestureStatus.Starting);
 			result = Interop.WVR_StartHandGesture(m_GestureOptionValue) == WVR_Result.WVR_Success ? true : false;
+			if (!result)
+			{
+				m_GestureOptions.Enable = false;
+			}
 			SetHandGestureStatus(result ? GestureStatus.Available : GestureStatus.StartFailure);
 
 			GestureStatus status = GetHandGestureStatus();
@@ -1258,7 +1274,55 @@ namespace Wave.Essence.Hand
 			return GetJointRotation(joint, ref rotation, hand == HandType.Left ? true : false);
 		}
 
-		public HandMotion GetHandMotion(TrackerType tracker, bool isLeft)
+        /// <summary> @scale will not be updated when no scale. </summary>
+        public bool GetHandScale(TrackerType tracker, ref Vector3 scale, bool isLeft)
+        {
+            if (!IsHandPoseValid(tracker, isLeft))
+                return false;
+
+            bool ret = false;
+
+            if (tracker == TrackerType.Natural)
+            {
+                var scaleGL = isLeft ? m_NaturalHandJointDataLeft.scale : m_NaturalHandJointDataRight.scale;
+                scale = new Vector3(scaleGL.v0, scaleGL.v1, scaleGL.v2);
+                ret = true;
+            }
+            if (tracker == TrackerType.Electronic)
+            {
+                var scaleGL = isLeft ? m_ElectronicHandJointDataLeft.scale : m_ElectronicHandJointDataRight.scale;
+                scale = new Vector3(scaleGL.v0, scaleGL.v1, scaleGL.v2);
+                ret = true;
+            }
+
+            if (Log.gpl.Print)
+            {
+                DEBUG("GetHandScale()"
+                    + " tracker: " + tracker
+                    + ", " + (isLeft ? "Left" : "Right")
+                    + ", scale {" + scale.x.ToString() + ", " + scale.y.ToString() + ", " + scale.z.ToString() + ")");
+            }
+
+            return ret;
+        }
+        /// <summary> @scale will not be updated when no scale. </summary>
+        public bool GetHandScale(TrackerType tracker, ref Vector3 scale, HandType hand)
+        {
+            return GetHandScale(tracker, ref scale, hand == HandType.Left ? true : false);
+        }
+        public bool GetHandScale(ref Vector3 scale, bool isLeft)
+        {
+            TrackerType tracker = TrackerType.Electronic;
+            if (GetPreferTracker(ref tracker))
+                return GetHandScale(tracker, ref scale, isLeft);
+            return false;
+        }
+        public bool GetHandScale(ref Vector3 scale, HandType hand)
+        {
+            return GetHandScale(ref scale, hand == HandType.Left ? true : false);
+        }
+
+        public HandMotion GetHandMotion(TrackerType tracker, bool isLeft)
 		{
 			HandMotion motion = HandMotion.None;
 
@@ -1452,6 +1516,26 @@ namespace Wave.Essence.Hand
 		{
 			return GetPinchStrength(hand == HandType.Left ? true : false);
 		}
+
+		public float GetPinchThreshold(TrackerType tracker)
+		{
+			if ((tracker == TrackerType.Natural) && hasNaturalTrackerInfo)
+			{
+				return m_NaturalTrackerInfo.strength;
+			}
+			if ((tracker == TrackerType.Electronic) && hasElectronicTrackerInfo)
+			{
+				return m_ElectronicTrackerInfo.strength;
+			}
+			return 0;
+		}
+		public float GetPinchThreshold()
+		{
+			TrackerType tracker = TrackerType.Natural;
+			if (GetPreferTracker(ref tracker))
+				return GetPinchThreshold(tracker);
+			return 0;
+		}
 		#endregion
 
 		private uint m_NaturalHandJointCount = 0;
@@ -1570,6 +1654,8 @@ namespace Wave.Essence.Hand
 					handTrackerInfo.jointValidFlagArray = pHandJointsFlag;
 				}
 			}*/
+
+			handTrackerInfo.strength = 0;
 		}
 		private bool ExtractHandTrackerInfo(WVR_HandTrackerInfo_t handTrackerInfo, ref WVR_HandJoint[] jointMappingArray, ref ulong[] jointValidFlagArray)
 		{
@@ -1703,8 +1789,13 @@ namespace Wave.Essence.Hand
 
 			WVR_Pose_t wvr_pose_type = default(WVR_Pose_t);
 			handJointData.joints = Marshal.AllocHGlobal(Marshal.SizeOf(wvr_pose_type) * (int)count);
+            handJointData.scale = new WVR_Vector3f_t() {
+                v0 = 1,
+                v1 = 1,
+                v2 = 1
+            };
 
-			jointsPose = new WVR_Pose_t[count];
+            jointsPose = new WVR_Pose_t[count];
 
 			long offset = 0;
 			if (IntPtr.Size == 4)
@@ -1811,16 +1902,22 @@ namespace Wave.Essence.Hand
 							DEBUG("GetHandTrackingData() Natural"
 								+ ", timestamp: " + m_NaturalHandTrackerData.timestamp
 								+ ", left valid? " + m_NaturalHandTrackerData.left.isValidPose
-								+ ", left confidence: " + m_NaturalHandTrackerData.left.confidence
+								+ ", left confidence: " + m_NaturalHandTrackerData.left.confidence.ToString()
+								+ ", left pinch strength: " + m_NaturalHandPoseData.left.pinch.strength.ToString()
 								+ ", left count: " + m_NaturalHandTrackerData.left.jointCount
 								+ ", right valid? " + m_NaturalHandTrackerData.right.isValidPose
-								+ ", right confidence: " + m_NaturalHandTrackerData.right.confidence
+								+ ", right confidence: " + m_NaturalHandTrackerData.right.confidence.ToString()
+								+ ", right pinch strength: " + m_NaturalHandPoseData.right.pinch.strength.ToString()
 								+ ", right count: " + m_NaturalHandTrackerData.right.jointCount);
 						}
-
-						hasNaturalHandTrackerData = ExtractHandTrackerData(m_NaturalHandTrackerData, ref s_NaturalHandJointsPoseLeft, ref s_NaturalHandJointsPoseRight);
-					}
-					else
+                        hasNaturalHandTrackerData = ExtractHandTrackerData(m_NaturalHandTrackerData, ref s_NaturalHandJointsPoseLeft, ref s_NaturalHandJointsPoseRight);
+                        if (hasNaturalHandTrackerData)
+                        {
+                            m_NaturalHandJointDataLeft = m_NaturalHandTrackerData.left;
+                            m_NaturalHandJointDataRight = m_NaturalHandTrackerData.right;
+                        }
+                    }
+                    else
 					{
 						if (Log.gpl.Print)
 							Log.e(LOG_TAG, "GetHandTrackingData() Natural " + result, true);
@@ -1884,9 +1981,14 @@ namespace Wave.Essence.Hand
 								+ ", right count: " + m_ElectronicHandTrackerData.right.jointCount);
 						}
 
-						hasElectronicHandTrackerData = ExtractHandTrackerData(m_ElectronicHandTrackerData, ref s_ElectronicHandJointsPoseLeft, ref s_ElectronicHandJointsPoseRight);
-					}
-					else
+                        hasElectronicHandTrackerData = ExtractHandTrackerData(m_ElectronicHandTrackerData, ref s_ElectronicHandJointsPoseLeft, ref s_ElectronicHandJointsPoseRight);
+                        if (hasElectronicHandTrackerData)
+                        {
+                            m_ElectronicHandJointDataLeft = m_ElectronicHandTrackerData.left;
+                            m_ElectronicHandJointDataRight = m_ElectronicHandTrackerData.right;
+                        }
+                    }
+                    else
 					{
 						if (Log.gpl.Print)
 							Log.e(LOG_TAG, "GetHandTrackingData() Electronic " + result, true);

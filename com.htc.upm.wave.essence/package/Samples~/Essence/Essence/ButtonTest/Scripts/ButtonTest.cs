@@ -456,7 +456,7 @@ namespace Wave.Essence.Samples.ButtonTest
 					if (binaryValue)
 					{
 						press_text.text = "triggerButton";
-						TriggerVibration(this.DeviceType, 0.5f);
+						TriggerVibration(this.DeviceType, 0.9f, 0.5f);
 						DEBUG("UpdatePressText() triggerButton is pressed.");
 					}
 					else
@@ -535,6 +535,7 @@ namespace Wave.Essence.Samples.ButtonTest
 					if (binaryValue)
 					{
 						press_text.text = "primaryButton";
+						TriggerVibration(this.DeviceType, 0.1f, 0.5f);
 						DEBUG("UpdatePressText() primaryButton is pressed.");
 					}
 					else
@@ -579,6 +580,7 @@ namespace Wave.Essence.Samples.ButtonTest
 					if (binaryValue)
 					{
 						press_text.text = "secondaryButton";
+						TriggerVibration(this.DeviceType, 0.5f, 0.5f);
 						DEBUG("UpdatePressText() secondaryButton is pressed.");
 					}
 					else
