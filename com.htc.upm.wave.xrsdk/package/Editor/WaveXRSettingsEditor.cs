@@ -170,22 +170,22 @@ namespace Wave.XR.Settings
         SerializedProperty Property_FSELevel;
 
         static string PropertyName_SupportedFPS = "supportedFPS";
-		static GUIContent Label_SupportedFPS = new GUIContent("Supported FPS");
-		SerializedProperty Property_SupportedFPS;
+        static GUIContent Label_SupportedFPS = new GUIContent("Supported FPS");
+        SerializedProperty Property_SupportedFPS;
 
         static string PropertyName_EnableAutoFallbackForMultiLayer = "enableAutoFallbackForMultiLayer";
         static GUIContent Label_EnableAutoFallbackForMultiLayer = new GUIContent("Multi-Layer auto fallback");
         SerializedProperty Property_EnableAutoFallbackForMultiLayer;
 
-		static string PropertyName_WaveXRFolder = "waveXRFolder";
-		static GUIContent Label_WaveXRFolder = new GUIContent("Wave XR Folder");
-		SerializedProperty Property_WaveXRFolder;
+        static string PropertyName_WaveXRFolder = "waveXRFolder";
+        static GUIContent Label_WaveXRFolder = new GUIContent("Wave XR Folder");
+        SerializedProperty Property_WaveXRFolder;
 
-		static string PropertyName_WaveEssenceFolder = "waveEssenceFolder";
-		static GUIContent Label_WaveEssenceFolder = new GUIContent("Wave Essence Folder");
-		SerializedProperty Property_WaveEssenceFolder;
+        static string PropertyName_WaveEssenceFolder = "waveEssenceFolder";
+        static GUIContent Label_WaveEssenceFolder = new GUIContent("Wave Essence Folder");
+        SerializedProperty Property_WaveEssenceFolder;
 
-		DisplayGamutPreference displayGamutPreference = null;
+        DisplayGamutPreference displayGamutPreference = null;
 
         static string PropertyName_LogFlagForNative = "debugLogFlagForNative";
         static GUIContent Label_LogFlagForNative = new GUIContent("LogFlagForNative");
@@ -199,16 +199,28 @@ namespace Wave.XR.Settings
         static GUIContent Label_UseCMPChecker = new GUIContent("CompatibilityChecker");
         SerializedProperty Property_UseCMPChecker;
 
-		#region Tracker
-		static string PropertyName_EnableTracker = "EnableTracker";
-		static GUIContent Label_EnableTracker = new GUIContent("Enable Tracker");
-		SerializedProperty Property_EnableTracker;
+        #region Tracker
+        static string PropertyName_EnableTracker = "EnableTracker";
+        static GUIContent Label_EnableTracker = new GUIContent("Enable Tracker");
+        SerializedProperty Property_EnableTracker;
         #endregion
 
-		#region Hand
-		static string PropertyName_EnableNaturalHand = "EnableNaturalHand";
+        #region Hand
+        static string PropertyName_EnableNaturalHand = "EnableNaturalHand";
         static GUIContent Label_EnableNaturalHand = new GUIContent("Enable Natural Hand");
         SerializedProperty Property_EnableNaturalHand;
+        #endregion
+
+        #region Eye Expression
+        static string PropertyName_EnableEyeExpression = "EnableEyeExpression";
+        static GUIContent Label_EnableEyeExpression = new GUIContent("Enable Eye Expression");
+        SerializedProperty Property_EnableEyeExpression;
+        #endregion
+
+        #region Lip Expression
+        static string PropertyName_EnableLipExpression = "EnableLipExpression";
+        static GUIContent Label_EnableLipExpression = new GUIContent("Enable Lip Expression");
+        SerializedProperty Property_EnableLipExpression;
         #endregion
 
         enum Platform
@@ -241,8 +253,10 @@ namespace Wave.XR.Settings
         }
 
         bool foldoutRendering = true;
-		bool foldoutTracker = true;
+        bool foldoutTracker = true;
         bool foldoutHand = true;
+        bool foldoutEyeExpression = true;
+        bool foldoutLipExpression = true;
         bool foldoutCommon = true;
 
         public void AndroidSettings()
@@ -278,22 +292,30 @@ namespace Wave.XR.Settings
             if (Property_FSELevel == null) Property_FSELevel = serializedObject.FindProperty(PropertyName_FSELevel);
 
             if (Property_SupportedFPS == null) Property_SupportedFPS = serializedObject.FindProperty(PropertyName_SupportedFPS);
-			if (Property_WaveXRFolder == null) Property_WaveXRFolder = serializedObject.FindProperty(PropertyName_WaveXRFolder);
-			if (Property_WaveEssenceFolder == null) Property_WaveEssenceFolder = serializedObject.FindProperty(PropertyName_WaveEssenceFolder);
+            if (Property_WaveXRFolder == null) Property_WaveXRFolder = serializedObject.FindProperty(PropertyName_WaveXRFolder);
+            if (Property_WaveEssenceFolder == null) Property_WaveEssenceFolder = serializedObject.FindProperty(PropertyName_WaveEssenceFolder);
 
-			if (Property_LogFlagForNative == null) Property_LogFlagForNative = serializedObject.FindProperty(PropertyName_LogFlagForNative);
+            if (Property_LogFlagForNative == null) Property_LogFlagForNative = serializedObject.FindProperty(PropertyName_LogFlagForNative);
             if (Property_EnableAutoFallbackForMultiLayer == null) Property_EnableAutoFallbackForMultiLayer = serializedObject.FindProperty(PropertyName_EnableAutoFallbackForMultiLayer);
 
             if (Property_LogFlagForNative == null) Property_LogFlagForNative = serializedObject.FindProperty(PropertyName_LogFlagForNative);
             if (Property_OverrideLogFlag == null) Property_OverrideLogFlag = serializedObject.FindProperty(PropertyName_OverrideLogFlag);
             if (Property_UseCMPChecker == null) Property_UseCMPChecker = serializedObject.FindProperty(PropertyName_UseCMPChecker);
 
-			#region Tracker
-			if (Property_EnableTracker == null) Property_EnableTracker = serializedObject.FindProperty(PropertyName_EnableTracker);
+            #region Tracker
+            if (Property_EnableTracker == null) Property_EnableTracker = serializedObject.FindProperty(PropertyName_EnableTracker);
             #endregion
 
-			#region Hand
-			if (Property_EnableNaturalHand == null) Property_EnableNaturalHand = serializedObject.FindProperty(PropertyName_EnableNaturalHand);
+            #region Hand
+            if (Property_EnableNaturalHand == null) Property_EnableNaturalHand = serializedObject.FindProperty(PropertyName_EnableNaturalHand);
+            #endregion
+
+            #region Eye Expression
+            if (Property_EnableEyeExpression == null) Property_EnableEyeExpression = serializedObject.FindProperty(PropertyName_EnableEyeExpression);
+            #endregion
+
+            #region Eye Expression
+            if (Property_EnableLipExpression == null) Property_EnableLipExpression = serializedObject.FindProperty(PropertyName_EnableLipExpression);
             #endregion
 
             if (displayGamutPreference == null)
@@ -345,7 +367,7 @@ namespace Wave.XR.Settings
 
                 AMCGUI();
 
-				GUI.enabled = true;
+                GUI.enabled = true;
                 EditorGUILayout.PropertyField(Property_FadeOut, Label_FadeOut);
                 EditorGUILayout.PropertyField(Property_EnableFSE, Label_EnableFSE);
 
@@ -354,10 +376,10 @@ namespace Wave.XR.Settings
                 //EditorGUILayout.PropertyField(Property_SupportedFPS, Label_SupportedFPS);
 
                 GUI.enabled = false;
-				EditorGUILayout.PropertyField(Property_WaveXRFolder, Label_WaveXRFolder);
-				EditorGUILayout.PropertyField(Property_WaveEssenceFolder, Label_WaveEssenceFolder);
+                EditorGUILayout.PropertyField(Property_WaveXRFolder, Label_WaveXRFolder);
+                EditorGUILayout.PropertyField(Property_WaveEssenceFolder, Label_WaveEssenceFolder);
 
-				GUI.enabled = true;
+                GUI.enabled = true;
 
                 MultiLayerGUI();
                 EditorGUI.indentLevel--;
@@ -365,24 +387,48 @@ namespace Wave.XR.Settings
 
             EditorGUILayout.Space();
 
-			#region Tracker
-			foldoutTracker = EditorGUILayout.Foldout(foldoutTracker, "Tracker");
-			if (foldoutTracker)
-			{
-				EditorGUI.indentLevel++;
-				EditorGUILayout.PropertyField(Property_EnableTracker, Label_EnableTracker);
-				EditorGUI.indentLevel--;
-			}
+            #region Tracker
+            foldoutTracker = EditorGUILayout.Foldout(foldoutTracker, "Tracker");
+            if (foldoutTracker)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(Property_EnableTracker, Label_EnableTracker);
+                EditorGUI.indentLevel--;
+            }
 
-			EditorGUILayout.Space();
+            EditorGUILayout.Space();
             #endregion
 
             #region Hand
             foldoutHand = EditorGUILayout.Foldout(foldoutHand, "Hand");
             if (foldoutHand)
-			{
+            {
                 EditorGUI.indentLevel++;
-				EditorGUILayout.PropertyField(Property_EnableNaturalHand, Label_EnableNaturalHand);
+                EditorGUILayout.PropertyField(Property_EnableNaturalHand, Label_EnableNaturalHand);
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.Space();
+            #endregion
+
+            #region Eye Expression
+            foldoutEyeExpression = EditorGUILayout.Foldout(foldoutEyeExpression, "Eye Expression");
+            if (foldoutEyeExpression)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(Property_EnableEyeExpression, Label_EnableEyeExpression);
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.Space();
+            #endregion
+
+            #region Lip Expression
+            foldoutLipExpression = EditorGUILayout.Foldout(foldoutLipExpression, "Lip Expression");
+            if (foldoutLipExpression)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(Property_EnableLipExpression, Label_EnableLipExpression);
                 EditorGUI.indentLevel--;
             }
 
@@ -540,7 +586,7 @@ namespace Wave.XR.Settings
         }
 
         void FSEGUI()
-		{
+        {
             bool hasEssencePackage = false;
 #if WAVE_ESSENCE
             hasEssencePackage = true;

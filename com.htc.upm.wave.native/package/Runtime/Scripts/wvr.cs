@@ -174,19 +174,19 @@ namespace Wave.Native
 		WVR_BatteryTemperature_UltraOverheat = 3,
 	}
 
-	public enum WVR_DeviceErrorStatus
+	public enum WVR_DeviceErrorStatus : UInt64
 	{
-		WVR_DeviceErrorStatus_None = 0,
-		WVR_DeviceErrorStatus_BatteryOverheat = 1,
-		WVR_DeviceErrorStatus_BatteryOverheatRestore = 1 << 1,
-		WVR_DeviceErrorStatus_BatteryOvervoltage = 1 << 2,
+		WVR_DeviceErrorStatus_None						= 0,
+		WVR_DeviceErrorStatus_BatteryOverheat			= 1,
+		WVR_DeviceErrorStatus_BatteryOverheatRestore	= 1 << 1,
+		WVR_DeviceErrorStatus_BatteryOvervoltage		= 1 << 2,
 		WVR_DeviceErrorStatus_BatteryOvervoltageRestore = 1 << 3,
-		WVR_DeviceErrorStatus_DeviceConnectFail = 1 << 4,
-		WVR_DeviceErrorStatus_DeviceConnectRestore = 1 << 5,
-		WVR_DeviceErrorStatus_DeviceLostTracking = 1 << 6,
+		WVR_DeviceErrorStatus_DeviceConnectFail			= 1 << 4,
+		WVR_DeviceErrorStatus_DeviceConnectRestore		= 1 << 5,
+		WVR_DeviceErrorStatus_DeviceLostTracking		= 1 << 6,
 		WVR_DeviceErrorStatus_DeviceLostTrackingRestore = 1 << 7,
-		WVR_DeviceErrorStatus_ChargeFail = 1 << 8,
-		WVR_DeviceErrorStatus_ChargeRestore = 1 << 9,
+		WVR_DeviceErrorStatus_ChargeFail				= 1 << 8,
+		WVR_DeviceErrorStatus_ChargeRestore				= 1 << 9,
 	}
 
 	public enum WVR_InputId
@@ -1441,6 +1441,11 @@ namespace Wave.Native
 		WVR_TrackerId_1 = 1,
 		WVR_TrackerId_2 = 2,
 		WVR_TrackerId_3 = 3,
+		WVR_TrackerId_4 = 4,
+		WVR_TrackerId_5 = 5,
+		WVR_TrackerId_6 = 6,
+		WVR_TrackerId_7 = 7,
+		WVR_TrackerId_8 = 8,
 	}
 
 	public enum WVR_TrackerRole

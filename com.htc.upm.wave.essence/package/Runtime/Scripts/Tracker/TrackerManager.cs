@@ -38,7 +38,7 @@ namespace Wave.Essence.Tracker
 		WaveXRSettings m_WaveXRSettings = null;
 		bool UseXRData()
 		{
-			// Hand is already enabled in WaveXRSettings.
+			// Tracker is already enabled in WaveXRSettings.
 			bool XRAlreadyEnabled = (m_WaveXRSettings != null ? m_WaveXRSettings.EnableTracker : false);
 
 			return (
@@ -77,6 +77,11 @@ namespace Wave.Essence.Tracker
 			TrackerId.Tracker1,
 			TrackerId.Tracker2,
 			TrackerId.Tracker3,
+			TrackerId.Tracker4,
+			TrackerId.Tracker5,
+			TrackerId.Tracker6,
+			TrackerId.Tracker7,
+			TrackerId.Tracker8,
 		};
 
 		#region Wave XR Constants
@@ -166,6 +171,8 @@ namespace Wave.Essence.Tracker
 		static List<InputDevice> s_InputDevices = new List<InputDevice>();
 		private void Update()
 		{
+			Log.gpl.check();
+
 			UpdateTrackerExtData();
 
 			if (Log.gpl.Print)
@@ -175,6 +182,7 @@ namespace Wave.Essence.Tracker
 				{
 					DEBUG("Update() " + s_TrackerIds[i]
 						+ ", connection: " + s_TrackerConnection[s_TrackerIds[i]]
+						+ ", valid: " + s_TrackerPoses[s_TrackerIds[i]].valid
 						+ ", role: " + s_TrackerRole[s_TrackerIds[i]]
 						+ ", battery: " + s_TrackerBattery[s_TrackerIds[i]]
 						);
@@ -385,6 +393,7 @@ namespace Wave.Essence.Tracker
 
 			if (!CanStopTracker()) { return; }
 
+			DEBUG("StopTrackerLock()");
 			SetTrackerStatus(TrackerStatus.Stopping);
 			Interop.WVR_StopTracker();
 			SetTrackerStatus(TrackerStatus.NotStart);
@@ -392,13 +401,12 @@ namespace Wave.Essence.Tracker
 			// Reset all tracker status.
 			for (int i = 0; i < s_TrackerIds.Length; i++)
 			{
-				TrackerId trackerId = s_TrackerIds[i];
-				s_TrackerConnection[trackerId] = false;
+				s_TrackerConnection[s_TrackerIds[i]] = false;
 
-				CheckTrackerRole(trackerId);
-				CheckTrackerCapbility(trackerId);
-				CheckTrackerInputs(trackerId);
-				CheckTrackerButtonAnalog(trackerId);
+				CheckTrackerRole(s_TrackerIds[i]);
+				CheckTrackerCapbility(s_TrackerIds[i]);
+				CheckTrackerInputs(s_TrackerIds[i]);
+				CheckTrackerButtonAnalog(s_TrackerIds[i]);
 			}
 		}
 		private void StopTrackerThread()
@@ -459,6 +467,7 @@ namespace Wave.Essence.Tracker
 		}
 		void CheckStatusWhenConnectionChanges(TrackerId trackerId)
 		{
+			DEBUG("CheckStatusWhenConnectionChanges() " + trackerId);
 			CheckTrackerRole(trackerId);
 			CheckTrackerCapbility(trackerId);
 			CheckTrackerInputs(trackerId);
@@ -554,6 +563,8 @@ namespace Wave.Essence.Tracker
 		Dictionary<TrackerId, TrackerPose> s_TrackerPoses = new Dictionary<TrackerId, TrackerPose>();
 		private void CheckTrackerPoseState(TrackerId trackerId)
 		{
+			s_TrackerPoses[trackerId].valid = false;
+
 			ClientInterface.GetOrigin(ref originModel);
 
 			if (IsTrackerConnected(trackerId) && s_TrackerCaps[trackerId.Num()].supportsOrientationTracking)
@@ -570,10 +581,6 @@ namespace Wave.Essence.Tracker
 				{
 					s_TrackerPoses[trackerId].valid = pose.IsValidPose;
 					s_TrackerPoses[trackerId].rigid.update(pose.PoseMatrix);
-				}
-				else
-				{
-					s_TrackerPoses[trackerId].valid = false;
 				}
 			}
 		}

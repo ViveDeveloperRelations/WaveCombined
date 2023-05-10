@@ -216,16 +216,27 @@ namespace Wave.XR.BuildCheck
 			bool addLipExpression = (EditorPrefs.GetBool(CheckIfLipExpressionEnabled.MENU_NAME, false) && !checkLipExpressionFeature(AndroidManifestPathDest));
 
 			if (settings != null)
+			{
 				addHandTracking = settings.EnableNaturalHand && !checkHandtrackingFeature(AndroidManifestPathDest);
-
-			appendFile(
-				filename: AndroidManifestPathDest,
-				handtracking: addHandTracking,
-				settings.supportedFPS,
-				tracker: addTracker,
-				simultaneous_interaction: addSimultaneousInteraction,
-				eyetracking: addEyeTracking,
-				lipexpression: addLipExpression);
+				appendFile(
+					filename: AndroidManifestPathDest,
+					handtracking: addHandTracking,
+					settings.supportedFPS,
+					tracker: addTracker,
+					simultaneous_interaction: addSimultaneousInteraction,
+					eyetracking: addEyeTracking,
+					lipexpression: addLipExpression);
+			}
+			else
+			{
+				appendFile(
+					filename: AndroidManifestPathDest,
+					handtracking: addHandTracking,
+					tracker: addTracker,
+					simultaneous_interaction: addSimultaneousInteraction,
+					eyetracking: addEyeTracking,
+					lipexpression: addLipExpression);
+			}
 		}
 
 		static void appendFile(string filename

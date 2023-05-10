@@ -67,8 +67,9 @@ namespace Wave.Essence.Hand.Editor
 
 			GUILayout.Space(5);
 			EditorGUILayout.HelpBox(
+				"This option will be removed in next release.\n" +
 				"Retrieves the Hand Tracking data from UnityEngine.XR.InputDevice.",
-				MessageType.Info);
+				MessageType.Warning);
 			EditorGUILayout.PropertyField(m_UseXRDevice);
 
 			serializedObject.ApplyModifiedProperties();

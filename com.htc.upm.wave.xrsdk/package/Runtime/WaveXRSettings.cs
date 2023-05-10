@@ -194,8 +194,14 @@ namespace Wave.XR.Settings
 
         #region Lip Expression
         [SerializeField, Tooltip("Select to enable the Lip Expression feature when AP starts.")]
-        public bool EnableLipExp = false;
-        public const string EnableLipExpText = "EnableLipExp";
+        public bool EnableLipExpression = false;
+        public const string EnableLipExpressionText = "EnableLipExpression";
+        #endregion
+
+        #region Eye Expression
+        [SerializeField, Tooltip("Select to enable the Eye Expression feature when AP starts.")]
+        public bool EnableEyeExpression = false;
+        public const string EnableEyeExpressionText = "EnableEyeExpression";
         #endregion
 
         public bool enableAutoFallbackForMultiLayerProperty

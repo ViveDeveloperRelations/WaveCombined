@@ -19,6 +19,11 @@ namespace Wave.Essence.Tracker
 		Tracker1 = WVR_TrackerId.WVR_TrackerId_1,
 		Tracker2 = WVR_TrackerId.WVR_TrackerId_2,
 		Tracker3 = WVR_TrackerId.WVR_TrackerId_3,
+		Tracker4 = WVR_TrackerId.WVR_TrackerId_4,
+		Tracker5 = WVR_TrackerId.WVR_TrackerId_5,
+		Tracker6 = WVR_TrackerId.WVR_TrackerId_6,
+		Tracker7 = WVR_TrackerId.WVR_TrackerId_7,
+		Tracker8 = WVR_TrackerId.WVR_TrackerId_8,
 	}
 
 	public enum TrackerRole
@@ -55,6 +60,11 @@ namespace Wave.Essence.Tracker
 			TrackerId.Tracker1,
 			TrackerId.Tracker2,
 			TrackerId.Tracker3,
+			TrackerId.Tracker4,
+			TrackerId.Tracker5,
+			TrackerId.Tracker6,
+			TrackerId.Tracker7,
+			TrackerId.Tracker8,
 		};
 
 		public static TrackerId Id(this WVR_TrackerId trackerId)
@@ -63,6 +73,11 @@ namespace Wave.Essence.Tracker
 			if (trackerId == WVR_TrackerId.WVR_TrackerId_1) { return TrackerId.Tracker1; }
 			if (trackerId == WVR_TrackerId.WVR_TrackerId_2) { return TrackerId.Tracker2; }
 			if (trackerId == WVR_TrackerId.WVR_TrackerId_3) { return TrackerId.Tracker3; }
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_4) { return TrackerId.Tracker4; }
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_5) { return TrackerId.Tracker5; }
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_6) { return TrackerId.Tracker6; }
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_7) { return TrackerId.Tracker7; }
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_8) { return TrackerId.Tracker8; }
 
 			return TrackerId.Tracker0;
 		}
@@ -77,6 +92,11 @@ namespace Wave.Essence.Tracker
 			if (trackerId == TrackerId.Tracker1) { return 1; }
 			if (trackerId == TrackerId.Tracker2) { return 2; }
 			if (trackerId == TrackerId.Tracker3) { return 3; }
+			if (trackerId == TrackerId.Tracker4) { return 4; }
+			if (trackerId == TrackerId.Tracker5) { return 5; }
+			if (trackerId == TrackerId.Tracker6) { return 6; }
+			if (trackerId == TrackerId.Tracker7) { return 7; }
+			if (trackerId == TrackerId.Tracker8) { return 8; }
 
 			return 0;
 		}
@@ -86,6 +106,11 @@ namespace Wave.Essence.Tracker
 			if (id == TrackerId.Tracker1) { return InputDeviceTracker.TrackerId.Tracker1; }
 			if (id == TrackerId.Tracker2) { return InputDeviceTracker.TrackerId.Tracker2; }
 			if (id == TrackerId.Tracker3) { return InputDeviceTracker.TrackerId.Tracker3; }
+			if (id == TrackerId.Tracker4) { return InputDeviceTracker.TrackerId.Tracker4; }
+			if (id == TrackerId.Tracker5) { return InputDeviceTracker.TrackerId.Tracker5; }
+			if (id == TrackerId.Tracker6) { return InputDeviceTracker.TrackerId.Tracker6; }
+			if (id == TrackerId.Tracker7) { return InputDeviceTracker.TrackerId.Tracker7; }
+			if (id == TrackerId.Tracker8) { return InputDeviceTracker.TrackerId.Tracker8; }
 
 			return InputDeviceTracker.TrackerId.Tracker0;
 		}

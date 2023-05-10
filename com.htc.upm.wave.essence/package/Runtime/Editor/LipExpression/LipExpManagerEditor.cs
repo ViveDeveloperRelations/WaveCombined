@@ -34,11 +34,10 @@ namespace Wave.Essence.LipExpression.Editor
 			UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
 		}
 
-		SerializedProperty m_InitialStart, m_UseXRDevice;
+		SerializedProperty m_InitialStart;
 		private void OnEnable()
 		{
 			m_InitialStart = serializedObject.FindProperty("m_InitialStart");
-			m_UseXRDevice = serializedObject.FindProperty("m_UseXRDevice");
 		}
 
 		public override void OnInspectorGUI()
@@ -51,12 +50,6 @@ namespace Wave.Essence.LipExpression.Editor
 				"Activate the Lip Expression interface when AP starts.",
 				MessageType.Info);
 			EditorGUILayout.PropertyField(m_InitialStart);
-
-			/*GUILayout.Space(5);
-			EditorGUILayout.HelpBox(
-				"Retrieve the Lip Expression data from UnityEngine.XR.InputDevice.",
-				MessageType.Info);
-			EditorGUILayout.PropertyField(m_UseXRDevice);*/
 
 			serializedObject.ApplyModifiedProperties();
 			if (GUI.changed)
