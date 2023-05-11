@@ -89,7 +89,7 @@ namespace Wave.XR.DirectPreview.Editor
 
 				Process myProcess = new Process();
 				myProcess.StartInfo.FileName = "C:\\Windows\\system32\\cmd.exe";
-				myProcess.StartInfo.Arguments = "/c adb install -r -g " + absolutePath;
+				myProcess.StartInfo.Arguments = "/c adb install -r -g \"" + absolutePath + "\"";
 				myProcess.Start();
 				myProcess.WaitForExit();
 				int ExitCode = myProcess.ExitCode;
@@ -230,7 +230,7 @@ namespace Wave.XR.DirectPreview.Editor
 				Process myProcess = new Process();
 
 				myProcess.StartInfo.FileName = "C:\\Windows\\system32\\cmd.exe";
-				myProcess.StartInfo.Arguments = "/c adb push " + fileName + " /sdcard/DirectPreview/config.json";
+				myProcess.StartInfo.Arguments = "/c adb push \"" + fileName + "\"" + " /sdcard/DirectPreview/config.json";
 				//myProcess.EnableRaisingEvents = true;
 				myProcess.Start();
 				myProcess.WaitForExit();

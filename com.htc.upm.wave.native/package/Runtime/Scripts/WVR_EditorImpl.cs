@@ -1603,6 +1603,7 @@ namespace Wave.Native
 
 		#region Interaction Mode
 		private WVR_InteractionMode interactionMode = WVR_InteractionMode.WVR_InteractionMode_Controller;
+		[System.Obsolete("This is an obsolete function.", true)]
 		public bool SetInteractionMode(WVR_InteractionMode mode)
 		{
 			interactionMode = mode;
@@ -1628,6 +1629,7 @@ namespace Wave.Native
 		#region Arena
 		private WVR_Arena_t mArena;
 		private WVR_ArenaVisible mArenaVisible;
+		[Obsolete("This API is deprecated and is no longer supported.", true)]
 		public bool SetArena(ref WVR_Arena_t arena)
 		{
 			mArena = arena;

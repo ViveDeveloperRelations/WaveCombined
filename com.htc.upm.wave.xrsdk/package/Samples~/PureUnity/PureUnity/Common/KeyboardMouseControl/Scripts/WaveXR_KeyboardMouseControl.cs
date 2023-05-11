@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SpatialTracking;
 #if XR_INTERACTION_TOOLKIT
@@ -40,10 +41,12 @@ namespace Wave.XR.Sample.KMC
 
 		public float XRotSensitivity = 2f;
 		public float YRotSensitivity = 2f;
-		public float MoveSensitivity = 5f;
+		public float MoveSensitivity = 4f;  // unit/sec
 
 		public float MinimumX = -90F;
 		public float MaximumX = 90F;
+
+		private float moveSpeed = 0;
 
 		public Vector3 MovePosition(SimulatedPose pose)
 		{
@@ -52,7 +55,20 @@ namespace Wave.XR.Sample.KMC
 			float yPos = -(WXRInput.GetKey("q") ? 1 : 0) + (WXRInput.GetKey("e") ? 1 : 0);
 			float zPos = (WXRInput.GetKey("w") ? 1 : 0) - (WXRInput.GetKey("s") ? 1 : 0);
 
-			pose.m_AccPos += pose.m_RotHorizontal * pose.m_RotVertical * new Vector3(xPos, yPos, zPos) * MoveSensitivity * Time.deltaTime * (shift ? 10 : 1);
+			Vector3 normal = new Vector3(xPos, yPos, zPos);
+			if (normal.magnitude == 0)
+			{
+				moveSpeed = 0;
+				return pose.m_AccPos;
+			}
+
+			float acc = MoveSensitivity * Time.deltaTime;  // unit/sec^2
+			moveSpeed += MoveSensitivity * Time.deltaTime;
+			moveSpeed = Mathf.Clamp(moveSpeed, 0, MoveSensitivity);
+
+			Vector3 move = normal * moveSpeed;
+
+			pose.m_AccPos += pose.m_RotHorizontal * pose.m_RotVertical * move * Time.deltaTime * (shift ? 10 : 1);
 			return pose.m_AccPos;
 		}
 
@@ -61,8 +77,8 @@ namespace Wave.XR.Sample.KMC
 			float yRot = xAxis * XRotSensitivity;
 			float xRot = yAxis * YRotSensitivity;
 
-			pose.m_RotHorizontal *= Quaternion.Euler(0f, yRot, 0f);
-			pose.m_RotVertical *= Quaternion.Euler(-xRot, 0f, 0f);
+			pose.m_RotHorizontal *= Quaternion.Euler(0f, yRot + keyRotY, 0f);
+			pose.m_RotVertical *= Quaternion.Euler(-xRot + keyRotX, 0f, 0f);
 
 			pose.m_RotVertical = ClampRotationAroundXAxis(pose.m_RotVertical);
 			pose.m_AccRot = pose.m_RotHorizontal * pose.m_RotVertical;
@@ -261,6 +277,83 @@ namespace Wave.XR.Sample.KMC
 			kmcObjHMD.transform.SetParent(Camera.main.transform.parent, false);
 			AttachHMDTo(0);
 			ApplyToAllTrackedPoseDriver();
+			KeyboardRotationInit();
+		}
+
+		private float rot_acc = 60;  // degree/sec^2
+		private float rot_speed_max = 120;  // degree/sec
+		private float rot_speed_min = 60;  // degree/sec
+
+		struct RotStatus {
+			public bool wasPressed;
+			public float speed;
+			// x or y
+			public int axis;
+			// positive or nagative effect when key pressed.
+			public int direction;
+			public KeyCode keyCode;
+		}
+
+		private RotStatus[] rotStatuses = null;
+		private void KeyboardRotationInit()
+		{
+			if (rotStatuses == null)
+			{
+				rotStatuses = new RotStatus[4];
+				for (int i = 0; i < 4; i++)
+					rotStatuses[i] = new RotStatus();
+
+				rotStatuses[0].keyCode = KeyCode.UpArrow;
+				rotStatuses[0].axis = 0; // x
+				rotStatuses[0].direction = -1; // decrease
+				rotStatuses[0].speed = 0;
+				rotStatuses[0].wasPressed = false;
+
+				rotStatuses[1].keyCode = KeyCode.DownArrow;
+				rotStatuses[1].axis = 0; // x
+				rotStatuses[1].direction = 1; // increase
+				rotStatuses[1].speed = 0;
+				rotStatuses[1].wasPressed = false;
+
+				rotStatuses[2].keyCode = KeyCode.LeftArrow;
+				rotStatuses[2].axis = 1; // y
+				rotStatuses[2].direction = -1; // decrease
+				rotStatuses[2].speed = 0;
+				rotStatuses[2].wasPressed = false;
+
+				rotStatuses[3].keyCode = KeyCode.RightArrow;
+				rotStatuses[3].axis = 1; // y
+				rotStatuses[3].direction = 1; // increase
+				rotStatuses[3].speed = 0;
+				rotStatuses[3].wasPressed = false;
+			}
+		}
+
+		private float keyRotX = 0, keyRotY = 0;
+		// When using Remote Desktop Protocol, the unity can't read Input.GetKey("up"), and etc.  Use keyboard to rotate view.  
+		void KeyboardRotation()
+		{
+			keyRotX = keyRotY = 0;
+			for (int i = 0; i < 4; i++)
+			{
+				bool pressed = WXRInput.GetKey(rotStatuses[i].keyCode);
+				bool change = pressed == rotStatuses[i].wasPressed;
+				rotStatuses[i].wasPressed = pressed;
+
+				// All positive value
+				if (pressed && change) rotStatuses[i].speed = rot_speed_min;
+				if (pressed && !change) rotStatuses[i].speed += rot_acc * Time.unscaledDeltaTime;
+				rotStatuses[i].speed = Mathf.Clamp(rotStatuses[i].speed, rot_speed_min, rot_speed_max);
+
+				if (!pressed) rotStatuses[i].speed = 0;
+			}
+			for (int i = 0; i < 4; i++)
+			{
+				if (rotStatuses[i].axis == 0)
+					keyRotX += rotStatuses[i].direction * rotStatuses[i].speed * Time.unscaledDeltaTime;
+				else
+					keyRotY += rotStatuses[i].direction * rotStatuses[i].speed * Time.unscaledDeltaTime;
+			}
 		}
 
 #if ENABLE_INPUT_SYSTEM
@@ -270,6 +363,14 @@ namespace Wave.XR.Sample.KMC
 		private float xAxis = 0, yAxis = 0;
 		private void Update()
 		{
+			// Toggle cursor lock
+			if (Input.GetKeyUp(KeyCode.G))
+				Cursor.lockState = Cursor.lockState == CursorLockMode.None ? CursorLockMode.Locked : CursorLockMode.None;
+			//Unlock cursor
+			if (Input.GetKeyUp(KeyCode.Escape))
+				Cursor.lockState = CursorLockMode.None;
+			bool mouseHooked = Cursor.lockState != CursorLockMode.None;
+
 #if ENABLE_LEGACY_INPUT_MANAGER
 			xAxis = Input.GetAxis("Mouse X");
 			yAxis = Input.GetAxis("Mouse Y");
@@ -279,7 +380,10 @@ namespace Wave.XR.Sample.KMC
 			yAxis = -(mouseAxisEx.y - mouseAxis.y);
 			mouseAxisEx = mouseAxis;
 #endif
-			if (WXRInput.GetMouseButton(1))
+
+			KeyboardRotation();
+
+			if (WXRInput.GetMouseButton(1) || mouseHooked)
 			{
 				LookRotation(poseCurrent);
 				MovePosition(poseCurrent);
@@ -290,7 +394,7 @@ namespace Wave.XR.Sample.KMC
 					kmcObjCurrent.transform.localRotation = poseCurrent.m_AccRot;
 				}
 			}
-			else
+			
 			{
 				// Change target
 				var target = CurrentTarget;
