@@ -43,6 +43,7 @@ namespace Wave.Native
 		WVR_EventType_HandGesture_Changed                = 1006,    /**< Notification gesture changed. */
 		WVR_EventType_HandGesture_Abnormal               = 1007,    /**< Notification gesture abnormal. */
 		WVR_EventType_HandTracking_Abnormal              = 1008,    /**< Notification hand tracking abnormal. */
+		WVR_EventType_ArenaChanged						 = 1009,    /**< Notification arena changed. */
 
 		WVR_EventType_DeviceConnected                    = 2000,    /**< @ref WVR_DeviceType connected. */
 		WVR_EventType_DeviceDisconnected                 = 2001,    /**< @ref WVR_DeviceType disconnected. */
@@ -61,6 +62,7 @@ namespace Wave.Native
 		WVR_EventType_RecenterFail3DoF                   = 2014,    /**< Notification of recenter fail for 3 DoF device*/
 		WVR_EventType_ClearHmdTrackingMapDone            = 2015,    /**< Notification of the finish of clearing operation of HMD tracking map from device service*/
 		WVR_EventType_InputDevMappingChanged			 = 2016,    /**< Notification for input device mapping table changed.*/
+		WVR_EventType_BatteryPercentageUpdate			 = 2017,    /**< Notification for battery percentage update.*/
 
 		WVR_EventType_PassThroughOverlayShownBySystem	 = 2100,    /**< Notification for passthrough overlay is shown by the system.*/
 		WVR_EventType_PassThroughOverlayHiddenBySystem   = 2101,    /**< Notification for passthrough overlay is hidden by the system. */
@@ -1302,6 +1304,11 @@ namespace Wave.Native
 			WVR_Base.Instance.TriggerVibration(type, id, durationMicroSec, frequency, intensity);
 		}
 
+		public static void WVR_TriggerVibrationScale(WVR_DeviceType type, WVR_InputId id, uint durationMicroSec, uint frequency, float amplitude)
+		{
+			WVR_Base.Instance.TriggerVibrationScale(type, id, durationMicroSec, frequency, amplitude);
+		}
+
 		public static void WVR_InAppRecenter(WVR_RecenterType recenterType)
 		{
 			WVR_Base.Instance.InAppRecenter(recenterType);
@@ -1601,13 +1608,11 @@ namespace Wave.Native
 			return WVR_Base.Instance.IsAdaptiveQualityEnabled();
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static bool WVR_StartCamera(ref WVR_CameraInfo_t info)
 		{
 			return WVR_Base.Instance.StartCamera(ref info);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static void WVR_StopCamera()
 		{
 			WVR_Base.Instance.StopCamera();
@@ -1623,25 +1628,21 @@ namespace Wave.Native
 			return WVR_Base.Instance.GetCameraIntrinsic(position, ref intrinsic);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static bool WVR_GetCameraFrameBuffer(IntPtr pFramebuffer, uint frameBufferSize)
 		{
 			return WVR_Base.Instance.GetCameraFrameBuffer(pFramebuffer, frameBufferSize);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static bool WVR_GetFrameBufferWithPoseState(IntPtr frameBuffer, uint frameBufferSize, WVR_PoseOriginModel origin, uint predictInMs, ref WVR_PoseState_t poseState)
 		{
 			return WVR_Base.Instance.GetFrameBufferWithPoseState(frameBuffer, frameBufferSize, origin, predictInMs, ref poseState);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static bool WVR_DrawTextureWithBuffer(IntPtr textureId, WVR_CameraImageFormat imgFormat, IntPtr frameBuffer, uint size, uint width, uint height, bool enableCropping, bool clearClampRegion)
 		{
 			return WVR_Base.Instance.DrawTextureWithBuffer(textureId, imgFormat, frameBuffer, size, width, height, enableCropping, clearClampRegion);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public static void WVR_ReleaseCameraTexture()
 		{
 			WVR_Base.Instance.ReleaseCameraTexture();
@@ -2112,6 +2113,10 @@ namespace Wave.Native
 			{
 			}
 
+			public virtual void TriggerVibrationScale(WVR_DeviceType type, WVR_InputId inputId, uint durationMicroSec, uint frequency, float amplitude)
+			{
+			}
+
 			// Recenter the "Virtual World" in current App.
 			public virtual void InAppRecenter(WVR_RecenterType recenterType)
 			{
@@ -2395,13 +2400,11 @@ namespace Wave.Native
 			}
 
             // wvr_camera.h
-            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual bool StartCamera(ref WVR_CameraInfo_t info)
 			{
 				return false;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual void StopCamera()
 			{
 			}
@@ -2416,25 +2419,21 @@ namespace Wave.Native
 				return true;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual bool GetCameraFrameBuffer(IntPtr pFramebuffer, uint frameBufferSize)
 			{
 				return false;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual bool GetFrameBufferWithPoseState(IntPtr frameBuffer, uint frameBufferSize, WVR_PoseOriginModel origin, uint predictInMs, ref WVR_PoseState_t poseState)
 			{
 				return false;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual bool DrawTextureWithBuffer(IntPtr textureId, WVR_CameraImageFormat imgFormat, IntPtr frameBuffer, uint size, uint width, uint height, bool enableCropping, bool clearClampRegion)
 			{
 				return false;
 			}
 
-            [Obsolete("This API is deprecated and is no longer supported.", true)]
             public virtual void ReleaseCameraTexture()
 			{
 			}

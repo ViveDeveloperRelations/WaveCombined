@@ -45,7 +45,7 @@ namespace Wave.Essence.Editor
 			AssetDatabase.SaveAssets();
 			Debug.Log("UpdateAssetControllerModel() " + kControllerModelAsset + ", importedControllerModelPackage: " + asset.importedControllerModelPackage);
 		}
-		private static bool IsControllerModelPackageOnceImported()
+		internal static bool IsControllerModelPackageOnceImported()
 		{
 			if (!File.Exists(kControllerModelAsset))
 				return false;
@@ -74,7 +74,7 @@ namespace Wave.Essence.Editor
 			AssetDatabase.SaveAssets();
 			Debug.Log("UpdateAssetInputModule() " + kInputModuleAsset + ", importedInputModulePackage: " + asset.importedInputModulePackage);
 		}
-		private static bool IsInputModulePackageOnceImported()
+		internal static bool IsInputModulePackageOnceImported()
 		{
 			if (!File.Exists(kInputModuleAsset))
 				return false;
@@ -103,7 +103,7 @@ namespace Wave.Essence.Editor
 			AssetDatabase.SaveAssets();
 			Debug.Log("UpdateAssetHandModel() " + kHandModelAsset + ", importedHandModelPackage: " + asset.importedHandModelPackage);
 		}
-		private static bool IsHandModelPackageOnceImported()
+		internal static bool IsHandModelPackageOnceImported()
 		{
 			if (!File.Exists(kHandModelAsset))
 				return false;
@@ -132,7 +132,7 @@ namespace Wave.Essence.Editor
 			AssetDatabase.SaveAssets();
 			Debug.Log("UpdateAssetInteractionMode() " + kInteractionModeAsset + ", importedInteractionModePackage: " + asset.importedInteractionModePackage);
 		}
-		private static bool IsInteractionModePackageOnceImported()
+		internal static bool IsInteractionModePackageOnceImported()
 		{
 			if (!File.Exists(kInteractionModeAsset))
 				return false;
@@ -675,7 +675,43 @@ namespace Wave.Essence.Editor
 		private static void OnImportPackageCompleted(string packagename)
 		{
 			Debug.Log("OnImportPackageCompleted() " + packagename);
-			IsImporting = false;
+			EssenceSettingsProvider.Init();
+			EssenceSettingsProvider.checkFeaturePackages();
+
+			if (packagename.Equals("UnityPackages~\\wave_essence_controller_model"))
+			{
+				if (!EssenceSettingsProvider.featureInputModuleImported && !EssenceSettingsProvider.IsInputModulePackageOnceImported())
+				{
+					EssenceSettingsProvider.UpdateAssetInputModule(true);
+					EssenceSettingsProvider.ImportModule(EssenceSettingsProvider.kInputModulePackage);
+				}
+				else
+					IsImporting = false;
+			}
+			else if (packagename.Equals("UnityPackages~\\wave_essence_inputmodule"))
+			{
+				if(!EssenceSettingsProvider.featureHandModelImported && !EssenceSettingsProvider.IsHandModelPackageOnceImported())
+				{
+					EssenceSettingsProvider.UpdateAssetHandModel(true);
+					EssenceSettingsProvider.ImportModule(EssenceSettingsProvider.kHandModelPackage);
+				}
+				else
+					IsImporting = false;
+			}
+			else if (packagename.Equals("UnityPackages~\\wave_essence_hand_model"))
+			{
+				if (EssenceSettingsProvider.featureControllerModelImported && EssenceSettingsProvider.featureInputModuleImported &&
+					EssenceSettingsProvider.featureHandModelImported && !EssenceSettingsProvider.featureInteractionModeImported &&
+					!EssenceSettingsProvider.IsInteractionModePackageOnceImported())
+				{
+					EssenceSettingsProvider.UpdateAssetInteractionMode(true);
+					EssenceSettingsProvider.ImportModule(EssenceSettingsProvider.kInteractionModePackage);
+				}
+				else
+					IsImporting = false;
+			}
+			else
+			    IsImporting = false;
 		}
 
 		public static void ResetToDefaultPackages()
@@ -845,6 +881,13 @@ namespace Wave.Essence.Editor
 				window = GetWindow<EssenseSettingsConfigDialog>(true);
 				window.minSize = new Vector2(480, 240);
 				window.items = items;
+			}
+
+			if (!EssenceSettingsProvider.featureControllerModelImported && !EssenceSettingsProvider.IsControllerModelPackageOnceImported())
+			{
+				PackageInfo.IsImporting = true;
+				EssenceSettingsProvider.UpdateAssetControllerModel(true);
+				EssenceSettingsProvider.ImportModule(EssenceSettingsProvider.kControllerModelPackage);
 			}
 		}
 

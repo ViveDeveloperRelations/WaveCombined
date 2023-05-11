@@ -215,6 +215,7 @@ namespace Wave.Essence.Hand
 
 		private static HandManager m_Instance = null;
 		public static HandManager Instance { get { return m_Instance; } }
+		[Obsolete("Do NOT use! Use HandInputSwitch.Instance.PrimaryInput instead.")]
 		public static HandType PrimaryInput = HandType.Right;
 
 		private XR_InteractionMode interactionMode = XR_InteractionMode.Default;
@@ -241,13 +242,13 @@ namespace Wave.Essence.Hand
 			// 2. Checks if Natural Hand is supported.
 			if ((supportedFeature & (ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandTracking) == 0)
 			{
-				Log.w(LOG_TAG, "WVR_SupportedFeature_HandTracking is not enabled.", true);
+				Log.w(LOG_TAG, "Awake() WVR_SupportedFeature_HandTracking is not enabled.", true);
 				SetHandTrackerStatus(TrackerType.Natural, TrackerStatus.NoSupport);
 			}
 			// 3. Checks if WVR_SupportedFeature electronic hand is supported.
 			if ((supportedFeature & (ulong)WVR_SupportedFeature.WVR_SupportedFeature_ElectronicHand) == 0)
 			{
-				Log.w(LOG_TAG, "WVR_SupportedFeature_ElectronicHand is not enabled.", true);
+				Log.w(LOG_TAG, "Awake() WVR_SupportedFeature_ElectronicHand is not enabled.", true);
 				SetHandTrackerStatus(TrackerType.Electronic, TrackerStatus.NoSupport);
 			}
 
@@ -255,6 +256,9 @@ namespace Wave.Essence.Hand
 
 			m_GestureOptions.Gesture.UpdateOptionValue();
 			m_GestureOptionValue = m_GestureOptions.Gesture.optionValue;
+
+			if (HandInputSwitch.Instance != null)
+				Log.i(LOG_TAG, "Awake() Loaded HandInputSwitch.", true);
 		}
 		void Start()
 		{

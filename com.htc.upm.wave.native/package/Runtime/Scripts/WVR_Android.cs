@@ -118,6 +118,13 @@ namespace Wave.Native
 			WVR_TriggerVibration_Android(type, id, durationMicroSec, frequency, intensity);
 		}
 
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_TriggerVibrationScale", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_TriggerVibrationScale_Android(WVR_DeviceType type, WVR_InputId id, uint durationMicroSec, uint frequency, float amplitude);
+		public override void TriggerVibrationScale(WVR_DeviceType type, WVR_InputId id, uint durationMicroSec, uint frequency, float amplitude)
+		{
+			WVR_TriggerVibrationScale_Android(type, id, durationMicroSec, frequency, amplitude);
+		}
+
 		// Recenter the "Virtual World" in current App.
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_InAppRecenter", CallingConvention = CallingConvention.Cdecl)]
 		public static extern void WVR_InAppRecenter_Android(WVR_RecenterType recenterType);
@@ -478,19 +485,15 @@ namespace Wave.Native
 		}
 
         // wvr_camera.h
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         [DllImportAttribute("wvr_api", EntryPoint = "WVR_StartCamera", CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool WVR_StartCamera_Android(ref WVR_CameraInfo_t info);
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public override bool StartCamera(ref WVR_CameraInfo_t info)
 		{
 			return WVR_StartCamera_Android(ref info);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         [DllImportAttribute("wvr_api", EntryPoint = "WVR_StopCamera", CallingConvention = CallingConvention.Cdecl)]
 		public static extern void WVR_StopCamera_Android();
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public override void StopCamera()
 		{
 			WVR_StopCamera_Android();
@@ -510,28 +513,22 @@ namespace Wave.Native
 			return WVR_GetCameraIntrinsic_Android(position, ref intrinsic);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         [DllImportAttribute("wvr_api", EntryPoint = "WVR_GetCameraFrameBuffer", CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool WVR_GetCameraFrameBuffer_Android(IntPtr pFramebuffer, uint frameBufferSize);
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public override bool GetCameraFrameBuffer(IntPtr pFramebuffer, uint frameBufferSize)
 		{
 			return WVR_GetCameraFrameBuffer_Android(pFramebuffer, frameBufferSize);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         [DllImportAttribute("camerautility", EntryPoint = "GetFrameBufferWithPoseState", CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool GetFrameBufferWithPoseState_Android(IntPtr pFramebuffer, uint frameBufferSize, WVR_PoseOriginModel origin, uint predictInMs, ref WVR_PoseState_t poseState);
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public override bool GetFrameBufferWithPoseState(IntPtr pFramebuffer, uint frameBufferSize, WVR_PoseOriginModel origin, uint predictInMs, ref WVR_PoseState_t poseState)
 		{
 			return GetFrameBufferWithPoseState_Android(pFramebuffer, frameBufferSize, origin, predictInMs, ref poseState);
 		}
 
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         [DllImportAttribute("camerautility", EntryPoint = "ReleaseAll", CallingConvention = CallingConvention.Cdecl)]
 		public static extern void ReleaseCameraTexture_Android();
-        [Obsolete("This API is deprecated and is no longer supported.", true)]
         public override void ReleaseCameraTexture()
 		{
 			ReleaseCameraTexture_Android();
