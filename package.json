@@ -1,0 +1,30 @@
+{
+  "name": "com.htc.upm.wave.nativecombined",
+  "displayName": "VIVE Wave XR Native Plugin - Combined",
+  "version": "5.2.1-r.1",
+  "unity": "2019.4",
+  "description": "The \"VIVE Wave XR Native Plugin - Combined\" Provides all functionality of our native sdks\n\nYou can view the documentation for additional information.\n\n",
+  "keywords": [
+    "vr",
+    "xr",
+    "reality"
+  ],
+  "author": {
+    "name": "HTC Corporation",
+    "email": "vivesoftware@htc.com",
+    "url": "https://www.htc.com"
+  },
+  "dependencies": {
+    "com.unity.xr.management": "3.2.4"
+  },
+  "samples": [
+    {
+      "displayName": "Essence",
+      "description": "Basic sample showing how to use Wave Essence.",
+      "path": "Samples~/Essence/Essence"
+    }
+  ],
+  "type": "library",
+  "documentationUrl": "https://hub.vive.com/storage/docs/en-us/UnityXR/UnityXRSdk.html",
+  "hideInEditor": false
+}
