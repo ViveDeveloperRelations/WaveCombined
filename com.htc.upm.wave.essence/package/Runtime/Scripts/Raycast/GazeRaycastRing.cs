@@ -77,6 +77,7 @@ namespace Wave.Essence.Raycast
 			}
 		}
 
+		#region Inspector
 		[Tooltip("Event triggered by gaze.")]
 		[SerializeField]
 		private GazeEvent m_InputEvent = GazeEvent.Down;
@@ -89,6 +90,7 @@ namespace Wave.Essence.Raycast
 		[SerializeField]
 		private bool m_AlwaysEnable = false;
 		public bool AlwaysEnable { get { return m_AlwaysEnable; } set { m_AlwaysEnable = value; } }
+		#endregion
 
 		#region MonoBehaviour overrides
 		protected override void Awake()
@@ -160,7 +162,6 @@ namespace Wave.Essence.Raycast
 		}
 
 		#region RaycastImpl Actions overrides
-		internal bool hold = false;
 		protected override bool OnDown()
 		{
 			if (m_InputEvent != GazeEvent.Down) { return false; }
@@ -171,22 +172,9 @@ namespace Wave.Essence.Raycast
 				m_RingPercent = 0;
 				m_GazeOnTime = Time.unscaledTime;
 				down = true;
-
-				// Set hold to false after 0.1s to trigger PointerUp/Click event.
-				hold = true;
-				StartCoroutine(PointerUpCoroutine());
 			}
 
 			return down;
-		}
-		private IEnumerator PointerUpCoroutine()
-		{
-			yield return new WaitForSeconds(0.1f);
-			hold = false;
-		}
-		protected override bool OnHold()
-		{
-			return hold;
 		}
 		protected override bool OnSubmit()
 		{

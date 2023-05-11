@@ -217,6 +217,13 @@ namespace Wave.Native
 		{
 			return WVR_GetControllerPoseModeOffset(type, mode, ref translation, ref quaternion);
 		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_IsDeviceTableStatic", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_IsDeviceTableStatic(WVR_DeviceType type);
+		public override bool IsDeviceTableStatic(WVR_DeviceType type)
+		{
+			return WVR_IsDeviceTableStatic(type);
+		}
 		#endregion
 
 		#region wvr_tracker.h
@@ -521,6 +528,13 @@ namespace Wave.Native
 		public override bool IsEnhanceHandStable()
 		{
 			return WVR_IsEnhanceHandStable();
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetMixMode", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_SetMixMode(bool enable);
+		public override void SetMixMode(bool enable)
+		{
+			WVR_SetMixMode(enable);
 		}
 		#endregion
 
@@ -918,10 +932,17 @@ namespace Wave.Native
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_ShowPassthroughOverlay", CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool WVR_ShowPassthroughOverlay_Android(bool show, bool delaySubmit);
-		public override bool ShowPassthroughOverlay(bool show, bool delaySubmit = false)
+		public static extern bool WVR_ShowPassthroughOverlay_Android(bool show, bool delaySubmit, bool showIndicator);
+		public override bool ShowPassthroughOverlay(bool show, bool delaySubmit = false, bool showIndicator = false)
 		{
-			return WVR_ShowPassthroughOverlay_Android(show, delaySubmit);
+			return WVR_ShowPassthroughOverlay_Android(show, delaySubmit, showIndicator);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetPassthroughOverlayAlpha", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_SetPassthroughOverlayAlpha_Android(float alpha);
+		public override WVR_Result SetPassthroughOverlayAlpha(float alpha)
+		{
+			return WVR_SetPassthroughOverlayAlpha_Android(alpha);
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_ShowPassthroughUnderlay", CallingConvention = CallingConvention.Cdecl)]
@@ -943,6 +964,14 @@ namespace Wave.Native
 		public override bool IsPassthroughOverlayVisible()
 		{
 			return WVR_IsPassthroughOverlayVisible_Android();
+		}
+
+		// wvr_compatibility.h
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetChecker", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_SetChecker_Android(bool enable);
+		public override bool SetChecker(bool enable)
+		{
+			return WVR_SetChecker_Android(enable);
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetAMCMode", CallingConvention = CallingConvention.Cdecl)]

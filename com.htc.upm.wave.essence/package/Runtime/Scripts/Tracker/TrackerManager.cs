@@ -35,6 +35,18 @@ namespace Wave.Essence.Tracker
 		private bool m_UseXRDevice = false;
 		public bool UseXRDevice { get { return m_UseXRDevice; } set { m_UseXRDevice = value; } }
 
+		WaveXRSettings m_WaveXRSettings = null;
+		bool UseXRData()
+		{
+			// Hand is already enabled in WaveXRSettings.
+			bool XRAlreadyEnabled = (m_WaveXRSettings != null ? m_WaveXRSettings.EnableTracker : false);
+
+			return (
+				(XRAlreadyEnabled || m_UseXRDevice)
+				&& (!Application.isEditor)
+				);
+		}
+
 		public enum TrackerStatus
 		{
 			// Initial, can call Start API in this state.
@@ -75,6 +87,8 @@ namespace Wave.Essence.Tracker
 		private void Awake()
 		{
 			instance = this;
+
+			m_WaveXRSettings = WaveXRSettings.GetInstance();
 
 			/// Checks the feature support.
 			var supportedFeature = Interop.WVR_GetSupportedFeatures();
@@ -154,7 +168,20 @@ namespace Wave.Essence.Tracker
 		{
 			UpdateTrackerExtData();
 
-			if (m_UseXRDevice && !Application.isEditor) { return; }
+			if (Log.gpl.Print)
+			{
+				DEBUG("Update() " + "use xr device: " + m_UseXRDevice + ", use xr data: " + UseXRData());
+				for (int i = 0; i < s_TrackerIds.Length; i++)
+				{
+					DEBUG("Update() " + s_TrackerIds[i]
+						+ ", connection: " + s_TrackerConnection[s_TrackerIds[i]]
+						+ ", role: " + s_TrackerRole[s_TrackerIds[i]]
+						+ ", battery: " + s_TrackerBattery[s_TrackerIds[i]]
+						);
+				}
+			}
+
+			if (UseXRData()) { return; }
 
 			CheckAllTrackerPoseStates();
 		}
@@ -270,7 +297,7 @@ namespace Wave.Essence.Tracker
 		private event TrackerResultDelegate trackerResultCB = null;
 		private void StartTrackerLock()
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				InputDeviceTracker.ActivateTracker(true);
 				return;
@@ -350,7 +377,7 @@ namespace Wave.Essence.Tracker
 
 		private void StopTrackerLock()
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				InputDeviceTracker.ActivateTracker(false);
 				return;
@@ -829,7 +856,7 @@ namespace Wave.Essence.Tracker
 			amplitude = Mathf.Clamp(amplitude, 0, 1);
 			float durationSec = durationMicroSec / 1000000;
 
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				return InputDeviceTracker.HapticPulse(trackerId.InputDevice(), durationMicroSec, frequency, amplitude);
 			}
@@ -873,7 +900,7 @@ namespace Wave.Essence.Tracker
 		#region Public Interface
 		public TrackerStatus GetTrackerStatus()
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				TrackerStatus status = TrackerStatus.NotStart;
 				uint statusId = (uint)status;
@@ -908,7 +935,7 @@ namespace Wave.Essence.Tracker
 
 		public bool IsTrackerConnected(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				return InputDeviceTracker.IsAvailable(trackerId.InputDevice());
 			}
@@ -917,7 +944,7 @@ namespace Wave.Essence.Tracker
 		}
 		public bool IsTrackerPoseValid(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				return InputDeviceTracker.IsTracked(trackerId.InputDevice());
 			}
@@ -927,7 +954,7 @@ namespace Wave.Essence.Tracker
 
 		public TrackerRole GetTrackerRole(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				return InputDeviceTracker.GetRole(trackerId.InputDevice()).Role();
 			}
@@ -937,7 +964,7 @@ namespace Wave.Essence.Tracker
 
 		public bool GetTrackerPosition(TrackerId trackerId, out Vector3 position)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				return InputDeviceTracker.GetPosition(trackerId.InputDevice(), out position);
 			}
@@ -947,7 +974,7 @@ namespace Wave.Essence.Tracker
 		}
 		public Vector3 GetTrackerPosition(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				if (GetTrackerPosition(trackerId, out Vector3 value))
 				{
@@ -963,7 +990,7 @@ namespace Wave.Essence.Tracker
 		}
 		public bool GetTrackerRotation(TrackerId trackerId, out Quaternion rotation)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				return InputDeviceTracker.GetRotation(trackerId.InputDevice(), out rotation);
 			}
@@ -973,7 +1000,7 @@ namespace Wave.Essence.Tracker
 		}
 		public Quaternion GetTrackerRotation(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				if (GetTrackerRotation(trackerId, out Quaternion value))
 				{
@@ -1025,7 +1052,7 @@ namespace Wave.Essence.Tracker
 		}
 		public Vector2 TrackerButtonAxis(TrackerId trackerId, TrackerButton id)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				if (id == TrackerButton.Trigger)
 				{
@@ -1046,7 +1073,7 @@ namespace Wave.Essence.Tracker
 
 		public float GetTrackerBatteryLife(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			if (UseXRData())
 			{
 				if (InputDeviceTracker.BatteryLevel(trackerId.InputDevice(), out float value))
 					return value;

@@ -1,4 +1,4 @@
-﻿// "Wave SDK 
+// "Wave SDK 
 // © 2020 HTC Corporation. All Rights Reserved.
 //
 // Unless otherwise required by copyright law and practice,
@@ -23,7 +23,7 @@ namespace Wave.Essence.Raycast.Editor
 		/// RaycastPointer options
 		SerializedProperty m_ShowRay, m_RayStartWidth, m_RayEndWidth, m_RayMaterial, m_Pointer;
 		/// ControllerRaycastPointer options
-		SerializedProperty m_Controller, m_ControlKey, m_AlwaysEnable;
+		SerializedProperty m_Controller, m_ControlKey, m_HideWhenIdle, m_AlwaysEnable;
 
 		private void OnEnable()
 		{
@@ -40,6 +40,7 @@ namespace Wave.Essence.Raycast.Editor
 			/// ControllerRaycastPointer options
 			m_Controller = serializedObject.FindProperty("m_Controller");
 			m_ControlKey = serializedObject.FindProperty("m_ControlKey");
+			m_HideWhenIdle = serializedObject.FindProperty("m_HideWhenIdle");
 			m_AlwaysEnable = serializedObject.FindProperty("m_AlwaysEnable");
 		}
 
@@ -80,6 +81,7 @@ namespace Wave.Essence.Raycast.Editor
 
 			EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
+			EditorGUILayout.PropertyField(m_HideWhenIdle);
 			EditorGUILayout.PropertyField(m_AlwaysEnable);
 
 			serializedObject.ApplyModifiedProperties();

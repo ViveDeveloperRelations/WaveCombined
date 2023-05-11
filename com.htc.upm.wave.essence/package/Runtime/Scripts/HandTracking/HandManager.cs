@@ -301,6 +301,8 @@ namespace Wave.Essence.Hand
 				DontDestroyOnLoad(m_Instance);
 			}
 
+			m_WaveXRSettings = WaveXRSettings.GetInstance();
+
 			supportedFeature = Interop.WVR_GetSupportedFeatures();
 			// 1. Checks if Hand Gesture is supported.
 			if ((supportedFeature & (ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandGesture) == 0)
@@ -357,7 +359,6 @@ namespace Wave.Essence.Hand
 			else
 				ConvertHandTrackingDataToUnity = null;
 		}
-		private bool toRestartGesture = false;
 		void Update()
 		{
 			interactionMode = ClientInterface.InteractionMode;
@@ -387,6 +388,8 @@ namespace Wave.Essence.Hand
 			{
 				DEBUG("Update() Interaction Mode: " + interactionMode
 					+ ", use xr device: " + m_UseXRDevice
+					+ ", use xr data (natural): " + UseXRData(TrackerType.Natural)
+					+ ", use xr data (electronic): " + UseXRData(TrackerType.Electronic)
 					+ ", gesture value: " + m_GestureOptions.Gesture.optionValue
 					+ ", gesture ref count: " + refCountGesture
 					+ ", tracker: " + m_TrackerOptions.Tracker
@@ -397,7 +400,6 @@ namespace Wave.Essence.Hand
 					+ ", electronic joint: " + m_ElectronicHandJointCount);
 			}
 		}
-
 		private void OnApplicationPause(bool pause)
 		{
 			if (!pause)
@@ -693,9 +695,24 @@ namespace Wave.Essence.Hand
 		}
 		#endregion
 
-		bool UseXRData()
+		WaveXRSettings m_WaveXRSettings = null;
+		bool UseXRData(TrackerType tracker)
 		{
-			return (m_UseXRDevice && !Application.isEditor);
+			// Hand is already enabled in WaveXRSettings.
+			bool XRAlreadyEnabled = false;
+			if (m_WaveXRSettings != null)
+			{
+				XRAlreadyEnabled = (
+				  ((tracker == TrackerType.Natural) && m_WaveXRSettings.EnableNaturalHand)
+				  //|| ((tracker == TrackerType.Electronic) && m_WaveXRSettings.EnableElectronicHand) // not support electronic hand now.
+				  );
+			}
+
+			return (
+				(XRAlreadyEnabled || m_UseXRDevice)
+				&& (tracker == TrackerType.Natural) // XR supports natural hand only.
+				&& (!Application.isEditor)
+				);
 		}
 
 		#region Hand Tracking Lifecycle
@@ -835,7 +852,7 @@ namespace Wave.Essence.Hand
 		private event HandTrackerResultDelegate handTrackerResultCB = null;
 		private void StartHandTrackerLock(TrackerType tracker)
 		{
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				if (tracker == TrackerType.Natural) { InputDeviceHand.ActivateNaturalHand(true); }
 				if (tracker == TrackerType.Electronic) { InputDeviceHand.ActivateElectronicHand(true); }
@@ -906,7 +923,7 @@ namespace Wave.Essence.Hand
 
 		private void StopHandTrackerLock(TrackerType tracker)
 		{
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				if (tracker == TrackerType.Natural) { InputDeviceHand.ActivateNaturalHand(false); }
 				if (tracker == TrackerType.Electronic) { InputDeviceHand.ActivateElectronicHand(false); }
@@ -995,7 +1012,7 @@ namespace Wave.Essence.Hand
 
 		public TrackerStatus GetHandTrackerStatus(TrackerType tracker)
 		{
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				return (InputDeviceHand.IsAvailable() ? TrackerStatus.Available : TrackerStatus.NotStart);
 			}
@@ -1063,7 +1080,7 @@ namespace Wave.Essence.Hand
 
 		public bool IsHandPoseValid(TrackerType tracker, bool isLeft)
 		{
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				return InputDeviceHand.IsTracked(isLeft);
 			}
@@ -1109,7 +1126,7 @@ namespace Wave.Essence.Hand
 
 		public float GetHandConfidence(TrackerType tracker, bool isLeft)
 		{
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				float confidence = 0;
 				if (isLeft)
@@ -1170,7 +1187,7 @@ namespace Wave.Essence.Hand
 
 			bool ret = false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				if (GetBone(joint, isLeft, out Bone bone))
 				{
@@ -1282,7 +1299,7 @@ namespace Wave.Essence.Hand
 
 			bool ret = false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				if (GetBone(joint, isLeft, out Bone bone))
 				{
@@ -1388,7 +1405,7 @@ namespace Wave.Essence.Hand
 			if (!IsHandPoseValid(tracker, isLeft))
 				return false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				float scale_x = 0, scale_y = 0, scale_z = 0;
 				if (isLeft)
@@ -1463,7 +1480,7 @@ namespace Wave.Essence.Hand
 			if (!IsHandPoseValid(tracker, isLeft))
 				return false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				float velocity_x = 0, velocity_y = 0, velocity_z = 0;
 				if (isLeft)
@@ -1538,7 +1555,7 @@ namespace Wave.Essence.Hand
 			if (!IsHandPoseValid(tracker, isLeft))
 				return false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				float velocity_x = 0, velocity_y = 0, velocity_z = 0;
 				if (isLeft)
@@ -1612,7 +1629,7 @@ namespace Wave.Essence.Hand
 		{
 			motion = HandMotion.None;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				uint motionId = (uint)motion;
 
@@ -1683,7 +1700,7 @@ namespace Wave.Essence.Hand
 			if (GetHandMotion(tracker, isLeft) != HandMotion.Hold)
 				return false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				role = HandHoldRole.None;
 				uint roleId = (uint)role;
@@ -1765,7 +1782,7 @@ namespace Wave.Essence.Hand
 			if (GetHandMotion(tracker, isLeft) != HandMotion.Hold)
 				return false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				uint typeId = (uint)type;
 
@@ -1847,7 +1864,7 @@ namespace Wave.Essence.Hand
 			if (GetHandMotion(tracker, isLeft) != HandMotion.Pinch)
 				return false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				float origin_x = 0, origin_y = 0, origin_z = 0;
 				if (isLeft)
@@ -1917,7 +1934,7 @@ namespace Wave.Essence.Hand
 			if (GetHandMotion(tracker, isLeft) != HandMotion.Pinch)
 				return false;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				float direction_x = 0, direction_y = 0, direction_z = 0;
 				if (isLeft)
@@ -1987,7 +2004,7 @@ namespace Wave.Essence.Hand
 			if (GetHandMotion(tracker, isLeft) != HandMotion.Pinch)
 				return 0;
 
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				float strength = 0;
 				if (isLeft)
@@ -2039,7 +2056,7 @@ namespace Wave.Essence.Hand
 		/// <summary> Retrieves the default threshold of Hand Pinch motion. </summary>
 		public float GetPinchThreshold(TrackerType tracker)
 		{
-			if (UseXRData())
+			if (UseXRData(tracker))
 			{
 				float threshold = 0;
 				SettingsHelper.GetFloat(kHandPinchThreshold, ref threshold);
@@ -2482,7 +2499,7 @@ namespace Wave.Essence.Hand
 		private bool hasNaturalHandTrackerData = false, hasElectronicHandTrackerData = false;
 		private void GetHandTrackingData(TrackerType tracker)
 		{
-			if (UseXRData()) { return; }
+			if (UseXRData(tracker)) { return; }
 
 			if (GetHandTrackerStatus(tracker) != TrackerStatus.Available)
 				return;

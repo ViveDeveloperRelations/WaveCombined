@@ -71,6 +71,8 @@ namespace Wave.Native
 		WVR_EventType_PassThroughOverlayHiddenBySystem   = 2101,    /**< Notification for passthrough overlay is hidden by the system. */
 		WVR_EventType_ControllerPoseModeChanged	         = 2102,
 		WVR_EventType_ControllerPoseModeOffsetReady      = 2103,
+		WVR_EventType_DeviceTableStaticLocked            = 2104,    /**< @ref WVR_DeviceType is on table static state. */
+		WVR_EventType_DeviceTableStaticUnlocked          = 2105,    /**< @ref WVR_DeviceType is not on table static state. */
 
 		WVR_EventType_Hand_EnhanceStable                 = 2900,    /**< Notification for Enhanced Hand Stability ON or OFF*/
 
@@ -1688,7 +1690,7 @@ namespace Wave.Native
 		 */
 		public static void WVR_StopEyeTracking()
 		{
-			WVR_Base.Instance.StopEyeTracking ();
+			WVR_Base.Instance.StopEyeTracking();
 		}
 
 		public static WVR_Result WVR_GetEyeTracking(ref WVR_EyeTracking_t data, WVR_CoordinateSystem space = WVR_CoordinateSystem.WVR_CoordinateSystem_Global)
@@ -1852,6 +1854,12 @@ namespace Wave.Native
 		{
 			return WVR_Base.Instance.IsEnhanceHandStable();
 		}
+
+		[Obsolete("WVR_SetMixMode is deprecated. Use adding \"wave.feature.mixmode\" to AndroidManifest.xml use-feature instead.")]
+		public static void WVR_SetMixMode(bool enable)
+		{
+			WVR_Base.Instance.SetMixMode(enable);
+		}
 		#endregion
 
 		#region Controller Pose Mode
@@ -1942,7 +1950,7 @@ namespace Wave.Native
 
 		public static ulong WVR_GetSupportedFeatures()
 		{
-			return WVR_Base.Instance.GetSupportedFeatures ();
+			return WVR_Base.Instance.GetSupportedFeatures();
 		}
 
 		public static WVR_InitError WVR_Init(WVR_AppType eType)
@@ -2000,12 +2008,12 @@ namespace Wave.Native
 			return WVR_Base.Instance.IsAdaptiveQualityEnabled();
 		}
 
-        public static bool WVR_StartCamera(ref WVR_CameraInfo_t info)
+		public static bool WVR_StartCamera(ref WVR_CameraInfo_t info)
 		{
 			return WVR_Base.Instance.StartCamera(ref info);
 		}
 
-        public static void WVR_StopCamera()
+		public static void WVR_StopCamera()
 		{
 			WVR_Base.Instance.StopCamera();
 		}
@@ -2020,22 +2028,22 @@ namespace Wave.Native
 			return WVR_Base.Instance.GetCameraIntrinsic(position, ref intrinsic);
 		}
 
-        public static bool WVR_GetCameraFrameBuffer(IntPtr pFramebuffer, uint frameBufferSize)
+		public static bool WVR_GetCameraFrameBuffer(IntPtr pFramebuffer, uint frameBufferSize)
 		{
 			return WVR_Base.Instance.GetCameraFrameBuffer(pFramebuffer, frameBufferSize);
 		}
 
-        public static bool WVR_GetFrameBufferWithPoseState(IntPtr frameBuffer, uint frameBufferSize, WVR_PoseOriginModel origin, uint predictInMs, ref WVR_PoseState_t poseState)
+		public static bool WVR_GetFrameBufferWithPoseState(IntPtr frameBuffer, uint frameBufferSize, WVR_PoseOriginModel origin, uint predictInMs, ref WVR_PoseState_t poseState)
 		{
 			return WVR_Base.Instance.GetFrameBufferWithPoseState(frameBuffer, frameBufferSize, origin, predictInMs, ref poseState);
 		}
 
-        public static bool WVR_DrawTextureWithBuffer(IntPtr textureId, WVR_CameraImageFormat imgFormat, IntPtr frameBuffer, uint size, uint width, uint height, bool enableCropping, bool clearClampRegion)
+		public static bool WVR_DrawTextureWithBuffer(IntPtr textureId, WVR_CameraImageFormat imgFormat, IntPtr frameBuffer, uint size, uint width, uint height, bool enableCropping, bool clearClampRegion)
 		{
 			return WVR_Base.Instance.DrawTextureWithBuffer(textureId, imgFormat, frameBuffer, size, width, height, enableCropping, clearClampRegion);
 		}
 
-        public static void WVR_ReleaseCameraTexture()
+		public static void WVR_ReleaseCameraTexture()
 		{
 			WVR_Base.Instance.ReleaseCameraTexture();
 		}
@@ -2125,12 +2133,12 @@ namespace Wave.Native
 			return WVR_Base.Instance.SubmitCompositionLayers(param);
 		}
 
-        public static uint WVR_GetMaxCompositionLayerCount()
-        {
-            return WVR_Base.Instance.GetMaxCompositionLayerCount();
-        }
+		public static uint WVR_GetMaxCompositionLayerCount()
+		{
+			return WVR_Base.Instance.GetMaxCompositionLayerCount();
+		}
 
-        public static WVR_SubmitError WVR_SubmitFrame(WVR_Eye eye, [In, Out] WVR_TextureParams_t[] param, [In, Out] WVR_PoseState_t[] pose, WVR_SubmitExtend extendMethod)
+		public static WVR_SubmitError WVR_SubmitFrame(WVR_Eye eye, [In, Out] WVR_TextureParams_t[] param, [In, Out] WVR_PoseState_t[] pose, WVR_SubmitExtend extendMethod)
 		{
 			return WVR_Base.Instance.SubmitFrame(eye, param, pose, extendMethod);
 		}
@@ -2277,10 +2285,16 @@ namespace Wave.Native
 			WVR_Base.Instance.SetPosePredictEnabled(type, enabled_position_predict, enable_rotation_predict);
 		}
 
-		public static bool WVR_ShowPassthroughOverlay(bool show, bool delaySubmit = false)
+		public static bool WVR_ShowPassthroughOverlay(bool show, bool delaySubmit = false, bool showIndicator = false)
 		{
-			return WVR_Base.Instance.ShowPassthroughOverlay(show, delaySubmit);
+			return WVR_Base.Instance.ShowPassthroughOverlay(show, delaySubmit, showIndicator);
 		}
+
+		public static WVR_Result WVR_SetPassthroughOverlayAlpha(float alpha)
+		{
+			return WVR_Base.Instance.SetPassthroughOverlayAlpha(alpha);
+		}
+
 
 		public static WVR_Result WVR_ShowPassthroughUnderlay(bool show)
 		{
@@ -2297,6 +2311,22 @@ namespace Wave.Native
 			return WVR_Base.Instance.IsPassthroughOverlayVisible();
 		}
 
+		/**
+		 * @brief Lets the developer know if WVR_DeviceType keeps static on table
+		 *
+		 * @param type Indicates what device type. (refer to @ref WVR_DeviceType)
+		 * @return True means device keeps static; false means device is moving.
+		 * @version API Level 8
+		 */
+		public static bool WVR_IsDeviceTableStatic(WVR_DeviceType type)
+		{
+			return WVR_Base.Instance.IsDeviceTableStatic(type);
+		}
+
+		public static bool WVR_SetChecker(bool enable)
+		{
+			return WVR_Base.Instance.SetChecker(enable);
+		}
 
 		#region Internal
 		public static string WVR_DeployRenderModelAssets(int deviceIndex, string renderModelName)
@@ -2742,6 +2772,8 @@ namespace Wave.Native
 
 			public virtual void EnhanceHandStable(bool wear) {}
 			public virtual bool IsEnhanceHandStable() { return false; }
+
+			public virtual void SetMixMode(bool enable) { }
 			#endregion
 
 			#region Controller Pose Mode
@@ -3104,9 +3136,14 @@ namespace Wave.Native
 			{
 			}
 
-			public virtual bool ShowPassthroughOverlay(bool show, bool delaySubmit = false)
+			public virtual bool ShowPassthroughOverlay(bool show, bool delaySubmit = false, bool showIndicator = false)
 			{
 				return false;
+			}
+
+			public virtual WVR_Result SetPassthroughOverlayAlpha(float alpha)
+			{
+				return WVR_Result.WVR_Success;
 			}
 
 			public virtual WVR_Result ShowPassthroughUnderlay(bool show)
@@ -3120,6 +3157,11 @@ namespace Wave.Native
 			}
 
 			public virtual bool IsPassthroughOverlayVisible()
+			{
+				return false;
+			}
+
+			public virtual bool SetChecker(bool enable)
 			{
 				return false;
 			}
@@ -3176,6 +3218,11 @@ namespace Wave.Native
 			public virtual WVR_Result SetFrameSharpnessEnhancementLevel(float level)
 			{
 				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			public virtual bool IsDeviceTableStatic(WVR_DeviceType type)
+			{
+				return false;
 			}
 
 			#region Internal

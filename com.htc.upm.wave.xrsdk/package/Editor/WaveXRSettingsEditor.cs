@@ -195,13 +195,23 @@ namespace Wave.XR.Settings
         static GUIContent Label_OverrideLogFlag = new GUIContent("Override LogFlag");
         SerializedProperty Property_OverrideLogFlag;
 
+        static string PropertyName_UseCMPChecker = "useCMPChecker";
+        static GUIContent Label_UseCMPChecker = new GUIContent("CompatibilityChecker");
+        SerializedProperty Property_UseCMPChecker;
+
 		#region Tracker
 		static string PropertyName_EnableTracker = "EnableTracker";
 		static GUIContent Label_EnableTracker = new GUIContent("Enable Tracker");
 		SerializedProperty Property_EnableTracker;
-		#endregion
+        #endregion
 
-		enum Platform
+        #region Hand
+        static string PropertyName_EnableNaturalHand = "EnableNaturalHand";
+        static GUIContent Label_EnableNaturalHand = new GUIContent("Enable Natural Hand");
+        SerializedProperty Property_EnableNaturalHand;
+        #endregion
+
+        enum Platform
         {
             Standalone,
             Android
@@ -232,6 +242,7 @@ namespace Wave.XR.Settings
 
         bool foldoutRendering = true;
 		bool foldoutTracker = true;
+        bool foldoutHand = true;
         bool foldoutCommon = true;
 
         public void AndroidSettings()
@@ -275,12 +286,17 @@ namespace Wave.XR.Settings
 
             if (Property_LogFlagForNative == null) Property_LogFlagForNative = serializedObject.FindProperty(PropertyName_LogFlagForNative);
             if (Property_OverrideLogFlag == null) Property_OverrideLogFlag = serializedObject.FindProperty(PropertyName_OverrideLogFlag);
+            if (Property_UseCMPChecker == null) Property_UseCMPChecker = serializedObject.FindProperty(PropertyName_UseCMPChecker);
 
 			#region Tracker
 			if (Property_EnableTracker == null) Property_EnableTracker = serializedObject.FindProperty(PropertyName_EnableTracker);
-			#endregion
+            #endregion
 
-			if (displayGamutPreference == null)
+            #region Hand
+            if (Property_EnableNaturalHand == null) Property_EnableNaturalHand = serializedObject.FindProperty(PropertyName_EnableNaturalHand);
+            #endregion
+
+            if (displayGamutPreference == null)
             {
                 displayGamutPreference = new DisplayGamutPreference(serializedObject);
             }
@@ -359,9 +375,21 @@ namespace Wave.XR.Settings
 			}
 
 			EditorGUILayout.Space();
-			#endregion
+            #endregion
 
-			foldoutCommon = EditorGUILayout.Foldout(foldoutCommon, "Common");
+            #region Hand
+            foldoutHand = EditorGUILayout.Foldout(foldoutHand, "Hand");
+            if (foldoutHand)
+			{
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(Property_EnableNaturalHand, Label_EnableNaturalHand);
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.Space();
+            #endregion
+
+            foldoutCommon = EditorGUILayout.Foldout(foldoutCommon, "Common");
             if (foldoutCommon)
             {
                 EditorGUI.indentLevel++;
@@ -561,6 +589,7 @@ namespace Wave.XR.Settings
                 GUI.enabled = true;
                 EditorGUI.indentLevel--;
             }
+            EditorGUILayout.PropertyField(Property_UseCMPChecker, Label_UseCMPChecker);
         }
 
         public static void RemoveSettings()

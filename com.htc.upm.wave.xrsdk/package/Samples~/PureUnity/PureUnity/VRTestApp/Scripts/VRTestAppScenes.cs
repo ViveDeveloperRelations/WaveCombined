@@ -97,9 +97,6 @@ namespace Wave.Generic.Sample
 
 				new SceneData(Entry, "305 Interaction Mode", "InteractionMode"),
 				new SceneData(Entry, "306 Button Test", "ButtonTest"),
-				new SceneData(Entry, "307 Pass Through", "PassThrough"),
-				new SceneData(Entry, "319 Natural Hand", "NaturalHand"),
-				new SceneData(Entry, "320 Hand Gesture", "HandGesture"),
 
 				//new SceneData(Entry, "307 Movie Mode (no exit)", "MovieMode", NoHelp, NotForPC, cfgD),
 				new SceneData(Entry, "308 RenderDoc", "RenderDocSample", NoHelp, NotForPC, cfgR),
@@ -131,7 +128,11 @@ namespace Wave.Generic.Sample
 
 				new SceneData(Entry, "501 IME Test", "IMETest", NoHelp, NotForPC),
 
+				new SceneData(Entry, "319 Natural Hand", "NaturalHand"),
+				new SceneData(Entry, "320 Hand Gesture", "HandGesture"),
 				new SceneData(Entry, "321 Role Change", "RoleChange"),
+				new SceneData(Entry, "322 Pass Through", "PassThrough"),
+				new SceneData(Entry, "323 Bracelet", "Bracelet"),
 			};
 		}
 

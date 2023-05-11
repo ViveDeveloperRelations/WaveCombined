@@ -67,8 +67,9 @@ namespace Wave.Essence.Raycast
 			bool enabled = RaycastSwitch.Hand.Enabled;
 			bool validPose = HandManager.Instance.IsHandPoseValid(m_Hand);
 			bool hasFocus = ClientInterface.IsFocused;
+			bool valid_motion = (HandManager.Instance.GetHandMotion(m_Hand) != HandManager.HandMotion.None);
 
-			m_Interactable = m_AlwaysEnable || (enabled && validPose && hasFocus);
+			m_Interactable = m_AlwaysEnable || (enabled && validPose && hasFocus && valid_motion);
 
 			if (Log.gpl.Print)
 			{

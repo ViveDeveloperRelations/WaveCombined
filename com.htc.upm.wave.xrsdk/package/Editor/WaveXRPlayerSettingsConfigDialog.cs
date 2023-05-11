@@ -138,13 +138,6 @@ public class WaveXRPlayerSettingsConfigDialog : EditorWindow
 			Set = () => { SetMobileMTRendering(BuildTargetGroup.Android, true); }
 		};
 
-		var graphicsJobs = new Item("Enable Graphics Jobs", true.ToString())
-		{
-			IsReady = () => { return PlayerSettings.graphicsJobs; },
-			GetCurrent = () => { return PlayerSettings.graphicsJobs.ToString(); },
-			Set = () => { PlayerSettings.graphicsJobs = true; }
-		};
-
 		var autoGraphicsAPi = new Item("Set Auto Graphics Api", false.ToString())
 		{
 			IsReady = () => { return (PlayerSettings.GetUseDefaultGraphicsAPIs(BuildTarget.Android) == false); },
@@ -212,7 +205,6 @@ public class WaveXRPlayerSettingsConfigDialog : EditorWindow
 			defaultOrigin,
 			enableMTRendering,
 			gpuSkinning,
-			graphicsJobs,
 			autoGraphicsAPi,
 			graphicsApis,
 			AndroidMinSDK,
