@@ -64,7 +64,7 @@ namespace Wave.Essence.Eye
 		}
 		#endregion
 
-		#region Customized Settings
+		#region Inspector
 		private bool m_EnableEyeTrackingEx = true;
 		[Tooltip("Enables or disables the eye tracking.")]
 		[SerializeField]
@@ -75,22 +75,24 @@ namespace Wave.Essence.Eye
 		[SerializeField]
 		private EyeSpace m_LocationSpace = EyeSpace.World;
 		public EyeSpace LocationSpace { get { return m_LocationSpace; } set { m_LocationSpace = value; } }
+
+		private bool m_NormalizeZ = true;
+		public bool NormalizeZ { get { return m_NormalizeZ; } set { m_NormalizeZ = value; } }
 		#endregion
 
 		#region MonoBehaviour overrides
-		private ulong supportedFeature = 0;
 		private void Awake()
 		{
-			supportedFeature = Interop.WVR_GetSupportedFeatures();
-			INFO("Awake() supportedFeature: " + supportedFeature);
-			// ToDo: Checks if eye tracking is supported.
-			/*if ((supportedFeature & (ulong)WVR_SupportedFeature.WVR_SupportedFeature_EyeTracking) == 0)
-			{
-				Log.w(LOG_TAG, "WVR_SupportedFeature_HandGesture is not enabled.", true);
-				SetEyeTrackingStatus(EyeTrackingStatus.UNSUPPORT);
-			}*/
-
 			m_Instance = this;
+
+			var supportedFeature = Interop.WVR_GetSupportedFeatures();
+			INFO("Awake() supportedFeature: " + supportedFeature);
+
+			if ((supportedFeature & (ulong)WVR_SupportedFeature.WVR_SupportedFeature_EyeTracking) == 0)
+			{
+				Log.w(LOG_TAG, "WVR_SupportedFeature_EyeTracking is not enabled.", true);
+				SetEyeTrackingStatus(EyeTrackingStatus.UNSUPPORT);
+			}
 		}
 		private bool mEnabled = false;
 		private void OnEnable()
@@ -129,7 +131,26 @@ namespace Wave.Essence.Eye
 			}
 
 			if (m_EnableEyeTracking)
+			{
 				GetEyeTrackingData();
+				if (Log.gpl.Print)
+				{
+					DEBUG("Update() m_LocationSpace: " + m_LocationSpace + ", hasEyeTrackingData: " + hasEyeTrackingData);
+					DEBUG("Update() m_CombinedEyeOriginValid: " + m_CombinedEyeOriginValid
+						+ ", m_CombinedEyeOrigin (" + m_CombinedEyeOrigin.x.ToString() + ", " + m_CombinedEyeOrigin.y.ToString() + ", " + m_CombinedEyeOrigin.z.ToString() + ")"
+						+ ", m_CombinedEyeDirectionValid: " + m_CombinedEyeDirectionValid
+						+ ", m_CombinedEyeDirection (" + m_CombinedEyeDirection.x.ToString() + ", " + m_CombinedEyeDirection.y.ToString() + ", " + m_CombinedEyeDirection.z.ToString() + ")");
+					DEBUG("Update() m_LeftEyeOriginValid: " + m_LeftEyeOriginValid
+						+ ", m_LeftEyeOrigin (" + m_LeftEyeOrigin.x.ToString() + ", " + m_LeftEyeOrigin.y.ToString() + ", " + m_LeftEyeOrigin.z.ToString() + ")"
+						+ ", m_LeftEyeDirectionValid: " + m_LeftEyeDirectionValid
+						+ ", m_LeftEyeDirection (" + m_LeftEyeDirection.x.ToString() + ", " + m_LeftEyeDirection.y.ToString() + ", " + m_LeftEyeDirection.z.ToString() + ")");
+					DEBUG("Update() m_RightEyeOriginValid: " + m_RightEyeOriginValid
+						+ ", m_RightEyeOrigin (" + m_RightEyeOrigin.x.ToString() + ", " + m_RightEyeOrigin.y.ToString() + ", " + m_RightEyeOrigin.z.ToString() + ")"
+						+ ", m_RightEyeDirectionValid: " + m_RightEyeDirectionValid
+						+ ", m_RightEyeDirection (" + m_RightEyeDirection.x.ToString() + ", " + m_RightEyeDirection.y.ToString() + ", " + m_RightEyeDirection.z.ToString() + ")"
+						);
+				}
+			}
 		}
 		#endregion
 
@@ -324,7 +345,10 @@ namespace Wave.Essence.Eye
 					m_CombinedEyeDirectionValid = 
 						((m_EyeData.combined.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_GazeDirectionNormalizedValid) != 0);
 					if (m_CombinedEyeDirectionValid)
+					{
 						Coordinate.GetVectorFromGL(m_EyeData.combined.gazeDirectionNormalized, out m_CombinedEyeDirection);
+						if (m_NormalizeZ) { Coordinate.Vector3NormalizeZ(ref m_CombinedEyeDirection); }
+					}
 
 					/// Left eye data.
 					m_LeftEyeOriginValid =
@@ -334,7 +358,11 @@ namespace Wave.Essence.Eye
 
 					m_LeftEyeDirectionValid =
 						((m_EyeData.left.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_GazeDirectionNormalizedValid) != 0);
-					Coordinate.GetVectorFromGL(m_EyeData.left.gazeDirectionNormalized, out m_LeftEyeDirection);
+					if (m_LeftEyeDirectionValid)
+					{
+						Coordinate.GetVectorFromGL(m_EyeData.left.gazeDirectionNormalized, out m_LeftEyeDirection);
+						if (m_NormalizeZ) { Coordinate.Vector3NormalizeZ(ref m_LeftEyeDirection); }
+					}
 
 					m_LeftEyeOpennessValid =
 						((m_EyeData.left.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_EyeOpennessValid) != 0);
@@ -356,37 +384,45 @@ namespace Wave.Essence.Eye
 
 					/// Right eye data.
 					m_RightEyeOriginValid =
-						((m_EyeData.left.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_GazeOriginValid) != 0);
+						((m_EyeData.right.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_GazeOriginValid) != 0);
 					if (m_RightEyeOriginValid)
-						Coordinate.GetVectorFromGL(m_EyeData.left.gazeOrigin, out m_RightEyeOrigin);
+						Coordinate.GetVectorFromGL(m_EyeData.right.gazeOrigin, out m_RightEyeOrigin);
 
 					m_RightEyeDirectionValid =
-						((m_EyeData.left.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_GazeDirectionNormalizedValid) != 0);
-					Coordinate.GetVectorFromGL(m_EyeData.left.gazeDirectionNormalized, out m_RightEyeDirection);
+						((m_EyeData.right.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_GazeDirectionNormalizedValid) != 0);
+					if (m_RightEyeDirectionValid)
+					{
+						Coordinate.GetVectorFromGL(m_EyeData.right.gazeDirectionNormalized, out m_RightEyeDirection);
+						if (m_NormalizeZ) { Coordinate.Vector3NormalizeZ(ref m_RightEyeDirection); }
+					}
 
 					m_RightEyeOpennessValid =
-						((m_EyeData.left.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_EyeOpennessValid) != 0);
+						((m_EyeData.right.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_EyeOpennessValid) != 0);
 					if (m_RightEyeOpennessValid)
-						m_RightEyeOpenness = m_EyeData.left.eyeOpenness;
+						m_RightEyeOpenness = m_EyeData.right.eyeOpenness;
 
 					m_RightEyePupilDiameterValid =
-						((m_EyeData.left.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_PupilDiameterValid) != 0);
+						((m_EyeData.right.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_PupilDiameterValid) != 0);
 					if (m_RightEyePupilDiameterValid)
-						m_RightEyePupilDiameter = m_EyeData.left.pupilDiameter;
+						m_RightEyePupilDiameter = m_EyeData.right.pupilDiameter;
 
 					m_RightEyePupilPositionInSensorAreaValid =
-						((m_EyeData.left.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_PupilPositionInSensorAreaValid) != 0);
+						((m_EyeData.right.eyeTrackingValidBitMask & (ulong)WVR_EyeTrackingStatus.WVR_PupilPositionInSensorAreaValid) != 0);
 					if (m_RightEyePupilPositionInSensorAreaValid)
 					{
-						m_RightEyePupilPositionInSensorArea.x = m_EyeData.left.pupilPositionInSensorArea.v0;
-						m_RightEyePupilPositionInSensorArea.y = m_EyeData.left.pupilPositionInSensorArea.v1;
+						m_RightEyePupilPositionInSensorArea.x = m_EyeData.right.pupilPositionInSensorArea.v0;
+						m_RightEyePupilPositionInSensorArea.y = m_EyeData.right.pupilPositionInSensorArea.v1;
 					}
 				}
+			}
+			else
+			{
+				hasEyeTrackingData = false;
 			}
 		}
 		#endregion
 
-		#region Public API
+		#region Public Functions
 		/// <summary> Retrieves current eye tracking service status. </summary>
 		public EyeTrackingStatus GetEyeTrackingStatus()
 		{
@@ -409,8 +445,32 @@ namespace Wave.Essence.Eye
 		public bool IsEyeTrackingAvailable()
 		{
 			EyeTrackingStatus status = GetEyeTrackingStatus();
-			if (status == EyeTrackingStatus.AVAILABLE && hasEyeTrackingData)
+			if (status == EyeTrackingStatus.AVAILABLE)
 				return true;
+
+			return false;
+		}
+		/// <summary> Checks if the eye tracking data is provided. </summary>
+		public bool HasEyeTrackingData() { return hasEyeTrackingData; }
+
+		/// <summary> Retrieves the origin location of specified eye. </summary>
+		public bool GetEyeOrigin(EyeType eye, out Vector3 origin)
+		{
+			origin = Vector3.zero;
+
+			if (eye == EyeType.Combined) { return GetCombinedEyeOrigin(out origin); }
+			if (eye == EyeType.Left) { return GetLeftEyeOrigin(out origin); }
+			if (eye == EyeType.Right) { return GetRightEyeOrigin(out origin); }
+
+			return false;
+		}
+		public bool GetEyeDirectionNormalized(EyeType eye, out Vector3 direction)
+		{
+			direction = Vector3.zero;
+
+			if (eye == EyeType.Combined) { return GetCombindedEyeDirectionNormalized(out direction); }
+			if (eye == EyeType.Left) { return GetLeftEyeDirectionNormalized(out direction); }
+			if (eye == EyeType.Right) { return GetRightEyeDirectionNormalized(out direction); }
 
 			return false;
 		}
@@ -419,7 +479,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the origin location of combined eye. </summary>
 		public bool GetCombinedEyeOrigin(out Vector3 origin)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				origin = Vector3.zero;
 				return false;
@@ -430,7 +490,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the looking direction (z-normalized) of combined eye. </summary>
 		public bool GetCombindedEyeDirectionNormalized(out Vector3 direction)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				direction = Vector3.zero;
 				return false;
@@ -443,7 +503,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the origin location of left eye. </summary>
 		public bool GetLeftEyeOrigin(out Vector3 origin)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				origin = Vector3.zero;
 				return false;
@@ -454,7 +514,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the looking direction (z-normalized) of left eye. </summary>
 		public bool GetLeftEyeDirectionNormalized(out Vector3 direction)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				direction = Vector3.zero;
 				return false;
@@ -465,7 +525,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the value representing how open the left eye is. </summary>
 		public bool GetLeftEyeOpenness(out float openness)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				openness = 0;
 				return false;
@@ -476,7 +536,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the diameter of left eye pupil in millimeters. </summary>
 		public bool GetLeftEyePupilDiameter(out float diameter)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				diameter = 0;
 				return false;
@@ -487,7 +547,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the normalized position of left eye pupil in [0,1]. </summary>
 		public bool GetLeftEyePupilPositionInSensorArea(out Vector2 area)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				area = Vector2.zero;
 				return false;
@@ -500,7 +560,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the origin location of right eye. </summary>
 		public bool GetRightEyeOrigin(out Vector3 origin)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				origin = Vector3.zero;
 				return false;
@@ -511,7 +571,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the looking direction (z-normalized) of right eye. </summary>
 		public bool GetRightEyeDirectionNormalized(out Vector3 direction)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				direction = Vector3.zero;
 				return false;
@@ -522,7 +582,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the value representing how open the right eye is. </summary>
 		public bool GetRightEyeOpenness(out float openness)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				openness = 0;
 				return false;
@@ -533,7 +593,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the diameter of right eye pupil in millimeters. </summary>
 		public bool GetRightEyePupilDiameter(out float diameter)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				diameter = 0;
 				return false;
@@ -544,7 +604,7 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves the normalized position of right eye pupil in [0,1]. </summary>
 		public bool GetRightEyePupilPositionInSensorArea(out Vector2 area)
 		{
-			if (!IsEyeTrackingAvailable())
+			if (!hasEyeTrackingData)
 			{
 				area = Vector2.zero;
 				return false;

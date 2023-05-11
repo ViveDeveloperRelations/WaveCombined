@@ -63,10 +63,14 @@ namespace Wave.Generic.Sample
 		// For showing your scene in VRTestApp, you need add your scenes into this function's return list.
 		public static List<SceneData> GetPredefinedScenesData()
 		{
+#pragma warning disable
 			const SceneBuildConfiguration cfgVR = SceneBuildConfiguration.VerificationAndRelease;  // default
+#pragma warning restore
 			const SceneBuildConfiguration cfgR = SceneBuildConfiguration.Release;
 			const SceneBuildConfiguration cfgV = SceneBuildConfiguration.Verification;
+#pragma warning disable
 			const SceneBuildConfiguration cfgD = SceneBuildConfiguration.Development;
+#pragma warning restore
 			const SceneBuildConfiguration cfgA = SceneBuildConfiguration.AlwaysBuild;
 			const bool NotForPC = false;
 			const bool HasHelp = true;
@@ -92,6 +96,7 @@ namespace Wave.Generic.Sample
 				new SceneData(NotEntry, NoTitle, "AQDR_Loading"),
 				new SceneData(Entry, "210 FadeOut Test", "FadeOut_Test", NoHelp, NotForPC),
 				new SceneData(Entry, "211 FSE Test", "FSE_Test", NoHelp, NotForPC),
+				new SceneData(Entry, "212 PassThroughOverlay Test", "PassThroughOverlay", NoHelp, NotForPC),
 
 				new SceneData(Entry, "304 WaveControllerTest", "WaveControllerTest"),
 
@@ -133,6 +138,8 @@ namespace Wave.Generic.Sample
 				new SceneData(Entry, "321 Role Change", "RoleChange"),
 				new SceneData(Entry, "322 Pass Through", "PassThrough"),
 				new SceneData(Entry, "323 Bracelet", "Bracelet"),
+				new SceneData(Entry, "324 Lip Expression", "LipExp"),
+				new SceneData(Entry, "325 Eye Tracking", "RaycastEyeTracking"),
 			};
 		}
 

@@ -135,6 +135,13 @@ namespace Wave.Essence.Raycast
 			if (!IsInteractable()) { return; }
 
 			UpdateButtonStates();
+
+			if (Log.gpl.Print)
+			{
+				DEBUG("Update() m_ControlKey.Primary2DAxisClick: " + m_ControlKey.Primary2DAxisClick
+					+ ", m_ControlKey.TriggerButton: " + m_ControlKey.TriggerButton
+					);
+			}
 		}
 		protected override void Start()
 		{
@@ -199,7 +206,7 @@ namespace Wave.Essence.Raycast
 			bool hasFocus = ClientInterface.IsFocused;
 			bool hideWhenIdle = m_HideWhenIdle && m_TableStatic;
 
-			m_Interactable = m_AlwaysEnable || (enabled && validPose && hasFocus && (!hideWhenIdle));
+			m_Interactable = (m_AlwaysEnable || enabled) && validPose && hasFocus && (!hideWhenIdle);
 
 			if (Log.gpl.Print)
 			{
@@ -246,13 +253,12 @@ namespace Wave.Essence.Raycast
 					down |= (m_ControlKey.State[i] && !m_ControlKey.StateEx[i]);
 					hold |= (m_ControlKey.State[i]);
 
-					/*if (hold)
+					if (down)
 					{
 						DEBUG("UpdateButtonStates() " +
 							", " + m_ControlKey.OptionList[i].name +
-							", down: " + down +
-							", hold: " + hold);
-					}*/
+							", down: " + down);
+					}
 				}
 			}
 		}

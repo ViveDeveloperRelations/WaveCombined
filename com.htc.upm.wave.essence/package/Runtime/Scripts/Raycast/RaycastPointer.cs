@@ -110,7 +110,7 @@ namespace Wave.Essence.Raycast
 		protected Vector3 pointerPosition = Vector3.zero;
 		private void DrawRayPointer()
 		{
-			Vector3 hit = GetIntersectionPosition(eventCamera, currentRaycastResult);
+			Vector3 hit = GetIntersectionPosition(eventCamera, pointerData.pointerCurrentRaycast);
 
 			rayStart = transform.position;
 			if (raycastObject != null)

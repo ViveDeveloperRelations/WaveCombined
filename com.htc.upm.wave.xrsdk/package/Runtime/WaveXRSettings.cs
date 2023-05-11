@@ -182,8 +182,8 @@ namespace Wave.XR.Settings
         public const string EnableTrackerText = "EnableTracker";
         #endregion
 
-        #region Hand
-        [SerializeField, Tooltip("Select to enable the Natural Hand feature when AP starts.")]
+		#region Hand
+		[SerializeField, Tooltip("Select to enable the Natural Hand feature when AP starts.")]
         public bool EnableNaturalHand = false;
         public const string EnableNaturalHandText = "EnableNaturalHand";
 

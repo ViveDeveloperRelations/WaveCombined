@@ -9,11 +9,11 @@
 // specifications, and documentation provided by HTC to You."
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 using Wave.Native;
+using Wave.Essence.Eye;
 
 namespace Wave.Essence.Raycast
 {
@@ -78,6 +78,16 @@ namespace Wave.Essence.Raycast
 		}
 
 		#region Inspector
+		[SerializeField]
+		[Tooltip("Use Eye Tracking data for Gaze.")]
+		private bool m_EyeTracking = false;
+		public bool EyeTracking { get { return m_EyeTracking; } set { m_EyeTracking = value; } }
+
+		[Tooltip("Which eye's data")]
+		[SerializeField]
+		private EyeManager.EyeType m_Eye = EyeManager.EyeType.Combined;
+		public EyeManager.EyeType Eye { get { return m_Eye; } set { m_Eye = value; } }
+
 		[Tooltip("Event triggered by gaze.")]
 		[SerializeField]
 		private GazeEvent m_InputEvent = GazeEvent.Down;
@@ -112,6 +122,15 @@ namespace Wave.Essence.Raycast
 			if (!IsInteractable()) { return; }
 
 			m_KeyDown = ButtonPressed();
+
+			if (Log.gpl.Print)
+			{
+				DEBUG("Update() m_InputEvent: " + m_InputEvent
+					+ ", m_AlwaysEnable: " + m_AlwaysEnable
+					+ ", m_ControlKey.Primary2DAxisClick: " + m_ControlKey.Primary2DAxisClick
+					+ ", m_ControlKey.TriggerButton: " + m_ControlKey.TriggerButton
+					);
+			}
 		}
 		#endregion
 
@@ -120,7 +139,7 @@ namespace Wave.Essence.Raycast
 			bool enabled = RaycastSwitch.Gaze.Enabled;
 			bool hasFocus = ClientInterface.IsFocused;
 
-			m_Interactable = m_AlwaysEnable || (enabled && hasFocus);
+			m_Interactable = (m_AlwaysEnable || enabled) && hasFocus;
 
 			if (Log.gpl.Print)
 			{
@@ -161,6 +180,27 @@ namespace Wave.Essence.Raycast
 			return down;
 		}
 
+		protected override bool UseEyeData(out Vector3 direction, out EyeManager.EyeSpace space)
+		{
+			bool useEye = m_EyeTracking && (EyeManager.Instance != null) && EyeManager.Instance.HasEyeTrackingData();
+
+			if (Log.gpl.Print)
+			{
+				DEBUG("UseEyeData() m_EyeTracking: " + m_EyeTracking + ", m_Eye: " + m_Eye);
+			}
+
+			if (!useEye) { return base.UseEyeData(out direction, out space); }
+
+			direction = Vector3.forward;
+			if (EyeManager.Instance.GetEyeDirectionNormalized(m_Eye, out Vector3 value))
+			{
+				direction = value;
+			}
+			space = EyeManager.Instance.LocationSpace;
+
+			return useEye;
+		}
+
 		#region RaycastImpl Actions overrides
 		protected override bool OnDown()
 		{
@@ -172,6 +212,7 @@ namespace Wave.Essence.Raycast
 				m_RingPercent = 0;
 				m_GazeOnTime = Time.unscaledTime;
 				down = true;
+				DEBUG("OnDown()");
 			}
 
 			return down;
@@ -186,6 +227,7 @@ namespace Wave.Essence.Raycast
 				m_RingPercent = 0;
 				m_GazeOnTime = Time.unscaledTime;
 				submit = true;
+				DEBUG("OnSubmit()");
 			}
 
 			return submit;

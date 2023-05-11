@@ -129,6 +129,9 @@ namespace Wave.Native
 		WVR_DeviceType_NaturalHand_Left		= 9,    /**< Left natural hand. */
 		WVR_DeviceType_ElectronicHand_Right = 10,   /**< Right electronic hand. */
 		WVR_DeviceType_ElectronicHand_Left	= 11,   /**< Left electronic hand. */
+		WVR_DeviceType_Tracker				= 12,   /**< Tracker. */
+		WVR_DeviceType_Lip					= 13,   /**< Lip and lower face detection device */
+		WVR_DeviceType_EyeExpression		= 14,   /**< Eye expression */
 	};
 
 	public enum WVR_RecenterType
@@ -137,6 +140,7 @@ namespace Wave.Native
 		WVR_RecenterType_YawOnly = 1,
 		WVR_RecenterType_YawAndPosition = 2,
 		WVR_RecenterType_RotationAndPosition = 3,
+		WVR_RecenterType_Position = 4,
 	};
 
 	public enum WVR_InputType
@@ -1460,6 +1464,57 @@ namespace Wave.Native
 		[FieldOffset(3)] public bool supportsHapticVibration;
 		[FieldOffset(4)] public bool supportsBatteryLevel;
 	}
+
+	public delegate void WVR_TrackerInfoCallback(WVR_TrackerId trackerId, IntPtr cbInfo, ref UInt64 timestamp);
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_TrackerInfoNotify
+	{
+		public WVR_TrackerInfoCallback callback;
+	}
+	#endregion
+
+	#region Lip Expression
+	public enum WVR_LipExpression {
+		WVR_LipExpression_Jaw_Right = 0,
+		WVR_LipExpression_Jaw_Left = 1,
+		WVR_LipExpression_Jaw_Forward = 2,
+		WVR_LipExpression_Jaw_Open = 3,
+		WVR_LipExpression_Mouth_Ape_Shape = 4,
+		WVR_LipExpression_Mouth_Upper_Right = 5,		// 5
+		WVR_LipExpression_Mouth_Upper_Left = 6,
+		WVR_LipExpression_Mouth_Lower_Right = 7,
+		WVR_LipExpression_Mouth_Lower_Left = 8,
+		WVR_LipExpression_Mouth_Upper_Overturn = 9,
+		WVR_LipExpression_Mouth_Lower_Overturn = 10,	// 10
+		WVR_LipExpression_Mouth_Pout = 11,
+		WVR_LipExpression_Mouth_Smile_Right = 12,
+		WVR_LipExpression_Mouth_Smile_Left = 13,
+		WVR_LipExpression_Mouth_Sad_Right = 14,
+		WVR_LipExpression_Mouth_Sad_Left = 15,			// 15
+		WVR_LipExpression_Cheek_Puff_Right = 16,
+		WVR_LipExpression_Cheek_Puff_Left = 17,
+		WVR_LipExpression_Cheek_Suck = 18,
+		WVR_LipExpression_Mouth_Upper_Upright = 19,
+		WVR_LipExpression_Mouth_Upper_Upleft = 20,		// 20
+		WVR_LipExpression_Mouth_Lower_Downright = 21,
+		WVR_LipExpression_Mouth_Lower_Downleft = 22,
+		WVR_LipExpression_Mouth_Upper_Inside = 23,
+		WVR_LipExpression_Mouth_Lower_Inside = 24,
+		WVR_LipExpression_Mouth_Lower_Overlay = 25,		// 25
+		WVR_LipExpression_Tongue_Longstep1 = 26,
+		WVR_LipExpression_Tongue_Left = 27,
+		WVR_LipExpression_Tongue_Right = 28,
+		WVR_LipExpression_Tongue_Up = 29,
+		WVR_LipExpression_Tongue_Down = 30,				// 30
+		WVR_LipExpression_Tongue_Roll = 31,
+		WVR_LipExpression_Tongue_Longstep2 = 32,
+		WVR_LipExpression_Tongue_Upright_Morph = 33,
+		WVR_LipExpression_Tongue_Upleft_Morph = 34,
+		WVR_LipExpression_Tongue_Downright_Morph = 35,	// 35
+		WVR_LipExpression_Tongue_Downleft_Morph = 36,
+		WVR_LipExpression_Max
+	}
 	#endregion
 
 	public enum WVR_SupportedFeature {
@@ -1471,7 +1526,9 @@ namespace Wave.Native
 		WVR_SupportedFeature_ElectronicHand     = 1 << 6,    /**< Electronic hand feature type */
 		WVR_SupportedFeature_ColorGamutsRGB     = 1 << 7,    /**< Color gamut sRGB */
 		WVR_SupportedFeature_ColorGamutP3       = 1 << 8,    /**< Color gamut P3 */
-
+		WVR_SupportedFeature_EyeTracking        = 1 << 9,    /**< Tracking of Eye */
+		WVR_SupportedFeature_EyeExp             = 1 << 10,   /**< Expression of Eye; Wide, Squeeze, Frown*/
+		WVR_SupportedFeature_LipExp             = 1 << 11,   /**< Expression of Lip; Jaw, Mouth, Cheek, Tongue*/
 		WVR_SupportedFeature_Tracker            = 1 << 16,   /**< Tracker feature type */
 	}
 
@@ -1946,6 +2003,45 @@ namespace Wave.Native
 		{
 			return WVR_Base.Instance.GetTrackerExtendedData(trackerId, ref exDataSize);
 		}
+
+		public static WVR_Result WVR_RegisterTrackerInfoCallback(ref WVR_TrackerInfoNotify notify)
+		{
+			return WVR_Base.Instance.RegisterTrackerInfoCallback(ref notify);
+		}
+		public static WVR_Result WVR_UnregisterTrackerInfoCallback()
+		{
+			return WVR_Base.Instance.UnregisterTrackerInfoCallback();
+		}
+		#endregion
+
+		#region wvr_notifydeviceinfo.h
+		public static WVR_Result WVR_StartNotifyDeviceInfo(WVR_DeviceType type, UInt32 unBufferSize)
+		{
+			return WVR_Base.Instance.StartNotifyDeviceInfo(type, unBufferSize);
+		}
+		public static void WVR_StopNotifyDeviceInfo(WVR_DeviceType type)
+		{
+			WVR_Base.Instance.StopNotifyDeviceInfo(type);
+		}
+		public static void WVR_UpdateNotifyDeviceInfo(WVR_DeviceType type, IntPtr dataValue)
+		{
+			WVR_Base.Instance.UpdateNotifyDeviceInfo(type, dataValue);
+		}
+		#endregion
+
+		#region Lip Expression
+		public static WVR_Result WVR_StartLipExp()
+		{
+			return WVR_Base.Instance.StartLipExp();
+		}
+		public static WVR_Result WVR_GetLipExpData([In, Out] float[] value)
+		{
+			return WVR_Base.Instance.GetLipExpData(value);
+		}
+		public static void WVR_StopLipExp()
+		{
+			WVR_Base.Instance.StopLipExp();
+		}
 		#endregion
 
 		public static ulong WVR_GetSupportedFeatures()
@@ -2309,6 +2405,26 @@ namespace Wave.Native
 		public static bool WVR_IsPassthroughOverlayVisible()
 		{
 			return WVR_Base.Instance.IsPassthroughOverlayVisible();
+		}
+
+		public static WVR_Result WVR_SetProjectedPassthroughPose(ref WVR_Pose_t pose)
+		{
+			return WVR_Base.Instance.SetProjectedPassthroughPose(ref pose);
+		}
+
+		public static WVR_Result WVR_SetProjectedPassthroughMesh(float[] vertexBuffer, uint vertextCount, uint[] indices, uint indexCount)
+		{
+			return WVR_Base.Instance.SetProjectedPassthroughMesh(vertexBuffer, vertextCount, indices, indexCount);
+		}
+
+		public static WVR_Result WVR_SetProjectedPassthroughAlpha(float alpha)
+		{
+			return WVR_Base.Instance.SetProjectedPassthroughAlpha(alpha);
+		}
+
+		public static WVR_Result WVR_ShowProjectedPassthrough(bool show)
+		{
+			return WVR_Base.Instance.ShowProjectedPassthrough(show);
 		}
 
 		/**
@@ -2851,6 +2967,41 @@ namespace Wave.Native
 			{
 				return IntPtr.Zero;
 			}
+			public virtual WVR_Result RegisterTrackerInfoCallback(ref WVR_TrackerInfoNotify notify)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			public virtual WVR_Result UnregisterTrackerInfoCallback()
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			#endregion
+
+			#region wvr_notifydeviceinfo.h
+			public virtual WVR_Result StartNotifyDeviceInfo(WVR_DeviceType type, UInt32 unBufferSize)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			public virtual void StopNotifyDeviceInfo(WVR_DeviceType type)
+			{
+			}
+			public virtual void UpdateNotifyDeviceInfo(WVR_DeviceType type, IntPtr dataValue)
+			{
+			}
+			#endregion
+
+			#region Lip Expression
+			public virtual WVR_Result StartLipExp()
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			public virtual WVR_Result GetLipExpData([In, Out] float[] value)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			public virtual void StopLipExp()
+			{
+			}
 			#endregion
 
 			public virtual ulong GetSupportedFeatures()
@@ -3164,6 +3315,26 @@ namespace Wave.Native
 			public virtual bool SetChecker(bool enable)
 			{
 				return false;
+			}
+
+			public virtual WVR_Result SetProjectedPassthroughPose(ref WVR_Pose_t pose)
+			{
+				return WVR_Result.WVR_Success;
+			}
+
+			public virtual WVR_Result SetProjectedPassthroughMesh(float[] vertexBuffer, uint vertextCount, uint[] indices, uint indexCount)
+			{
+				return WVR_Result.WVR_Success;
+			}
+
+			public virtual WVR_Result SetProjectedPassthroughAlpha(float alpha)
+			{
+				return WVR_Result.WVR_Success;
+			}
+
+			public virtual WVR_Result ShowProjectedPassthrough(bool show)
+			{
+				return WVR_Result.WVR_Success;
 			}
 
 			public virtual WVR_Result GetCurrentControllerModel(WVR_DeviceType type, ref IntPtr ctrlerModel /* WVR_CtrlerModel* */, bool isOneBone)

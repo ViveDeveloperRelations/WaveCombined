@@ -324,6 +324,20 @@ namespace Wave.Native
 		{
 			return WVR_GetTrackerExtendedData(trackerId, ref exDataSize);
 		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_RegisterTrackerInfoCallback", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_RegisterTrackerInfoCallback(ref WVR_TrackerInfoNotify notify);
+		public override WVR_Result RegisterTrackerInfoCallback(ref WVR_TrackerInfoNotify notify)
+		{
+			return WVR_RegisterTrackerInfoCallback(ref notify);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_UnregisterTrackerInfoCallback", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_UnregisterTrackerInfoCallback();
+		public override WVR_Result UnregisterTrackerInfoCallback()
+		{
+			return WVR_UnregisterTrackerInfoCallback();
+		}
 		#endregion
 
 		#region wvr_arena.h
@@ -535,6 +549,52 @@ namespace Wave.Native
 		public override void SetMixMode(bool enable)
 		{
 			WVR_SetMixMode(enable);
+		}
+		#endregion
+
+		#region wvr_notifydeviceinfo.h
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StartNotifyDeviceInfo", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StartNotifyDeviceInfo(WVR_DeviceType type, UInt32 unBufferSize);
+		public override WVR_Result StartNotifyDeviceInfo(WVR_DeviceType type, UInt32 unBufferSize)
+		{
+			return WVR_StartNotifyDeviceInfo(type, unBufferSize);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StopNotifyDeviceInfo", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_StopNotifyDeviceInfo(WVR_DeviceType type);
+		public override void StopNotifyDeviceInfo(WVR_DeviceType type)
+		{
+			WVR_StopNotifyDeviceInfo(type);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_UpdateNotifyDeviceInfo", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_UpdateNotifyDeviceInfo(WVR_DeviceType type, IntPtr dataValue);
+		public override void UpdateNotifyDeviceInfo(WVR_DeviceType type, IntPtr dataValue)
+		{
+			WVR_UpdateNotifyDeviceInfo(type, dataValue);
+		}
+		#endregion
+
+		#region wvr_lip_expression.h
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StartLipExp", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StartLipExp();
+		public override WVR_Result StartLipExp()
+		{
+			return WVR_StartLipExp();
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetLipExpData", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetLipExpData([In, Out] float[] value);
+		public override WVR_Result GetLipExpData([In, Out] float[] value)
+		{
+			return WVR_GetLipExpData(value);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StopLipExp", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_StopLipExp();
+		public override void StopLipExp()
+		{
+			WVR_StopLipExp();
 		}
 		#endregion
 
@@ -972,6 +1032,33 @@ namespace Wave.Native
 		public override bool SetChecker(bool enable)
 		{
 			return WVR_SetChecker_Android(enable);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetProjectedPassthroughPose", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_SetProjectedPassthroughPose_Android(ref WVR_Pose_t pose);
+		public override WVR_Result SetProjectedPassthroughPose(ref WVR_Pose_t pose)
+		{
+			return WVR_SetProjectedPassthroughPose_Android(ref pose);
+		}
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetProjectedPassthroughMesh", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_SetProjectedPassthroughMesh_Android(float[] vertexBuffer, uint vertextCount, uint[] indices, uint indexCount);
+		public override WVR_Result SetProjectedPassthroughMesh(float[] vertexBuffer, uint vertextCount, uint[] indices, uint indexCount)
+		{
+			return WVR_SetProjectedPassthroughMesh_Android(vertexBuffer, vertextCount, indices, indexCount);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetProjectedPassthroughAlpha", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_SetProjectedPassthroughAlpha_Android(float alpha);
+		public override WVR_Result SetProjectedPassthroughAlpha(float alpha)
+		{
+			return WVR_SetProjectedPassthroughAlpha_Android(alpha);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_ShowProjectedPassthrough", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_ShowProjectedPassthrough_Android(bool show);
+		public override WVR_Result ShowProjectedPassthrough(bool show)
+		{
+			return WVR_ShowProjectedPassthrough_Android(show);
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetAMCMode", CallingConvention = CallingConvention.Cdecl)]

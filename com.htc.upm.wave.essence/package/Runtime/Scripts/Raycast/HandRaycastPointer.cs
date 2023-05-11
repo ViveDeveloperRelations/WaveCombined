@@ -58,6 +58,11 @@ namespace Wave.Essence.Raycast
 				transform.localPosition = origin;
 				transform.localRotation = Quaternion.LookRotation(direction);
 			}
+
+			if (Log.gpl.Print)
+			{
+				DEBUG("Update() m_UsePose: " + m_UsePose + ", m_PinchStrength: " + m_PinchStrength);
+			}
 		}
 
 		private bool IsInteractable()
@@ -69,7 +74,7 @@ namespace Wave.Essence.Raycast
 			bool hasFocus = ClientInterface.IsFocused;
 			bool valid_motion = (HandManager.Instance.GetHandMotion(m_Hand) != HandManager.HandMotion.None);
 
-			m_Interactable = m_AlwaysEnable || (enabled && validPose && hasFocus && valid_motion);
+			m_Interactable = (m_AlwaysEnable || enabled) && validPose && hasFocus && valid_motion;
 
 			if (Log.gpl.Print)
 			{

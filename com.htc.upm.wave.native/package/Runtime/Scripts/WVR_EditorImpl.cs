@@ -1813,9 +1813,9 @@ namespace Wave.Native
 		private const int gazeFramesInterval = 300;
 		private void UpdateGazePoint()
 		{
+			eyeGazeOrigin = GetOpenGLPos(headPosition);
 			if (gazeFrames == 0)
 			{
-				eyeGazeOrigin = GetOpenGLPos(GetHeadPosition());
 				gazeDirectionArrayIndex++;
 				gazeDirectionArrayIndex %= gazeDirectionArray.Length;
 				eyeGazeDirection = GetOpenGLPos(gazeDirectionArray[gazeDirectionArrayIndex]);
@@ -2893,6 +2893,79 @@ namespace Wave.Native
 		#endregion
 		#endregion
 
+		#region Lip Expression
+		private readonly WVR_LipExpression[] s_LipExpressions = new WVR_LipExpression[]
+		{
+			WVR_LipExpression.WVR_LipExpression_Jaw_Right,
+			WVR_LipExpression.WVR_LipExpression_Jaw_Left,
+			WVR_LipExpression.WVR_LipExpression_Jaw_Forward,
+			WVR_LipExpression.WVR_LipExpression_Jaw_Open,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Ape_Shape,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Upper_Right,		// 5
+			WVR_LipExpression.WVR_LipExpression_Mouth_Upper_Left,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Lower_Right,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Lower_Left,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Upper_Overturn,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Lower_Overturn,	// 10
+			WVR_LipExpression.WVR_LipExpression_Mouth_Pout,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Smile_Right,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Smile_Left,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Sad_Right,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Sad_Left,			// 15
+			WVR_LipExpression.WVR_LipExpression_Cheek_Puff_Right,
+			WVR_LipExpression.WVR_LipExpression_Cheek_Puff_Left,
+			WVR_LipExpression.WVR_LipExpression_Cheek_Suck,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Upper_Upright,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Upper_Upleft,		// 20
+			WVR_LipExpression.WVR_LipExpression_Mouth_Lower_Downright,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Lower_Downleft,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Upper_Inside,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Lower_Inside,
+			WVR_LipExpression.WVR_LipExpression_Mouth_Lower_Overlay,	// 25
+			WVR_LipExpression.WVR_LipExpression_Tongue_Longstep1,
+			WVR_LipExpression.WVR_LipExpression_Tongue_Left,
+			WVR_LipExpression.WVR_LipExpression_Tongue_Right,
+			WVR_LipExpression.WVR_LipExpression_Tongue_Up,
+			WVR_LipExpression.WVR_LipExpression_Tongue_Down,			// 30
+			WVR_LipExpression.WVR_LipExpression_Tongue_Roll,
+			WVR_LipExpression.WVR_LipExpression_Tongue_Longstep2,
+			WVR_LipExpression.WVR_LipExpression_Tongue_Upright_Morph,
+			WVR_LipExpression.WVR_LipExpression_Tongue_Upleft_Morph,
+			WVR_LipExpression.WVR_LipExpression_Tongue_Downright_Morph,	// 35
+			WVR_LipExpression.WVR_LipExpression_Tongue_Downleft_Morph,
+		};
+		private readonly float[] s_LipExpValues = new float[]
+		{
+			.1f, .2f, .3f, .4f, .5f, .6f, .7f, .8f, .9f
+		};
+
+		private bool m_LipExpEnabled = false;
+		public WVR_Result StartLipExp()
+		{
+			if (!m_LipExpEnabled)
+			{
+				m_LipExpEnabled = true;
+				DEBUG("StartLipExp()");
+				return WVR_Result.WVR_Success;
+			}
+			return WVR_Result.WVR_Error_FeatureNotSupport;
+		}
+		public WVR_Result GetLipExpData([In, Out] float[] value)
+		{
+			if (!m_LipExpEnabled) { return WVR_Result.WVR_Error_FeatureNotSupport; }
+
+			int size = Math.Min(value.Length, s_LipExpValues.Length);
+			for (int i = 0; i < size; i++)
+				value[i] = s_LipExpValues[i];
+
+			return WVR_Result.WVR_Success;
+		}
+		public void StopLipExp()
+		{
+			m_LipExpEnabled = false;
+		}
+		#endregion
+
 		#region Controller Pose Mode
 		WVR_ControllerPoseMode m_RightControllerPoseMode = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw, m_LeftControllerPoseMode = WVR_ControllerPoseMode.WVR_ControllerPoseMode_Raw;
 		Vector3 triggerModeRotationOffset = new Vector3(45, 0, 0);
@@ -3287,6 +3360,23 @@ namespace Wave.Native
 		}
 		#endregion
 
+		#region wvr_notifydeviceinfo.h
+		public WVR_Result StartNotifyDeviceInfo(WVR_DeviceType type, UInt32 unBufferSize)
+		{
+			DEBUG("StartNotifyDeviceInfo() " + type + ", " + unBufferSize);
+			return WVR_Result.WVR_Success;
+		}
+		public void StopNotifyDeviceInfo(WVR_DeviceType type)
+		{
+			DEBUG("StopNotifyDeviceInfo() " + type);
+		}
+		public void UpdateNotifyDeviceInfo(WVR_DeviceType type, IntPtr dataValue)
+		{
+			var info = Marshal.PtrToStringAnsi(dataValue);
+			DEBUG("UpdateNotifyDeviceInfo() " + info);
+		}
+		#endregion
+
 		public bool IsDeviceConnected(WVR_DeviceType type)
 		{
 			return true;
@@ -3314,6 +3404,9 @@ namespace Wave.Native
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandGesture |
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandTracking |
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_ElectronicHand |
+				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_EyeTracking |
+				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_EyeExp |
+				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_LipExp |
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_Tracker
 			);
 		}

@@ -620,7 +620,14 @@ namespace Wave.Essence.Editor
 				GUILayout.BeginVertical(EditorStyles.helpBox);
 				{
 					GUILayout.Label("Interaction Toolkit", EditorStyles.boldLabel);
-					GUILayout.Label("The Wave Extension of Unity XR Interaction Toolkit.", new GUIStyle(EditorStyles.label) { wordWrap = true });
+					GUILayout.Label(
+						"The Wave Extension of Unity XR Interaction Toolkit.\n" +
+						"Do NOT use this package without Unity XR Interaction Toolkit!\n" +
+						"Do NOT use this package without Unity XR Interaction Toolkit!\n" +
+						"Do NOT use this package without Unity XR Interaction Toolkit!\n" +
+						"Do NOT use this package without Unity XR Interaction Toolkit!\n" +
+						"Do NOT use this package without Unity XR Interaction Toolkit!",
+						new GUIStyle(EditorStyles.label) { wordWrap = true });
 					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/Interaction/Toolkit.", EditorStyles.label);
 					GUILayout.Space(5f);
 					GUI.enabled = !featureInteractionToolkitImported | featureInteractionToolkitNeedUpdate;

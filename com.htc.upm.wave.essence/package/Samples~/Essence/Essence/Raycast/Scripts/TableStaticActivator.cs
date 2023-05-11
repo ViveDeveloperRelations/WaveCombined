@@ -12,6 +12,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using Wave.Native;
 using Wave.Essence.Raycast;
+using System.Runtime.InteropServices;
+using System;
 
 namespace Wave.Essence.Samples.Raycast
 {
@@ -19,6 +21,13 @@ namespace Wave.Essence.Samples.Raycast
 	[RequireComponent(typeof(Text))]
 	public class TableStaticActivator : MonoBehaviour
 	{
+		const string LOG_TAG = "Wave.Essence.Samples.Raycast.TableStaticActivator";
+		void DEBUG(string msg)
+		{
+			if (Log.EnableDebugLog)
+				Log.d(LOG_TAG, msg, true);
+		}
+
 		public ControllerRaycastPointer CRPLeft = null;
 		public ControllerRaycastPointer CRPRight = null;
 
@@ -38,6 +47,11 @@ namespace Wave.Essence.Samples.Raycast
 		private void Start()
 		{
 			HideIdleController();
+
+			IntPtr ptrParameterName = Marshal.StringToHGlobalAnsi("ResetEyeCamera");
+			Interop.WVR_SetParameters(WVR_DeviceType.WVR_DeviceType_HMD, ptrParameterName);
+			Marshal.FreeHGlobal(ptrParameterName);
+			DEBUG("Start() ResetEyeCamera");
 		}
 
 		public void HideIdleController()
