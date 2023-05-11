@@ -30,6 +30,9 @@ namespace Wave.Essence.Eye
 			if (Log.EnableDebugLog)
 				Log.d(LOG_TAG, msg, true);
 		}
+		bool printIntervalLog = false;
+		int logFrame = 0;
+		private void INTERVAL(string msg) { if (printIntervalLog) { DEBUG(msg); } }
 		void INFO(string msg) { Log.i(LOG_TAG, msg, true); }
 
 		private static EyeManager m_Instance = null;
@@ -132,7 +135,9 @@ namespace Wave.Essence.Eye
 		}
 		void Update()
 		{
-			Log.gpl.check();
+			logFrame++;
+			logFrame %= 300;
+			printIntervalLog = (logFrame == 0);
 
 			if (m_EnableEyeTrackingEx != m_EnableEyeTracking)
 			{
@@ -152,23 +157,21 @@ namespace Wave.Essence.Eye
 			if (m_EnableEyeTracking)
 			{
 				GetEyeTrackingData();
-				if (Log.gpl.Print)
-				{
-					DEBUG("Update() m_LocationSpace: " + m_LocationSpace + ", hasEyeTrackingData: " + hasEyeTrackingData);
-					DEBUG("Update() m_CombinedEyeOriginValid: " + m_CombinedEyeOriginValid
-						+ ", m_CombinedEyeOrigin (" + m_CombinedEyeOrigin.x.ToString() + ", " + m_CombinedEyeOrigin.y.ToString() + ", " + m_CombinedEyeOrigin.z.ToString() + ")"
-						+ ", m_CombinedEyeDirectionValid: " + m_CombinedEyeDirectionValid
-						+ ", m_CombinedEyeDirection (" + m_CombinedEyeDirection.x.ToString() + ", " + m_CombinedEyeDirection.y.ToString() + ", " + m_CombinedEyeDirection.z.ToString() + ")");
-					DEBUG("Update() m_LeftEyeOriginValid: " + m_LeftEyeOriginValid
-						+ ", m_LeftEyeOrigin (" + m_LeftEyeOrigin.x.ToString() + ", " + m_LeftEyeOrigin.y.ToString() + ", " + m_LeftEyeOrigin.z.ToString() + ")"
-						+ ", m_LeftEyeDirectionValid: " + m_LeftEyeDirectionValid
-						+ ", m_LeftEyeDirection (" + m_LeftEyeDirection.x.ToString() + ", " + m_LeftEyeDirection.y.ToString() + ", " + m_LeftEyeDirection.z.ToString() + ")");
-					DEBUG("Update() m_RightEyeOriginValid: " + m_RightEyeOriginValid
-						+ ", m_RightEyeOrigin (" + m_RightEyeOrigin.x.ToString() + ", " + m_RightEyeOrigin.y.ToString() + ", " + m_RightEyeOrigin.z.ToString() + ")"
-						+ ", m_RightEyeDirectionValid: " + m_RightEyeDirectionValid
-						+ ", m_RightEyeDirection (" + m_RightEyeDirection.x.ToString() + ", " + m_RightEyeDirection.y.ToString() + ", " + m_RightEyeDirection.z.ToString() + ")"
-						);
-				}
+
+				INTERVAL("Update() m_LocationSpace: " + m_LocationSpace + ", hasEyeTrackingData: " + hasEyeTrackingData);
+				INTERVAL("Update() m_CombinedEyeOriginValid: " + m_CombinedEyeOriginValid
+					+ ", m_CombinedEyeOrigin (" + m_CombinedEyeOrigin.x.ToString() + ", " + m_CombinedEyeOrigin.y.ToString() + ", " + m_CombinedEyeOrigin.z.ToString() + ")"
+					+ ", m_CombinedEyeDirectionValid: " + m_CombinedEyeDirectionValid
+					+ ", m_CombinedEyeDirection (" + m_CombinedEyeDirection.x.ToString() + ", " + m_CombinedEyeDirection.y.ToString() + ", " + m_CombinedEyeDirection.z.ToString() + ")");
+				INTERVAL("Update() m_LeftEyeOriginValid: " + m_LeftEyeOriginValid
+					+ ", m_LeftEyeOrigin (" + m_LeftEyeOrigin.x.ToString() + ", " + m_LeftEyeOrigin.y.ToString() + ", " + m_LeftEyeOrigin.z.ToString() + ")"
+					+ ", m_LeftEyeDirectionValid: " + m_LeftEyeDirectionValid
+					+ ", m_LeftEyeDirection (" + m_LeftEyeDirection.x.ToString() + ", " + m_LeftEyeDirection.y.ToString() + ", " + m_LeftEyeDirection.z.ToString() + ")");
+				INTERVAL("Update() m_RightEyeOriginValid: " + m_RightEyeOriginValid
+					+ ", m_RightEyeOrigin (" + m_RightEyeOrigin.x.ToString() + ", " + m_RightEyeOrigin.y.ToString() + ", " + m_RightEyeOrigin.z.ToString() + ")"
+					+ ", m_RightEyeDirectionValid: " + m_RightEyeDirectionValid
+					+ ", m_RightEyeDirection (" + m_RightEyeDirection.x.ToString() + ", " + m_RightEyeDirection.y.ToString() + ", " + m_RightEyeDirection.z.ToString() + ")"
+					);
 			}
 		}
 		#endregion

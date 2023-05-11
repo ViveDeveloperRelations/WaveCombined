@@ -8,6 +8,7 @@
 // conditions signed by you and all SDK and API requirements,
 // specifications, and documentation provided by HTC to You."
 
+using System.Diagnostics;
 using UnityEngine;
 using Wave.XR.Settings;
 
@@ -16,6 +17,8 @@ namespace Wave.OpenXR
 	public static class InputDeviceLip
 	{
 		const string LOG_TAG = "Wave.OpenXR.InputDeviceLip";
+		static void DEBUG(string msg) { UnityEngine.Debug.Log(LOG_TAG + " " + msg); }
+
 		public enum Expressions
 		{
 			Jaw_Right = 0,
@@ -234,15 +237,25 @@ namespace Wave.OpenXR
 				// Check current Wave XR Lip Expression status before activation.
 				settings.EnableLipExpression = IsLipExpAvailable();
 
+				string caller = "TBD";
+				var frame = new StackFrame(1, true);
+				if (frame != null)
+				{
+					var method = frame.GetMethod();
+					if (method != null)
+						caller = method.Name;
+					else
+						caller = "No method.";
+				}
 				if (settings.EnableLipExpression != active)
 				{
 					settings.EnableLipExpression = active;
-					Debug.Log(LOG_TAG + " ActivateLipExp() " + (settings.EnableLipExpression ? "Activate." : "Deactivate."));
+					DEBUG("ActivateLipExp() " + (settings.EnableLipExpression ? "Activate." : "Deactivate.") + " from " + caller);
 					SettingsHelper.SetBool(WaveXRSettings.EnableLipExpressionText, settings.EnableLipExpression);
 				}
 				else
 				{
-					Debug.Log(LOG_TAG + " ActivateLipExp() Lip Expression is already " + (settings.EnableLipExpression ? "enabled." : "disabled."));
+					DEBUG("ActivateLipExp() Lip Expression is already " + (settings.EnableLipExpression ? "enabled." : "disabled.") + " from " + caller);
 				}
 			}
 		}

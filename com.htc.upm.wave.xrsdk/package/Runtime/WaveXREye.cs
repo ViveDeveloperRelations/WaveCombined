@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.XR;
 using Wave.XR.Settings;
@@ -19,6 +20,8 @@ namespace Wave.OpenXR
     public static class InputDeviceEye
     {
         const string LOG_TAG = "Wave.OpenXR.InputDeviceEye";
+        static void DEBUG(string msg) { UnityEngine.Debug.Log(LOG_TAG + " " + msg); }
+
         public enum Expressions : UInt32
         {
             LEFT_BLINK = 0,
@@ -171,15 +174,25 @@ namespace Wave.OpenXR
                 // Check current Wave XR Eye Expression status before activation.
                 settings.EnableEyeTracking = IsEyeTrackingAvailable();
 
+                string caller = "TBD";
+                var frame = new StackFrame(1, true);
+                if (frame != null)
+                {
+                    var method = frame.GetMethod();
+                    if (method != null)
+                        caller = method.Name;
+                    else
+                        caller = "No method.";
+                }
                 if (settings.EnableEyeTracking != active)
                 {
                     settings.EnableEyeTracking = active;
-                    Debug.Log(LOG_TAG + " ActivateEyeTracking() " + (settings.EnableEyeTracking ? "Activate." : "Deactivate."));
+                    DEBUG("ActivateEyeTracking() " + (settings.EnableEyeTracking ? "Activate." : "Deactivate.") + " from " + caller);
                     SettingsHelper.SetBool(WaveXRSettings.EnableEyeTrackingText, settings.EnableEyeTracking);
                 }
                 else
                 {
-                    Debug.Log(LOG_TAG + " ActivateEyeTracking() Eye Tracking is already " + (settings.EnableEyeTracking ? "enabled." : "disabled."));
+                    DEBUG("ActivateEyeTracking() Eye Tracking is already " + (settings.EnableEyeTracking ? "enabled." : "disabled.") + " from " + caller);
                 }
             }
         }
@@ -572,15 +585,25 @@ namespace Wave.OpenXR
                 // Check current Wave XR Eye Expression status before activation.
                 settings.EnableEyeExpression = IsEyeExpressionAvailable();
 
+                string caller = "TBD";
+                var frame = new StackFrame(1, true);
+                if (frame != null)
+                {
+                    var method = frame.GetMethod();
+                    if (method != null)
+                        caller = method.Name;
+                    else
+                        caller = "No method.";
+                }
                 if (settings.EnableEyeExpression != active)
                 {
                     settings.EnableEyeExpression = active;
-                    Debug.Log(LOG_TAG + " ActivateEyeExpression() " + (settings.EnableEyeExpression ? "Activate." : "Deactivate."));
+                    DEBUG("ActivateEyeExpression() " + (settings.EnableEyeExpression ? "Activate." : "Deactivate.") + " from " + caller);
                     SettingsHelper.SetBool(WaveXRSettings.EnableEyeExpressionText, settings.EnableEyeExpression);
                 }
                 else
                 {
-                    Debug.Log(LOG_TAG + " ActivateEyeExpression() Eye Expression is already " + (settings.EnableEyeExpression ? "enabled." : "disabled."));
+                    DEBUG("ActivateEyeExpression() Eye Expression is already " + (settings.EnableEyeExpression ? "enabled." : "disabled.") + " from " + caller);
                 }
             }
         }

@@ -754,6 +754,350 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "EyeGaze",
+            "id": "794b26fb-a088-4e3d-b142-d65d2dd08beb",
+            "actions": [
+                {
+                    "name": "isTracked",
+                    "type": "Button",
+                    "id": "a9bb0db7-a2b7-4607-8ea2-2c3de56e85d5",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "trackingState",
+                    "type": "Value",
+                    "id": "0a76ea20-6c11-4413-90fc-197635e7d32b",
+                    "expectedControlType": "Integer",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "position",
+                    "type": "Value",
+                    "id": "50a4e32d-8d2c-4ef2-961f-35c789fa3fab",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "rotation",
+                    "type": "Value",
+                    "id": "d5fefca5-c877-4d54-a180-98dd857d17e7",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "875fdc7f-c4d7-462f-a77e-eb1992586bfb",
+                    "path": "<ViveWaveEyeGaze>/isTracked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "isTracked",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1d7330ad-4dde-4d41-969f-cc290d083ff3",
+                    "path": "<ViveWaveEyeGaze>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4eb9f8fb-4247-473b-a00f-a7135cddfb20",
+                    "path": "<ViveWaveEyeGaze>/rotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9a110242-6aad-4a82-8e5c-03d7c34318f0",
+                    "path": "<ViveWaveEyeGaze>/trackingState",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "trackingState",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "LeftTracker",
+            "id": "7d1307ed-04cd-4b89-a4c6-4315f39148af",
+            "actions": [
+                {
+                    "name": "isTracked",
+                    "type": "Button",
+                    "id": "e7e490ab-ebbd-4fc3-9422-8ff82d83e4b9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "trackingState",
+                    "type": "Value",
+                    "id": "48875a63-ca9b-430d-ae37-53b6b8ac7211",
+                    "expectedControlType": "Integer",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "position",
+                    "type": "Value",
+                    "id": "181b5827-702d-4dc7-a7df-b3213cebce1d",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "rotation",
+                    "type": "Value",
+                    "id": "42ebf811-6132-4e50-808f-d7bf72f4f601",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "menuButton",
+                    "type": "Button",
+                    "id": "f1a69644-9236-4420-986a-3b8d617456da",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "primaryButton",
+                    "type": "Button",
+                    "id": "941e321b-3559-4ec0-a830-5e829e4b8346",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c8ba7c47-340a-48a2-a684-77ff620af208",
+                    "path": "<ViveWaveWristTracker>{LeftHand}/isTracked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "isTracked",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "84864f01-2f19-4bc4-857f-a37c3729f2b2",
+                    "path": "<ViveWaveWristTracker>{LeftHand}/trackingState",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "trackingState",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "60afff68-1ba9-4070-9de3-6124d183d13b",
+                    "path": "<ViveWaveWristTracker>{LeftHand}/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b61b5a68-6e89-4588-a0a8-698c6f03eb97",
+                    "path": "<ViveWaveWristTracker>{LeftHand}/rotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "67aef8b7-205a-48a1-acc7-81c6d9941e48",
+                    "path": "<ViveWaveWristTracker>{LeftHand}/menuButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "menuButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dff1093f-d2f3-41c1-abae-b6ca128bc1b1",
+                    "path": "<ViveWaveWristTracker>{LeftHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "primaryButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "RightTracker",
+            "id": "72e4e8d4-24aa-4eda-b9ed-aafb8de3e3f5",
+            "actions": [
+                {
+                    "name": "isTracked",
+                    "type": "Button",
+                    "id": "31591888-277d-41be-8209-3a530561281b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "trackingState",
+                    "type": "Value",
+                    "id": "4e6212cf-ee63-4910-abfe-3cf0afe2300c",
+                    "expectedControlType": "Integer",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "position",
+                    "type": "Value",
+                    "id": "7e1be448-70fb-4b40-8b4a-29cea395af51",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "rotation",
+                    "type": "Value",
+                    "id": "7917ae1a-5e7a-404d-996f-873b088f5175",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "menuButton",
+                    "type": "Button",
+                    "id": "363525ed-0af9-4870-abc1-b70a9899d52f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "primaryButton",
+                    "type": "Button",
+                    "id": "dff46915-a533-46c8-838b-84e9df3eca39",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f2fbc32b-acab-47c7-8f24-d77ed99a85e4",
+                    "path": "<ViveWaveWristTracker>{RightHand}/isTracked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "isTracked",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eb3070ee-129a-4c4a-bea0-4b1222097e12",
+                    "path": "<ViveWaveWristTracker>{RightHand}/trackingState",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "trackingState",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "728772a0-1bdd-4fdb-b561-a2261780af4c",
+                    "path": "<ViveWaveWristTracker>{RightHand}/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "431f566c-8296-497d-a766-420898141466",
+                    "path": "<ViveWaveWristTracker>{RightHand}/rotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7acbe3a7-c214-4f3c-a3cc-dc1d29c7159d",
+                    "path": "<ViveWaveWristTracker>{RightHand}/menuButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "menuButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "933c8d2b-eaae-4966-a71a-88d61631623b",
+                    "path": "<ViveWaveWristTracker>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "primaryButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

@@ -14,6 +14,9 @@ using UnityEngine;
 using UnityEngine.XR;
 using Wave.Native;
 using Wave.Essence.Eye;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace Wave.Essence.Raycast
 {
@@ -25,6 +28,7 @@ namespace Wave.Essence.Raycast
 			if (Log.EnableDebugLog)
 				Log.d(LOG_TAG, msg, true);
 		}
+		private void INTERVAL(string msg) { if (Log.gpl.Print) { DEBUG(msg); } }
 
 		[Serializable]
 		public class ButtonOption
@@ -96,6 +100,37 @@ namespace Wave.Essence.Raycast
 		[SerializeField]
 		private ButtonOption m_ControlKey = new ButtonOption();
 		public ButtonOption ControlKey { get { return m_ControlKey; } set { m_ControlKey = value; } }
+
+#if ENABLE_INPUT_SYSTEM
+		[SerializeField]
+		private bool m_UseInputAction = false;
+		public bool UseInputAction { get { return m_UseInputAction; } set { m_UseInputAction = value; } }
+
+		[SerializeField]
+		private InputActionProperty m_RotationInput;
+		public InputActionProperty RotationInput
+		{
+			get => m_RotationInput;
+			set => m_RotationInput = value;
+		}
+		public static bool VALIDATE(InputActionProperty actionReference, out string msg)
+		{
+			msg = "Normal";
+
+			if (actionReference == null)
+			{
+				msg = "Null reference.";
+				return false;
+			}
+			else if (actionReference.action == null)
+			{
+				msg = "Null reference action.";
+				return false;
+			}
+
+			return true;
+		}
+#endif
 
 		[SerializeField]
 		private bool m_AlwaysEnable = false;
@@ -182,23 +217,64 @@ namespace Wave.Essence.Raycast
 
 		protected override bool UseEyeData(out Vector3 direction, out EyeManager.EyeSpace space)
 		{
-			bool useEye = m_EyeTracking && (EyeManager.Instance != null) && EyeManager.Instance.HasEyeTrackingData();
+			INTERVAL("UseEyeData() m_EyeTracking: " + m_EyeTracking + ", m_Eye: " + m_Eye);
 
-			if (Log.gpl.Print)
+			if (m_EyeTracking)
 			{
-				DEBUG("UseEyeData() m_EyeTracking: " + m_EyeTracking + ", m_Eye: " + m_Eye);
+#if ENABLE_INPUT_SYSTEM
+				INTERVAL("UseEyeData() m_UseInputAction: " + m_UseInputAction);
+				if (m_UseInputAction)
+				{
+					if (VALIDATE(m_RotationInput, out string msg))
+					{
+						if (!m_RotationInput.action.enabled)
+						{
+							DEBUG("UseEyeData() enable " + m_RotationInput.action.name);
+							m_RotationInput.action.Enable();
+						}
+						direction = m_RotationInput.action.ReadValue<Quaternion>() * Vector3.forward;
+						space = EyeManager.EyeSpace.World;
+						return true;
+					}
+					else
+					{
+						INTERVAL("UseEyeData() " + msg);
+					}
+				}
+				else
+				{
+					if ((EyeManager.Instance != null) && EyeManager.Instance.HasEyeTrackingData())
+					{
+						direction = Vector3.forward;
+						if (EyeManager.Instance.GetEyeDirectionNormalized(m_Eye, out Vector3 value))
+						{
+							direction = value;
+						}
+						space = EyeManager.Instance.LocationSpace;
+						INTERVAL("UseEyeData() direction (" + direction.x.ToString() + ", " + direction.y.ToString() + ", " + direction.z.ToString() + ")"
+							+ ", space: " + space);
+						return true;
+					}
+					else
+					{
+						INTERVAL("UseEyeData() no data.");
+					}
+				}
+#else
+				if ((EyeManager.Instance != null) && EyeManager.Instance.HasEyeTrackingData())
+				{
+					direction = Vector3.forward;
+					if (EyeManager.Instance.GetEyeDirectionNormalized(m_Eye, out Vector3 value))
+					{
+						direction = value;
+					}
+					space = EyeManager.Instance.LocationSpace;
+					return true;
+				}
+#endif
 			}
 
-			if (!useEye) { return base.UseEyeData(out direction, out space); }
-
-			direction = Vector3.forward;
-			if (EyeManager.Instance.GetEyeDirectionNormalized(m_Eye, out Vector3 value))
-			{
-				direction = value;
-			}
-			space = EyeManager.Instance.LocationSpace;
-
-			return useEye;
+			return base.UseEyeData(out direction, out space);
 		}
 
 		#region RaycastImpl Actions overrides

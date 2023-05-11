@@ -24,6 +24,9 @@ namespace Wave.Essence.Raycast.Editor
         SerializedProperty m_PointerRingWidth, m_PointerCircleRadius, m_PointerDistance, m_PointerColor, m_ProgressColor, m_PointerMaterial, m_PointerRenderQueue, m_PointerSortingOrder, m_TimeToGaze;
         /// GazeRaycastRing options
         SerializedProperty m_EyeTracking, m_Eye, m_InputEvent, m_ControlKey, m_AlwaysEnable;
+#if ENABLE_INPUT_SYSTEM
+        SerializedProperty m_RotationInput;
+#endif
         private void OnEnable()
         {
             /// Physics Raycaster options
@@ -46,13 +49,16 @@ namespace Wave.Essence.Raycast.Editor
             m_Eye = serializedObject.FindProperty("m_Eye");
             m_InputEvent = serializedObject.FindProperty("m_InputEvent");
             m_ControlKey = serializedObject.FindProperty("m_ControlKey");
+#if ENABLE_INPUT_SYSTEM
+            m_RotationInput = serializedObject.FindProperty("m_RotationInput");
+#endif
             m_AlwaysEnable = serializedObject.FindProperty("m_AlwaysEnable");
         }
         bool PhysicsRaycasterOptions = false, /*GraphicRaycasterOptions = false, */RingOptions = false, EyeTrackingOptions = false, GazeOptions = true;
-		public override void OnInspectorGUI()
-		{
-			serializedObject.Update();
-			GazeRaycastRing myScript = target as GazeRaycastRing;
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
+            GazeRaycastRing myScript = target as GazeRaycastRing;
 
             PhysicsRaycasterOptions = EditorGUILayout.Foldout(PhysicsRaycasterOptions, "Physics Raycaster Settings");
             if (PhysicsRaycasterOptions)
@@ -80,7 +86,7 @@ namespace Wave.Essence.Raycast.Editor
 
             RingOptions = EditorGUILayout.Foldout(RingOptions, "Ring Settings");
             if (RingOptions)
-			{
+            {
                 EditorGUILayout.PropertyField(m_PointerRingWidth);
                 EditorGUILayout.PropertyField(m_PointerCircleRadius);
                 EditorGUILayout.PropertyField(m_PointerDistance);
@@ -97,14 +103,26 @@ namespace Wave.Essence.Raycast.Editor
             if (EyeTrackingOptions)
             {
                 EditorGUILayout.PropertyField(m_EyeTracking);
+#if ENABLE_INPUT_SYSTEM
+                myScript.UseInputAction = EditorGUILayout.Toggle("Use Input Action", myScript.UseInputAction);
+                if (myScript.UseInputAction)
+                {
+                    EditorGUILayout.PropertyField(m_RotationInput);
+                }
+                else
+                {
+                    EditorGUILayout.PropertyField(m_Eye);
+                }
+#else
                 EditorGUILayout.PropertyField(m_Eye);
+#endif
             }
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
             GazeOptions = EditorGUILayout.Foldout(GazeOptions, "Gaze Settings");
             if (GazeOptions)
-			{
+            {
                 // Moves m_TimeToGaze here thus developers can easily set the value.
                 EditorGUILayout.PropertyField(m_TimeToGaze);
                 EditorGUILayout.PropertyField(m_InputEvent);

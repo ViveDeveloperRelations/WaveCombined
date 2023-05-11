@@ -616,7 +616,7 @@ namespace Wave.XR.BuildCheck
 	{
 		const string LOG_TAG = "Wave.XR.CheckIfWaveEnabled";
 		static void DEBUG(string msg) { Debug.Log(LOG_TAG + " " + msg); }
-		const string VERSION_DEFINE_WAVE_XR_5_0_4 = "USE_VIVE_WAVE_XR_5_0_4";
+		const string VERSION_DEFINE_WAVE_XR = "USE_VIVE_WAVE_XR_5_1_1";
 		internal struct ScriptingDefinedSettings
 		{
 			public string[] scriptingDefinedSymbols;
@@ -629,7 +629,7 @@ namespace Wave.XR.BuildCheck
 			}
 		}
 		static readonly ScriptingDefinedSettings m_ScriptDefineSettingWaveXR = new ScriptingDefinedSettings(
-			new string[] { VERSION_DEFINE_WAVE_XR_5_0_4, },
+			new string[] { VERSION_DEFINE_WAVE_XR, },
 			new BuildTargetGroup[] { BuildTargetGroup.Android, }
 		);
 		const string XR_LOADER_WAVE_XR_NAME = "Wave.XR.Loader.WaveXRLoader";

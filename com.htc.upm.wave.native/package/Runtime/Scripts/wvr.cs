@@ -2233,9 +2233,9 @@ namespace Wave.Native
 			return WVR_Base.Instance.GetSceneMeshes(meshType, meshCapacityInput, out meshCountOutput, meshes);
 		}
 
-		public static WVR_Result WVR_GetSceneMeshBuffer(UInt64 meshBufferId, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
+		public static WVR_Result WVR_GetSceneMeshBuffer(UInt64 meshBufferId, WVR_PoseOriginModel originModel, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
 		{
-			return WVR_Base.Instance.GetSceneMeshBuffer(meshBufferId, ref sceneMeshBuffer);
+			return WVR_Base.Instance.GetSceneMeshBuffer(meshBufferId, originModel, ref sceneMeshBuffer);
 		}
 
 		public static WVR_Result WVR_CreateSpatialAnchor([In, Out] WVR_SpatialAnchorCreateInfo[] createInfo /* WVR_SpatialAnchorCreateInfo* */, out UInt64 anchor /* WVR_SpatialAnchor* */)
@@ -3274,7 +3274,7 @@ namespace Wave.Native
 				return WVR_Result.WVR_Error_FeatureNotSupport;
 			}
 
-			public virtual WVR_Result GetSceneMeshBuffer(UInt64 meshBufferId, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
+			public virtual WVR_Result GetSceneMeshBuffer(UInt64 meshBufferId, WVR_PoseOriginModel originModel, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
 			{
 				return WVR_Result.WVR_Error_FeatureNotSupport;
 			}
