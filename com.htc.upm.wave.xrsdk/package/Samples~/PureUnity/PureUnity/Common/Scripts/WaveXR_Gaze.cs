@@ -37,7 +37,8 @@ public class WaveXR_Gaze : MonoBehaviour
 			return;
 
 		var pointerData = new PointerEventData(m_EventSystem);
-		pointerData.position = new Vector2(XRSettings.eyeTextureWidth / 2f, XRSettings.eyeTextureHeight / 2f);
+
+		pointerData.position = new Vector2(m_Camera.scaledPixelWidth * 0.5f, m_Camera.scaledPixelHeight * 0.5f);
 		m_RaycastResults.Clear();
 		m_EventSystem.RaycastAll(pointerData, m_RaycastResults);
 

@@ -2570,6 +2570,8 @@ namespace Wave.Native
 				Marshal.StructureToPtr(s_HandJointsFlag[i], ulong_ptr, false);
 				offset += Marshal.SizeOf(ulong_type);
 			}*/
+
+			handTrackerInfo.strength = 0.2f;
 		}
 		public WVR_Result GetHandTrackerInfo(WVR_HandTrackerType tracker, ref WVR_HandTrackerInfo_t info)
 		{

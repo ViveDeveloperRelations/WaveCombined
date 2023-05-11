@@ -72,6 +72,12 @@ namespace Wave.Essence
 
 		// A binary feature that represents a user is currently wearing a HMD.
 		public static readonly InputFeatureUsage<bool> userPresence = CommonUsages.userPresence;
+
+		public static readonly InputFeatureUsage<Vector3> devicePosition = CommonUsages.devicePosition;
+		public static readonly InputFeatureUsage<Quaternion> deviceRotation = CommonUsages.deviceRotation;
+
+		// A float value represents the current battery life of this device.
+		public static readonly InputFeatureUsage<float> batteryLevel = CommonUsages.batteryLevel;
 	}
 
 	public class XR_BinaryButton
@@ -119,14 +125,20 @@ namespace Wave.Essence
 	public enum XR_Device
 	{
 		Head = WVR_DeviceType.WVR_DeviceType_HMD,
-		Dominant = WVR_DeviceType.WVR_DeviceType_Controller_Right,
-		NonDominant = WVR_DeviceType.WVR_DeviceType_Controller_Left,
+		Right = WVR_DeviceType.WVR_DeviceType_Controller_Right,
+		Left = WVR_DeviceType.WVR_DeviceType_Controller_Left,
+
+		Dominant = Right,
+		NonDominant = Left
 	};
 
 	public enum XR_Hand
 	{
-		Dominant = XR_Device.Dominant,
-		NonDominant = XR_Device.NonDominant
+		Right = XR_Device.Right,
+		Left = XR_Device.Left,
+
+		Dominant = Right,
+		NonDominant = Left,
 	}
 
 	public enum XR_HandDevice

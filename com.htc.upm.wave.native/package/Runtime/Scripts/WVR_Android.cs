@@ -133,6 +133,14 @@ namespace Wave.Native
 			WVR_InAppRecenter_Android(recenterType);
 		}
 
+		// Enables or disables screen protection
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetScreenProtection", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_SetScreenProtection_Android(bool enabled);
+		public override void SetScreenProtection(bool enabled)
+		{
+			WVR_SetScreenProtection_Android(enabled);
+		}
+
 		// Enables or disables use of the neck model for 3-DOF head tracking
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetNeckModelEnabled", CallingConvention = CallingConvention.Cdecl)]
 		public static extern void WVR_SetNeckModelEnabled_Android(bool enabled);
@@ -767,11 +775,11 @@ namespace Wave.Native
 			return WVR_SetFoveationConfig_Android(eye, foveationParams);
 		}
 
-		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetFoveationConfig", CallingConvention = CallingConvention.Cdecl)]
-		public static extern WVR_Result WVR_GetFoveationConfig_Android(WVR_Eye eye, [In, Out] WVR_RenderFoveationParams[] foveationParams);
-		public override WVR_Result GetFoveationConfig(WVR_Eye eye, [In, Out] WVR_RenderFoveationParams[] foveationParams)
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetFoveationDefaultConfig", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetFoveationDefaultConfig_Android(WVR_Eye eye, [In, Out] WVR_RenderFoveationParams[] foveationParams);
+		public override WVR_Result GetFoveationDefaultConfig(WVR_Eye eye, [In, Out] WVR_RenderFoveationParams[] foveationParams)
 		{
-			return WVR_GetFoveationConfig_Android(eye, foveationParams);
+			return WVR_GetFoveationDefaultConfig_Android(eye, foveationParams);
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_IsRenderFoveationEnabled", CallingConvention = CallingConvention.Cdecl)]
@@ -796,10 +804,17 @@ namespace Wave.Native
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_ShowPassthroughOverlay", CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool WVR_ShowPassthroughOverlay_Android(bool show);
-		public override bool ShowPassthroughOverlay(bool show)
+		public static extern bool WVR_ShowPassthroughOverlay_Android(bool show, bool delaySubmit);
+		public override bool ShowPassthroughOverlay(bool show, bool delaySubmit = false)
 		{
-			return WVR_ShowPassthroughOverlay_Android(show);
+			return WVR_ShowPassthroughOverlay_Android(show, delaySubmit);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_ShowPassthroughUnderlay", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_ShowPassthroughUnderlay_Android(bool show);
+		public override WVR_Result ShowPassthroughUnderlay(bool show)
+		{
+			return WVR_ShowPassthroughUnderlay_Android(show);
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_EnableAutoPassthrough", CallingConvention = CallingConvention.Cdecl)]
@@ -1255,6 +1270,33 @@ namespace Wave.Native
 		    WVR_ReleaseControllerModel_Android(ref ctrlerModel /* WVR_CtrlerModel* */);
 	    }
 
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetCtrlerModelAnimNodeData", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetCtrlerModelAnimNodeData_Android(WVR_DeviceType type, ref IntPtr ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */);
+		public override WVR_Result GetCtrlerModelAnimNodeData(WVR_DeviceType type, ref IntPtr ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */)
+		{
+			return WVR_GetCtrlerModelAnimNodeData_Android(type, ref ctrlModelAnimData);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_ReleaseCtrlerModelAnimNodeData", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_ReleaseCtrlerModelAnimNodeData_Android(ref IntPtr ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */);
+		public override void ReleaseCtrlerModelAnimNodeData(ref IntPtr ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */)
+		{
+			WVR_ReleaseCtrlerModelAnimNodeData_Android(ref ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetCurrentNaturalHandModel", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetCurrentNaturalHandModel_Android(ref IntPtr handModel /* WVR_HandRenderModel* */);
+		public override WVR_Result GetCurrentNaturalHandModel(ref IntPtr handModel /* WVR_HandRenderModel* */)
+		{
+			return WVR_GetCurrentNaturalHandModel_Android(ref handModel);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_ReleaseNatureHandModel", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_ReleaseNaturalHandModel_Android(ref IntPtr handModel /* WVR_HandRenderModel* */);
+		public override void ReleaseNaturalHandModel(ref IntPtr handModel /* WVR_HandRenderModel* */)
+		{
+			WVR_ReleaseNaturalHandModel_Android(ref handModel);
+		}
 		#endregion
 	}
 }

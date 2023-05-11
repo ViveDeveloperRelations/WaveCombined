@@ -51,7 +51,9 @@ namespace Wave.Essence.Hand
 			}
 		}
 
-		const float kPinchStrength = .7f;
+		private float m_PinchStrength = .7f;
+		public float PinchStrength { get { return m_PinchStrength; } set { m_PinchStrength = value; } }
+
 		bool pinchedEx = false;
 		private bool IsPinched(HandManager.HandType hand)
 		{
@@ -59,7 +61,7 @@ namespace Wave.Essence.Hand
 
 			bool pinched =
 				(HandManager.Instance.GetHandMotion(hand) == HandManager.HandMotion.Pinch) &&
-				(HandManager.Instance.GetPinchStrength(hand) > kPinchStrength);
+				(HandManager.Instance.GetPinchStrength(hand) > m_PinchStrength);
 
 			if (pinchedEx != pinched)
 			{

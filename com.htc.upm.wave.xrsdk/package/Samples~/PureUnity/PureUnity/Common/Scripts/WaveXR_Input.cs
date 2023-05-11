@@ -23,7 +23,7 @@ namespace Wave.XR.Sample
 
 		public override Vector2 mousePosition
 		{
-			get { return new Vector2(UnityEngine.XR.XRSettings.eyeTextureWidth / 2f, UnityEngine.XR.XRSettings.eyeTextureHeight / 2f); }
+			get { return new Vector2(Camera.main.scaledPixelWidth * 0.5f, Camera.main.scaledPixelHeight * 0.5f); }
 		}
 
 		public override bool GetMouseButton(int button)

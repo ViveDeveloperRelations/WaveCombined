@@ -43,7 +43,9 @@ namespace Wave.Native
 		WVR_EventType_HandGesture_Changed                = 1006,    /**< Notification gesture changed. */
 		WVR_EventType_HandGesture_Abnormal               = 1007,    /**< Notification gesture abnormal. */
 		WVR_EventType_HandTracking_Abnormal              = 1008,    /**< Notification hand tracking abnormal. */
-		WVR_EventType_ArenaChanged						 = 1009,    /**< Notification arena changed. */
+		WVR_EventType_ArenaChanged                       = 1009,    /**< Notification arena changed. */
+		WVR_EventType_RenderingToBePaused                = 1010,
+		WVR_EventType_RenderingToBeResumed               = 1011,
 
 		WVR_EventType_DeviceConnected                    = 2000,    /**< @ref WVR_DeviceType connected. */
 		WVR_EventType_DeviceDisconnected                 = 2001,    /**< @ref WVR_DeviceType disconnected. */
@@ -877,6 +879,76 @@ namespace Wave.Native
 		public bool loadFromAsset;
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_CtrlerModelAnimPoseData
+	{
+		public WVR_Vector3f_t position;
+		public WVR_Vector3f_t rotation;
+		public WVR_Vector3f_t scale;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_CtrlerModelAnimNodeData
+	{
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+		public string name;
+		public uint type;
+		public uint blueEffect;
+		public WVR_CtrlerModelAnimPoseData origin;
+		public WVR_CtrlerModelAnimPoseData pressed;
+		public WVR_CtrlerModelAnimPoseData minX;
+		public WVR_CtrlerModelAnimPoseData maxX;
+		public WVR_CtrlerModelAnimPoseData minY;
+		public WVR_CtrlerModelAnimPoseData maxY;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_CtrlerModelAnimData
+	{
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+		public string name;
+		public IntPtr animDatas; // WVR_CtrlerModelAnimNodeData_t*
+		public uint size;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_BoneIDBuffer
+	{
+		public IntPtr buffer; // int*
+		public uint size;
+		public uint dimension;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_HandModel
+	{
+		public WVR_VertexBuffer vertices;
+		public WVR_VertexBuffer normals;
+		public WVR_VertexBuffer texCoords;
+		public WVR_VertexBuffer texCoord2s;
+		public WVR_BoneIDBuffer boneIDs;
+		public WVR_VertexBuffer boneWeights;
+		public WVR_IndexBuffer indices;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 48)]
+		public Matrix4x4[] jointInvTransMats;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 48)]
+		public Matrix4x4[] jointTransMats;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 48)]
+		public Matrix4x4[] jointLocalTransMats;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 48)]
+		public uint[] jointParentTable;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 48)]
+		public int[] jointUsageTable;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_HandRenderModel
+	{
+		public WVR_HandModel left;
+		public WVR_HandModel right;
+		public WVR_CtrlerTexBitmap handAlphaTex;
+	}
+
 	#region Eye Tracking
 	/**
 	 * @brief Structure containing flags indicating data validity of an eye pose
@@ -969,9 +1041,11 @@ namespace Wave.Native
 		WVR_Error_CtrlerModel_DeviceDisconnected = 101,  /**< The controller device you want to get its model is disconnected. */
 		WVR_Error_CtrlerModel_InvalidModel       = 102,  /**< We can't get model that can be use. */
 		WVR_Error_CtrlerModel_Unknown            = 103,  /**< Unknown error. */
-
+		WVR_Error_InvalidRenderModel			 = 110,
 		WVR_Error_EyeTracking_NotInitial         = 200,  /**< The eye calibration procedure has not been initialized. */
 		WVR_Error_EyeTracking_NotWorking         = 201,  /**< The operation of eye tracking is not working. */
+
+		WVR_Error_HandTracking_FeatureNotRequested = 300 /**< The AndroidManifest.xml of this VR App does not request hand tracking feature.*/
 	}
 
 
@@ -1130,12 +1204,13 @@ namespace Wave.Native
 	 * @version API Level 6
 	 */
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct WVR_HandTrackerInfo_t
+	public struct WVR_HandTrackerInfo_t
 	{
 		public uint jointCount;               /**< The count of hand joints. */
 		public ulong handModelTypeBitMask;    /**< Support how many types of @ref WVR_HandModelType. */
 		public IntPtr jointMappingArray;      /**< The array corresponds to the conventions of hand joints. Refer to @ref WVR_HandJoint. */
 		public IntPtr jointValidFlagArray;    /**< The array that indicates which data of each hand joint is valid, refer to @ref WVR_HandJointValidFlag. */
+		public float strength;                /**< The value of ranges between 0 to 1. */
 	}
 
 	/**
@@ -1149,6 +1224,7 @@ namespace Wave.Native
 	 * float =	4
 	 * double =	8
 	 * WVR_Pose_t* = 4
+	 * Vector3 = 12
 	 * WVR_HandJointData_t = 16
 	 *
 	 * C# armeabi-v7a type size:
@@ -1157,7 +1233,8 @@ namespace Wave.Native
 	 * float =	4
 	 * uint =	4
 	 * IntPtr =	4
-	 * WVR_HandJointData_t = 16
+	 * Vector3 = 12
+	 * WVR_HandJointData_t = 28
 	 *
 	 * C++ arm64-v8a type size:
 	 * bool =	1 -> to 4
@@ -1167,7 +1244,8 @@ namespace Wave.Native
 	 * float =	4
 	 * double =	8
 	 * WVR_Pose_t* = 8
-	 * WVR_HandJointData_t = 24
+	 * Vector3 = 12
+	 * WVR_HandJointData_t = 36
 	 *
 	 * C# arm64-v8a type size:
 	 * bool =	1 -> to 4
@@ -1176,7 +1254,8 @@ namespace Wave.Native
 	 * uint =	4 -> to 8
 	 * => UInt32 = 4 bytes, which NOT satisfy the arm64 memory alignment. Needs padding 4 bytes.
 	 * IntPtr =	8
-	 * WVR_HandJointData_t = 24
+	 * Vector3 = 12
+	 * WVR_HandJointData_t = 36
 	 */
 	[StructLayout(LayoutKind.Sequential)]
 	public struct WVR_HandJointData_t
@@ -1185,6 +1264,7 @@ namespace Wave.Native
 		public float confidence;     /**< The hand confidence value. */
 		public uint jointCount;     /**< Specify the size of the @ref WVR_Pose_t array. */
 		public IntPtr joints;        /**< The array of the @ref WVR_Pose_t. */
+		public WVR_Vector3f_t scale;  /**< defualt is 1. */
 	}
 
 	/**
@@ -1312,6 +1392,11 @@ namespace Wave.Native
 		public static void WVR_InAppRecenter(WVR_RecenterType recenterType)
 		{
 			WVR_Base.Instance.InAppRecenter(recenterType);
+		}
+
+		public static void WVR_SetScreenProtection(bool enabled)
+		{
+			WVR_Base.Instance.SetScreenProtection(enabled);
 		}
 
 		public static void WVR_SetNeckModelEnabled(bool enabled)
@@ -1813,9 +1898,9 @@ namespace Wave.Native
 			return WVR_Base.Instance.SetFoveationConfig(eye, foveationParams);
 		}
 
-		public static WVR_Result WVR_GetFoveationConfig(WVR_Eye eye, [In, Out] WVR_RenderFoveationParams[] foveationParams)
+		public static WVR_Result WVR_GetFoveationDefaultConfig(WVR_Eye eye, [In, Out] WVR_RenderFoveationParams[] foveationParams)
 		{
-			return WVR_Base.Instance.GetFoveationConfig(eye, foveationParams);
+			return WVR_Base.Instance.GetFoveationDefaultConfig(eye, foveationParams);
 		}
 
 		public static bool WVR_IsRenderFoveationEnabled()
@@ -1885,9 +1970,14 @@ namespace Wave.Native
 			WVR_Base.Instance.SetPosePredictEnabled(type, enabled_position_predict, enable_rotation_predict);
 		}
 
-		public static bool WVR_ShowPassthroughOverlay(bool show)
+		public static bool WVR_ShowPassthroughOverlay(bool show, bool delaySubmit = false)
 		{
-			return WVR_Base.Instance.ShowPassthroughOverlay(show);
+			return WVR_Base.Instance.ShowPassthroughOverlay(show, delaySubmit);
+		}
+
+		public static WVR_Result WVR_ShowPassthroughUnderlay(bool show)
+		{
+			return WVR_Base.Instance.ShowPassthroughUnderlay(show);
 		}
 
 		public static void WVR_EnableAutoPassthrough(bool enable)
@@ -1967,7 +2057,27 @@ namespace Wave.Native
 			WVR_Base.Instance.ReleaseControllerModel(ref ctrlerModel);
 		}
 
-        public static void WVR_RenderFoveationMode()
+		public static WVR_Result WVR_GetCurrentNaturalHandModel(ref IntPtr handModel /* WVR_HandRenderModel* */)
+		{
+			return WVR_Base.Instance.GetCurrentNaturalHandModel(ref handModel);
+		}
+
+		public static void WVR_ReleaseNaturalHandModel(ref IntPtr handModel /* WVR_HandRenderModel* */)
+		{
+			WVR_Base.Instance.ReleaseNaturalHandModel(ref handModel);
+		}
+
+		public static WVR_Result WVR_GetCtrlerModelAnimNodeData(WVR_DeviceType type, ref IntPtr ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */)
+		{
+			return WVR_Base.Instance.GetCtrlerModelAnimNodeData(type, ref ctrlModelAnimData);
+		}
+
+		public static void WVR_ReleaseCtrlerModelAnimNodeData(ref IntPtr ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */)
+		{
+			WVR_Base.Instance.ReleaseCtrlerModelAnimNodeData(ref ctrlModelAnimData);
+		}
+
+		public static void WVR_RenderFoveationMode()
         {
             throw new NotImplementedException();
         }
@@ -2119,6 +2229,11 @@ namespace Wave.Native
 
 			// Recenter the "Virtual World" in current App.
 			public virtual void InAppRecenter(WVR_RecenterType recenterType)
+			{
+			}
+
+			// Enables or disables screen protection
+			public virtual void SetScreenProtection(bool enabled)
 			{
 			}
 
@@ -2598,7 +2713,7 @@ namespace Wave.Native
 				return WVR_Result.WVR_Error_FeatureNotSupport;
 			}
 
-			public virtual WVR_Result GetFoveationConfig(WVR_Eye eye, [In, Out] WVR_RenderFoveationParams[] foveationParams)
+			public virtual WVR_Result GetFoveationDefaultConfig(WVR_Eye eye, [In, Out] WVR_RenderFoveationParams[] foveationParams)
 			{
 				return WVR_Result.WVR_Error_FeatureNotSupport;
 			}
@@ -2617,9 +2732,14 @@ namespace Wave.Native
 			{
 			}
 
-			public virtual bool ShowPassthroughOverlay(bool show)
+			public virtual bool ShowPassthroughOverlay(bool show, bool delaySubmit = false)
 			{
 				return false;
+			}
+
+			public virtual WVR_Result ShowPassthroughUnderlay(bool show)
+			{
+				return WVR_Result.WVR_Success;
 			}
 
 			public virtual void EnableAutoPassthrough(bool enable)
@@ -2643,7 +2763,28 @@ namespace Wave.Native
 
 			}
 
-            public virtual WVR_Result SetAMCMode(WVR_AMCMode mode)
+			public virtual WVR_Result GetCurrentNaturalHandModel(ref IntPtr handModel /* WVR_HandRenderModel* */)
+			{
+				handModel = IntPtr.Zero;
+				return WVR_Result.WVR_Error_InvalidRenderModel;
+			}
+
+			public virtual void ReleaseNaturalHandModel(ref IntPtr handModel /* WVR_HandRenderModel* */)
+			{
+			}
+
+			public virtual WVR_Result GetCtrlerModelAnimNodeData(WVR_DeviceType type, ref IntPtr ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */)
+			{
+				ctrlModelAnimData = IntPtr.Zero;
+				return WVR_Result.WVR_Error_CtrlerModel_Unknown;
+			}
+
+			public virtual void ReleaseCtrlerModelAnimNodeData(ref IntPtr ctrlModelAnimData /* WVR_CtrlerModelAnimData_t* */)
+			{
+
+			}
+
+			public virtual WVR_Result SetAMCMode(WVR_AMCMode mode)
             {
                 return WVR_Result.WVR_Error_FeatureNotSupport;
             }

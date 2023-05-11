@@ -125,6 +125,9 @@ namespace Wave.Essence
 		}
 		private void OnEnable()
 		{
+			SystemEvent.Listen(WVR_EventType.WVR_EventType_RenderingToBePaused, OnRenderingToBePaused);
+			SystemEvent.Listen(WVR_EventType.WVR_EventType_RenderingToBeResumed, OnRenderingToBeResumed);
+
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_DeviceRoleChanged, OnControllerRoleChange);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_DeviceConnected, OnDeviceConnected);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_DeviceDisconnected, OnDeviceDisconnected);
@@ -141,6 +144,9 @@ namespace Wave.Essence
 		}
 		private void OnDisable()
 		{
+			SystemEvent.Remove(WVR_EventType.WVR_EventType_RenderingToBePaused, OnRenderingToBePaused);
+			SystemEvent.Remove(WVR_EventType.WVR_EventType_RenderingToBeResumed, OnRenderingToBeResumed);
+
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_DeviceRoleChanged, OnControllerRoleChange);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_DeviceConnected, OnDeviceConnected);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_DeviceDisconnected, OnDeviceDisconnected);
@@ -165,6 +171,15 @@ namespace Wave.Essence
 		#endregion
 
 		#region Major Standalone Functions
+		private void OnRenderingToBePaused(WVR_Event_t systemEvent)
+		{
+			DEBUG("WVR_EventType_RenderingToBePaused");
+		}
+		private void OnRenderingToBeResumed(WVR_Event_t systemEvent)
+		{
+			DEBUG("WVR_EventType_RenderingToBeResumed");
+		}
+
 		private void UpdateControllerRole()
 		{
 			WVR_DeviceType default_role = Interop.WVR_GetDefaultControllerRole();
