@@ -301,9 +301,13 @@ namespace Wave.Native
 		{
 			return system.TriggerTrackerVibration(trackerId, durationMicroSec, frequency, amplitude);
 		}
-		public override IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize)
+		public override IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize, ref UInt64 timestamp)
 		{
-			return system.GetTrackerExtendedData(trackerId, ref exDataSize);
+			return system.GetTrackerExtendedData(trackerId, ref exDataSize, ref timestamp);
+		}
+		public override WVR_Result GetTrackerDeviceName(WVR_TrackerId trackerId, ref UInt32 nameSize, ref IntPtr deviceName)
+		{
+			return system.GetTrackerDeviceName(trackerId, ref nameSize, ref deviceName);
 		}
 		#endregion
 

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine.Profiling;
 #if UNITY_EDITOR
+using UnityEditor;
 using Wave.Essence.Editor;
 #endif
 
@@ -79,11 +80,6 @@ namespace Wave.Essence
 		void Awake()
 		{
 			instance = this;
-
-#if UNITY_EDITOR
-			if (WaveEditor.Instance != null)
-				DEBUG("Awake() WaveEditor is initialized.");
-#endif
 
 			for (int i = 0; i < Enum.GetNames(typeof(WVR_DeviceType)).Length; i++)
 				m_Connected.Add((WVR_DeviceType)i, false);
@@ -1026,6 +1022,10 @@ namespace Wave.Essence
 
 		public XR_InteractionMode GetInteractionMode()
 		{
+#if UNITY_EDITOR
+			bool EnableDirectPreview = EditorPrefs.GetBool("Wave/DirectPreview/EnableDirectPreview", false);
+			if(EnableDirectPreview) { return (XR_InteractionMode)Interop.WVR_GetInteractionMode(); }
+#endif
 			return m_InteractionMode;
 		}
 		private void OnInteractionModeChanged(WVR_Event_t systemEvent)

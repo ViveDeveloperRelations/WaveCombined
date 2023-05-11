@@ -70,7 +70,12 @@ namespace Wave.Essence
 		public GameObject TrackedObject { get { return trackedObject; } set { trackedObject = value; isDirty = true; } }
 		private GameObject staticTrackedObject = null;
 
-		public Vector2 LeftNDCSpace { get; private set; }
+        [Tooltip("Set dynamic mode")]
+        [SerializeField]
+        private bool setDynamic = false;
+        public bool SetDynamic { get { return setDynamic; } set { setDynamic = value; } }
+
+        public Vector2 LeftNDCSpace { get; private set; }
 		public Vector2 RightNDCSpace { get; private set; }
 
 		private bool isDirty = true;
@@ -170,11 +175,16 @@ namespace Wave.Essence
 #endif
 				if (Interop.WVR_IsRenderFoveationSupport())
 				{
-					if (Interop.WVR_IsRenderFoveationDefaultOn())
-						originalMode = WVR_FoveationMode.Default;
-					else
-						originalMode = Interop.WVR_IsRenderFoveationEnabled() ? WVR_FoveationMode.Enable : WVR_FoveationMode.Disable;
-					Interop.WVR_RenderFoveationMode(WVR_FoveationMode.Enable);
+                    if (Interop.WVR_IsRenderFoveationDefaultOn())
+                        originalMode = WVR_FoveationMode.Default;
+                    else
+                        originalMode = Interop.WVR_IsRenderFoveationEnabled() ? WVR_FoveationMode.Enable : WVR_FoveationMode.Disable;
+                    if (setDynamic)
+                    {
+                        Interop.WVR_RenderFoveationMode(WVR_FoveationMode.Dynamic);
+                    }
+                    else
+                        Interop.WVR_RenderFoveationMode(WVR_FoveationMode.Enable);
 
 					Instance = this;
 					isEnabled = true;

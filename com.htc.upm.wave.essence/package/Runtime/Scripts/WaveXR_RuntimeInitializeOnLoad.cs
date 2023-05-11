@@ -1,4 +1,4 @@
-﻿// "Wave SDK 
+// "Wave SDK 
 // © 2020 HTC Corporation. All Rights Reserved.
 //
 // Unless otherwise required by copyright law and practice,
@@ -48,6 +48,10 @@ namespace Wave.Essence
 
 		private void SceneLoadActions()
 		{
+#if UNITY_EDITOR
+            if (Application.isEditor)
+                return;
+#endif
             var settings = WaveXRSettings.GetInstance();
             if (settings == null)
             {

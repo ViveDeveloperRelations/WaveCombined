@@ -212,21 +212,30 @@ namespace Wave.XR.Settings
         #endregion
 
         #region Eye
-        // Expression
-        static string PropertyName_EnableEyeExpression = "EnableEyeExpression";
-        static GUIContent Label_EnableEyeExpression = new GUIContent("Enable Eye Expression");
-        SerializedProperty Property_EnableEyeExpression = null;
-
         // Tracking
         static string PropertyName_EnableEyeTracking = "EnableEyeTracking";
         static GUIContent Label_EnableEyeTracking = new GUIContent("Enable Eye Tracking");
         SerializedProperty Property_EnableEyeTracking = null;
+        // Expression
+        static string PropertyName_EnableEyeExpression = "EnableEyeExpression";
+        static GUIContent Label_EnableEyeExpression = new GUIContent("Enable Eye Expression");
+        SerializedProperty Property_EnableEyeExpression = null;
         #endregion
 
         #region Lip Expression
         static string PropertyName_EnableLipExpression = "EnableLipExpression";
         static GUIContent Label_EnableLipExpression = new GUIContent("Enable Lip Expression");
         SerializedProperty Property_EnableLipExpression = null;
+        #endregion
+
+        #region Scene Perception
+        static string PropertyName_EnableScenePerception = "EnableScenePerception";
+        static GUIContent Label_EnableScenePerception = new GUIContent("Enable Scene Perception");
+        SerializedProperty Property_EnableScenePerception = null;
+
+        static string PropertyName_EnableSceneMesh = "EnableSceneMesh";
+        static GUIContent Label_EnableSceneMesh = new GUIContent("Enable Scene Mesh");
+        SerializedProperty Property_EnableSceneMesh = null;
         #endregion
 
         static string PropertyName_AllowSpectatorCamera = "allowSpectatorCamera";
@@ -268,6 +277,7 @@ namespace Wave.XR.Settings
         bool foldoutHand = true;
         bool foldoutEye = true;
         bool foldoutLipExpression = true;
+        bool foldoutScenePerception = true;
         bool foldoutCommon = true;
 
         public void AndroidSettings()
@@ -335,6 +345,10 @@ namespace Wave.XR.Settings
             if (Property_EnableLipExpression == null) Property_EnableLipExpression = serializedObject.FindProperty(PropertyName_EnableLipExpression);
             #endregion
 
+            #region Scene Perception
+            if (Property_EnableScenePerception == null) Property_EnableScenePerception = serializedObject.FindProperty(PropertyName_EnableScenePerception);
+            if (Property_EnableSceneMesh == null) Property_EnableSceneMesh = serializedObject.FindProperty(PropertyName_EnableSceneMesh);
+            #endregion
 
             if (displayGamutPreference == null)
             {
@@ -437,8 +451,9 @@ namespace Wave.XR.Settings
             if (foldoutEye)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(Property_EnableEyeExpression, Label_EnableEyeExpression);
                 EditorGUILayout.PropertyField(Property_EnableEyeTracking, Label_EnableEyeTracking);
+                WaveXRSettings mySettings = target as WaveXRSettings;
+                if (mySettings.EnableEyeTracking) { EditorGUILayout.PropertyField(Property_EnableEyeExpression, Label_EnableEyeExpression); }
                 EditorGUI.indentLevel--;
             }
 
@@ -451,6 +466,21 @@ namespace Wave.XR.Settings
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(Property_EnableLipExpression, Label_EnableLipExpression);
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.Space();
+            #endregion
+
+            #region Scene Perception
+            foldoutScenePerception = EditorGUILayout.Foldout(foldoutScenePerception, "Scene Perception");
+            if (foldoutScenePerception)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(Property_EnableScenePerception, Label_EnableScenePerception);
+                WaveXRSettings mySettings = target as WaveXRSettings;
+                if (mySettings.EnableScenePerception) { EditorGUILayout.PropertyField(Property_EnableSceneMesh, Label_EnableSceneMesh); }
+
                 EditorGUI.indentLevel--;
             }
 

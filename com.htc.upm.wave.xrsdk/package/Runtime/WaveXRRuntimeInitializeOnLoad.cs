@@ -23,6 +23,14 @@ namespace Wave.XR
         static void OnRuntimeMethodLoad()
         {
             Debug.Log(TAG + ": OnRuntimeMethodLoad");
+            if (XRGeneralSettings.Instance == null ||
+                XRGeneralSettings.Instance.Manager == null ||
+                XRGeneralSettings.Instance.Manager.activeLoader == null ||
+                XRGeneralSettings.Instance.Manager.activeLoader.GetType() != typeof(WaveXRLoader))
+            {
+                Debug.Log(TAG + ": Not XR. Disabled.");
+                return;
+            }
 #if false // When debug Set false to run in editor
             if (XRGeneralSettings.Instance == null || XRGeneralSettings.Instance.Manager == null || XRGeneralSettings.Instance.Manager.activeLoader == null || XRGeneralSettings.Instance.Manager.activeLoader.GetType() != typeof(WaveXRLoader))
                 return; //Don't create GO and script instance if active loader is not found or is not WaveXRLoader

@@ -12,12 +12,16 @@ using UnityEngine;
 using Wave.Native;
 using Wave.Essence.Hand;
 using Wave.Essence.Events;
+using UnityEngine.UI;
 
 namespace Wave.Essence.Samples.PassThrough
 {
 	public class ActivatePassThrough : MonoBehaviour
 	{
 		const string LOG_TAG = "Wave.Essence.Samples.PassThrough.ActivatePassThrough";
+		public Text statusIQ;
+		public Text statusIF;
+
 		void DEBUG(string msg)
 		{
 			if (Log.EnableDebugLog)
@@ -25,6 +29,7 @@ namespace Wave.Essence.Samples.PassThrough
 		}
 
 		bool showUnderlay = false;
+
 		public void ActivateUnderlay()
 		{
 			showUnderlay = !showUnderlay;
@@ -39,11 +44,39 @@ namespace Wave.Essence.Samples.PassThrough
 			DEBUG("ActivateUnderlay() " + showOverlay + ", result: " + result);
 		}
 
+		public void OnButtonClickHigh()
+		{
+			bool ret = Interop.WVR_SetPassthroughImageQuality(WVR_PassthroughImageQuality.QualityMode);
+			statusIQ.text = "Set Q. ret=" + ret;
+		}
+		public void OnButtonClickMedium()
+		{
+			bool ret = Interop.WVR_SetPassthroughImageQuality(WVR_PassthroughImageQuality.DefaultMode);
+			statusIQ.text = "Set D. ret=" + ret;
+		}
+		public void OnButtonClickLow()
+		{
+			bool ret = Interop.WVR_SetPassthroughImageQuality(WVR_PassthroughImageQuality.PerformanceMode);
+			statusIQ.text = "Set P. ret=" + ret;
+		}
+
+		public void OnButtonClickEnvironmentView()
+		{
+			bool ret = Interop.WVR_SetPassthroughImageFocus(WVR_PassthroughImageFocus.View);
+			statusIF.text = "Set V. ret=" + ret;
+		}
+		public void OnButtonClickHandInteraction()
+		{
+			bool ret = Interop.WVR_SetPassthroughImageFocus(WVR_PassthroughImageFocus.Scale);
+			statusIF.text = "Set S. ret=" + ret;
+		}
+
 		private void Update()
 		{
 			if (WXRDevice.ButtonPress(WVR_DeviceType.WVR_DeviceType_Controller_Left, WVR_InputId.WVR_InputId_Alias1_Menu))
 				ActivateOverlay();
 		}
+
 		private bool mEnabled = false;
 		void OnEnable()
 		{

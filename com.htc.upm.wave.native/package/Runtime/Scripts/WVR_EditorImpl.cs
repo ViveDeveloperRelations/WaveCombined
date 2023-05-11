@@ -3082,8 +3082,7 @@ namespace Wave.Native
 		}
 		public bool IsTrackerConnected(WVR_TrackerId trackerId)
 		{
-			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
-				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			//if (trackerId == WVR_TrackerId.WVR_TrackerId_1 || trackerId == WVR_TrackerId.WVR_TrackerId_0)
 			{
 				if (m_TrackerEnabled)
 				{
@@ -3340,8 +3339,10 @@ namespace Wave.Native
 		const int kTrackerExtDataTypeSize = 4;
 		Int32[] s_Tracker0ExtData = new Int32[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		Int32[] s_Tracker1ExtData = new Int32[] { 1, 1, 1, 1, 1, 1 };
-		public IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize)
+		public IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize, ref UInt64 timestamp)
 		{
+			timestamp = (UInt64)Time.frameCount;
+
 			exDataSize = (trackerId == WVR_TrackerId.WVR_TrackerId_0 ?
 				s_Tracker0ExtData.Length : s_Tracker1ExtData.Length
 			);
@@ -3357,6 +3358,35 @@ namespace Wave.Native
 			}
 
 			return exData;
+		}
+		static Dictionary<WVR_TrackerId, string> s_TrackerDeviceNames = new Dictionary<WVR_TrackerId, string>() {
+			{ WVR_TrackerId.WVR_TrackerId_0, "Wrist_Right"	/*new string(new char[] {'W', 'r', 'i', 's', 't', '_', 'R', 'i', 'g', 'h', 't' })*/ },
+			{ WVR_TrackerId.WVR_TrackerId_1, "Wrist_Left"	/*new string(new char[] {'W', 'r', 'i', 's', 't', '_', 'L', 'e', 'f', 't' })*/ },
+			{ WVR_TrackerId.WVR_TrackerId_2, "Waist"		/*new string(new char[] {'W', 'a', 'i', 's', 't' })*/ },
+			{ WVR_TrackerId.WVR_TrackerId_3, "Ankle_Right"	/*new string(new char[] {'A', 'n', 'k', 'l', 'e', '_', 'R', 'i', 'g', 'h', 't' })*/ },
+			{ WVR_TrackerId.WVR_TrackerId_4, "Ankle_Left"	/*new string(new char[] {'A', 'n', 'k', 'l', 'e', '_', 'L', 'e', 'f', 't' })*/ },
+			{ WVR_TrackerId.WVR_TrackerId_5, "Upper_Arm_Right"	/*new string(new char[] {'U', 'p', 'p', 'e', 'r', '_', 'A', 'r', 'm', '_', 'R', 'i', 'g', 'h', 't' })*/ },
+			{ WVR_TrackerId.WVR_TrackerId_6, "Upper_Arm_Left"	/*new string(new char[] {'U', 'p', 'p', 'e', 'r', '_', 'A', 'r', 'm', '_', 'L', 'e', 'f', 't' })*/ },
+			{ WVR_TrackerId.WVR_TrackerId_7, "Thigh_Right"	/*new string(new char[] {'T', 'h', 'i', 'g', 'h', '_', 'R', 'i', 'g', 'h', 't' })*/ },
+			{ WVR_TrackerId.WVR_TrackerId_8, "Thigh_Left"	/*new string(new char[] {'T', 'h', 'i', 'g', 'h', '_', 'L', 'e', 'f', 't' })*/ },
+		};
+		public WVR_Result GetTrackerDeviceName(WVR_TrackerId trackerId, ref UInt32 nameSize, ref IntPtr deviceName)
+		{
+			if (!s_TrackerDeviceNames.ContainsKey(trackerId)) { return WVR_Result.WVR_Error_FeatureNotSupport; }
+
+			if (deviceName.Equals(IntPtr.Zero))
+			{
+				nameSize = (UInt32)s_TrackerDeviceNames[trackerId].Length;
+			}
+			else
+			{
+				deviceName = Marshal.StringToHGlobalAnsi(s_TrackerDeviceNames[trackerId]);
+
+				//var name = Marshal.PtrToStringAnsi(deviceName);
+				//DEBUG("GetTrackerDeviceName() " + trackerId + ", name: " + name);
+			}
+
+			return WVR_Result.WVR_Success;
 		}
 		#endregion
 

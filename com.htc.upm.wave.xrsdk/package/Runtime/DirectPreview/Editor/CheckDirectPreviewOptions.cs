@@ -256,15 +256,15 @@ namespace Wave.XR.DirectPreview.Editor
             {
                 StreamingServer.StopStreamingServer();
             }
-            if (GUILayout.Button("Start Device APK"))
-            {
-                DirectPreviewAPK.StartSimulator();
-                configFoldout = false;
-            }
-            if (GUILayout.Button("Stop Device APK"))
-            {
-                DirectPreviewAPK.StopSimulator();
-            }
+            //if (GUILayout.Button("Start Device APK"))
+            //{
+            //    DirectPreviewAPK.StartSimulator();
+            //    configFoldout = false;
+            //}
+            //if (GUILayout.Button("Stop Device APK"))
+            //{
+            //    DirectPreviewAPK.StopSimulator();
+            //}
             if (GUILayout.Button("Install Device APK"))
             {
                 DirectPreviewAPK.InstallSimulator();
@@ -287,13 +287,13 @@ namespace Wave.XR.DirectPreview.Editor
                     "Please set \"<your android sdk>\\platform-tools\" into your environment path, and then reboot your PC to take effect."
                     , MessageType.Error);
 
-            configFoldout = EditorGUILayout.Foldout(configFoldout, "Config");
-            if (configFoldout)
-            {
-                EditorGUI.indentLevel++;
-                ShowConfig();
-                EditorGUI.indentLevel--;
-            }
+            //configFoldout = EditorGUILayout.Foldout(configFoldout, "Config");
+            //if (configFoldout)
+            //{
+            //    EditorGUI.indentLevel++;
+            //    ShowConfig();
+            //    EditorGUI.indentLevel--;
+            //}
 
             ShowButtons();
 

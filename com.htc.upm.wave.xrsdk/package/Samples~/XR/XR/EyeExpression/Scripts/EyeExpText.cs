@@ -32,7 +32,7 @@ namespace Wave.XR.Sample.EyeExp
 			if (m_Text == null) { return; }
 
 			float value = InputDeviceEye.GetEyeExpressionValue(m_EyeExp);
-			m_Text.text = m_EyeExp.ToString() + ": " + value;
+			m_Text.text = m_EyeExp.ToString() + ": " + value.ToString("N5");
 		}
 	}
 }

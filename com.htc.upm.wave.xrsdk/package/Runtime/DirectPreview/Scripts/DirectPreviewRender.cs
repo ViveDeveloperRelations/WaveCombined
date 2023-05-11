@@ -119,6 +119,7 @@ namespace Wave.XR.DirectPreview
 		private void Start()
 		{
 			camera = GetComponent<Camera>();
+			mat = new Material(Shader.Find("Unlit/DP2BlitShader"));
 			lastUpdateTime = 0;
 
 			if (mFPS == 0)
@@ -141,14 +142,14 @@ namespace Wave.XR.DirectPreview
 			//PrintDebug("update: " + frame);
 		}
 
-		//public void OnPostRender(Camera cam)
-		//{
-		//	Debug.Log(" native ptr: " + cam.activeTexture.GetNativeTexturePtr());
-		//}
+        //public void OnPostRender(Camera cam)
+        //{
+        //	Debug.Log(" native ptr: " + cam.activeTexture.GetNativeTexturePtr());
+        //}
 
+        readonly RenderTexture[] temp = new RenderTexture[2];
 
-
-	void OnRenderImage(RenderTexture src, RenderTexture dest)
+		void OnRenderImage(RenderTexture src, RenderTexture dest)
 		{
 			//Debug.Log("vrUsage=" + src.vrUsage + ", width=" + src.width + ", height=" + src.height + ", name=" + src.name + ", frame=" + frame + ", eye=" + camera.stereoActiveEye);
 			//Debug.Log("src native ptr: " + src.GetNativeTexturePtr() + ", eye=" + camera.stereoActiveEye);
@@ -167,25 +168,34 @@ namespace Wave.XR.DirectPreview
 			{
 				if (!isLeftReady && camera.stereoActiveEye == Camera.MonoOrStereoscopicEye.Left)
 				{
-					rt[0] = src.GetNativeTexturePtr();
-					UnityEngine.Debug.LogWarning(camera.stereoActiveEye + ", rt[0] : " + rt[0]);
+					var desc = src.descriptor;
+					desc.msaaSamples = 1;
+					desc.depthBufferBits = 0;
+					desc.useMipMap = false;
+					temp[0] = RenderTexture.GetTemporary(desc);
+					Graphics.Blit(src, temp[0], mat);
 					isLeftReady = true;
 				}
 
 				if (isLeftReady && !isRightReady && camera.stereoActiveEye == Camera.MonoOrStereoscopicEye.Right)
 				{
-					rt[1] = src.GetNativeTexturePtr();
-
-					UnityEngine.Debug.LogWarning(camera.stereoActiveEye + ", rt[1] : " + rt[1]);
+					var desc = src.descriptor;
+					desc.msaaSamples = 1;
+					desc.depthBufferBits = 0;
+					desc.useMipMap = false;
+					temp[1] = RenderTexture.GetTemporary(desc);
+					Graphics.Blit(src, temp[1], mat);
 					isRightReady = true;
 				}
 
 				if (isLeftReady && isRightReady)
 				{
+					rt[0] = temp[0].GetNativeTexturePtr();
+					rt[1] = temp[1].GetNativeTexturePtr();
 					lastUpdateTime = currentTime;
 					if (WVR_SetRenderImageHandles(rt))
 					{
-						// Debug.LogWarning("callback successfully");
+						//Debug.LogWarning("callback successfully");
 					}
 					else
 					{
@@ -193,17 +203,15 @@ namespace Wave.XR.DirectPreview
 					}
 					isLeftReady = false;
 					isRightReady = false;
+					RenderTexture.ReleaseTemporary(temp[0]);
+					RenderTexture.ReleaseTemporary(temp[1]);
+					temp[0] = null;
+					temp[1] = null;
 				}
 			}
 
-
-
-
 			if (isLeftReady && isRightReady)
 			{
-
-
-
 			}
 		}
 	}
