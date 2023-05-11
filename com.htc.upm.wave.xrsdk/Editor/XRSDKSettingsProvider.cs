@@ -126,7 +126,7 @@ namespace Wave.XR
 
 		private void ImportModule(string packagePath)
 		{
-			const string xrsdkUnityPackagesFolder = Constants.PackagesRootFolder +Constants.SDKPackageName+"/package/UnityPackages~";
+			const string xrsdkUnityPackagesFolder = Constants.PackagesRootFolder +Constants.SDKPackageName+"/UnityPackages~";
 			string target = Path.Combine(xrsdkUnityPackagesFolder, packagePath);
 			Debug.Log("Import: " + target);
 			AssetDatabase.ImportPackage(target, false);

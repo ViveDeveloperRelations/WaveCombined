@@ -31,9 +31,7 @@ namespace Wave.XR.BuildCheck
 	{
 		private static string WaveXRPath = "Assets/Wave/XR";
 
-		//"Packages/" + Constants.CombinedPackageName + "/" + Constants.EssencePackageName + "/package/UnityPackages~";
-		
-		const string XRSDKPackageRoot = Constants.PackagesRootFolder + "/" + Constants.SDKPackageName + "/package";
+		const string XRSDKPackageRoot = Constants.PackagesRootFolder + "/" + Constants.SDKPackageName;
 		
 		const string CustomAndroidManifestPathSrc = "/Platform/Android/AndroidManifest.xml";
 		const string AndroidManifestPathSrc = XRSDKPackageRoot + "/Runtime/Android/AndroidManifest.xml";

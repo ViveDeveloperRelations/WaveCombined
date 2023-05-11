@@ -21,7 +21,8 @@ namespace Wave.XR.DirectPreview.Editor
 {
 	public class DirectPreviewAPK
 	{
-		
+		internal const string DirectPreviewBinaryFolderRoot = Constants.PackagesRootFolder + "/" + Constants.SDKPackageName +
+		                                                     "/Runtime/DirectPreview/Binary";
 		private static void GeneralSettings()
 		{
 			PlayerSettings.Android.bundleVersionCode = 1;
@@ -84,8 +85,7 @@ namespace Wave.XR.DirectPreview.Editor
 		{
 			try
 			{
-				const string RRClientFolderRoot = Constants.PackagesRootFolder + "/" + Constants.SDKPackageName + "/package/Runtime/DirectPreview/Binary/RRClient";
-				var absolutePath = Path.GetFullPath(RRClientFolderRoot+"/Vive_rrClient.apk");
+				var absolutePath = Path.GetFullPath(DirectPreviewBinaryFolderRoot+"/RRClient/Vive_rrClient.apk");
 				UnityEngine.Debug.Log("Install Direct Preview device APK pull path = " + absolutePath);
 
 				Process myProcess = new Process();
@@ -236,11 +236,9 @@ namespace Wave.XR.DirectPreview.Editor
 			}
 		}
 
-		public const string DirectPreviewBinaryFolder = "Packages/" + Constants.CombinedPackageName + "/package/" +
-		                                         Constants.SDKPackageName + "/Runtime/DirectPreview/Binary";
 		private static string configPath()
 		{
-			var absolutePath = Path.GetFullPath(DirectPreviewBinaryFolder+"/DirectPreviewConfig.json");
+			var absolutePath = Path.GetFullPath(DirectPreviewBinaryFolderRoot+"/DirectPreviewConfig.json");
 			UnityEngine.Debug.Log("configPath = " + absolutePath);
 
 			return absolutePath;
