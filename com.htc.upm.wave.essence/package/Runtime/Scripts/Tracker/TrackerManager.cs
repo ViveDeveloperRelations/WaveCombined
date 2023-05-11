@@ -915,6 +915,15 @@ namespace Wave.Essence.Tracker
 
 			return s_TrackerConnection[trackerId];
 		}
+		public bool IsTrackerPoseValid(TrackerId trackerId)
+		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				return InputDeviceTracker.IsTracked(trackerId.InputDevice());
+			}
+
+			return s_TrackerPoses[trackerId].valid;
+		}
 
 		public TrackerRole GetTrackerRole(TrackerId trackerId)
 		{

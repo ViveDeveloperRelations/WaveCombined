@@ -14,6 +14,7 @@ using UnityEngine.XR.Management;
 using Wave.Essence.Render;
 using Wave.XR.Settings;
 using Wave.XR.Loader;
+using Wave.Native;
 
 namespace Wave.Essence
 {
@@ -65,6 +66,13 @@ namespace Wave.Essence
                 settings.amcMode == WaveXRSettings.AMCMode.Force_PMC) &&
                 settings.amcModeConfirm > 0)
                 WaveXR_AMCProcess.FindMainCamera();
+
+			if (settings.enableFSE)
+			{
+				Debug.Log(TAG + ": WVR_SetFrameSharpnessEnhancementLevel to: " + settings.FSE_Level);
+				Interop.WVR_SetFrameSharpnessEnhancementLevel(settings.FSE_Level);
+			}
+
 		}
 
 		private void OnEnable()

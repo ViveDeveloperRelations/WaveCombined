@@ -271,6 +271,9 @@ namespace Wave.Essence.Editor
 			featureRenderDocImported = Directory.Exists(WaveEssencePath + kRenderDocPath);
 			featureTrackerModelImported = Directory.Exists(WaveEssencePath + kTrackerModelPath);
 
+			if (pi == null)
+				return false;
+
 			featureControllerModelNeedUpdate = featureControllerModelImported && !Directory.Exists(WaveEssencePath + kControllerModelPath + "/" + pi.version) &&
 				!Directory.Exists(WaveEssencePath + kControllerModelPath + "/" + FAKE_VERSION);
 			featureInputModuleNeedUpdate = featureInputModuleImported && !Directory.Exists(WaveEssencePath + kInputModulePath + "/" + pi.version) &&

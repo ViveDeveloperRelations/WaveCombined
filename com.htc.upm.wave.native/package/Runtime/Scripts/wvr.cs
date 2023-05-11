@@ -1066,6 +1066,7 @@ namespace Wave.Native
 		WVR_Error_CtrlerModel_InvalidModel       = 102,  /**< We can't get model that can be use. */
 		WVR_Error_CtrlerModel_Unknown            = 103,  /**< Unknown error. */
 		WVR_Error_InvalidRenderModel			 = 110,
+		WVR_Error_CtrlerModel_NoAnimationData	 = 104,
 
 		WVR_Error_EyeTracking_NotInitial         = 200,  /**< The eye calibration procedure has not been initialized. */
 		WVR_Error_EyeTracking_NotWorking         = 201,  /**< The operation of eye tracking is not working. */
@@ -1089,7 +1090,8 @@ namespace Wave.Native
 		WVR_HandGestureType_OK = 4,         /**< Represent OK gesture. */
 		WVR_HandGestureType_ThumbUp = 5,    /**< Represent thumb up gesture. */
 		WVR_HandGestureType_IndexUp = 6,    /**< Represent index up gesture. */
-		WVR_HandGestureType_Palm_Pinch = 7,    /**< Represent inverse pinch gesture. */
+		WVR_HandGestureType_Palm_Pinch = 7, /**< Represent inverse pinch gesture. */
+		WVR_HandGestureType_Yeah = 8,       /**< Represent yeah gesture. */
 		WVR_HandGestureType_Reserved1 = 32,   /**< Reserved gesture. */
 		WVR_HandGestureType_Reserved2 = 33,   /**< Reserved gesture. */
 		WVR_HandGestureType_Reserved3 = 34,   /**< Reserved gesture. */
@@ -1372,6 +1374,8 @@ namespace Wave.Native
 		public uint jointCount;      /**< Specify the size of the @ref WVR_Pose_t array. */
 		public IntPtr joints;        /**< The array of the @ref WVR_Pose_t. */
 		public WVR_Vector3f_t scale; /**< defualt is 1. */
+		public WVR_Vector3f_t wristLinearVelocity;
+		public WVR_Vector3f_t wristAngularVelocity;
 	}
 
     [StructLayout(LayoutKind.Sequential)]
@@ -1407,7 +1411,9 @@ namespace Wave.Native
         public WVR_Pose_t j24;
         public WVR_Pose_t j25;
         public WVR_Vector3f_t scale;
-    }
+		public WVR_Vector3f_t wristLinearVelocity;
+		public WVR_Vector3f_t wristAngularVelocity;
+	}
 
     /**
 	 * @brief The data structure of the hand tracker data that contains both hands.
@@ -2398,8 +2404,13 @@ namespace Wave.Native
             return WVR_Base.Instance.GetAMCState();
         }
 
-        #endregion
-        public class WVR_Base
+		public static WVR_Result WVR_SetFrameSharpnessEnhancementLevel(float level)
+		{
+			return WVR_Base.Instance.SetFrameSharpnessEnhancementLevel(level);
+		}
+
+		#endregion
+		public class WVR_Base
 		{
 			private static WVR_Base instance = null;
 			public static WVR_Base Instance
@@ -3162,8 +3173,13 @@ namespace Wave.Native
                 return WVR_AMCState.Off;
             }
 
-            #region Internal
-            public virtual string DeployRenderModelAssets(int deviceIndex, string renderModelName)
+			public virtual WVR_Result SetFrameSharpnessEnhancementLevel(float level)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+
+			#region Internal
+			public virtual string DeployRenderModelAssets(int deviceIndex, string renderModelName)
 			{
 				return "";
 			}

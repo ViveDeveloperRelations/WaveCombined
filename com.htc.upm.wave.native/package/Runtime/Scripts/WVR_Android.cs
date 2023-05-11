@@ -966,8 +966,15 @@ namespace Wave.Native
             return WVR_GetAMCState_Android();
         }
 
-        #region Internal
-        public override string DeployRenderModelAssets(int deviceIndex, string renderModelName)
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_SetFrameSharpnessEnhancementLevel", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_SetFrameSharpnessEnhancementLevel_Android(float level);
+		public override WVR_Result SetFrameSharpnessEnhancementLevel(float level)
+		{
+			return WVR_SetFrameSharpnessEnhancementLevel_Android(level);
+		}
+
+		#region Internal
+		public override string DeployRenderModelAssets(int deviceIndex, string renderModelName)
 		{
 			const string VRACTIVITY_CLASSNAME = "com.htc.vr.unity.WVRUnityVRActivity";
 			const string FILEUTILS_CLASSNAME = "com.htc.vr.unity.FileUtils";

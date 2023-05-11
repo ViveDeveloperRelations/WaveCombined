@@ -91,11 +91,13 @@ namespace Wave.Generic.Sample
 				new SceneData(Entry, "209 AQDR_Test", "AQDR_Test", NoHelp, NotForPC),
 				new SceneData(NotEntry, NoTitle, "AQDR_Loading"),
 				new SceneData(Entry, "210 FadeOut Test", "FadeOut_Test", NoHelp, NotForPC),
+				new SceneData(Entry, "211 FSE Test", "FSE_Test", NoHelp, NotForPC),
 
 				new SceneData(Entry, "304 WaveControllerTest", "WaveControllerTest"),
 
 				new SceneData(Entry, "305 Interaction Mode", "InteractionMode"),
 				new SceneData(Entry, "306 Button Test", "ButtonTest"),
+				new SceneData(Entry, "307 Pass Through", "PassThrough"),
 				new SceneData(Entry, "319 Natural Hand", "NaturalHand"),
 				new SceneData(Entry, "320 Hand Gesture", "HandGesture"),
 

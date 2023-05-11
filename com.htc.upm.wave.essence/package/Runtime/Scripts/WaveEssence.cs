@@ -1,4 +1,4 @@
-﻿// "Wave SDK 
+// "Wave SDK 
 // © 2020 HTC Corporation. All Rights Reserved.
 //
 // Unless otherwise required by copyright law and practice,
@@ -150,6 +150,15 @@ namespace Wave.Essence
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_ControllerPoseModeOffsetReady, OnControllerPoseModeOffsetReady);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_SystemInteractionModeChanged, OnInteractionModeChanged);
 			SystemEvent.Listen(WVR_EventType.WVR_EventType_InputDevMappingChanged, OnInputDevMappingChanged);
+
+#if UNITY_EDITOR
+			if (!DummyPose.ToUpdatePose)
+			{
+				DummyPose.ToUpdatePose = true;
+				DummyPose.Origin = WVR_PoseOriginModel.WVR_PoseOriginModel_OriginOnHead;
+				StartCoroutine(DummyPose.UpdatePoses());
+			}
+#endif
 		}
 		private void OnDisable()
 		{
@@ -170,6 +179,14 @@ namespace Wave.Essence
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_ControllerPoseModeOffsetReady, OnControllerPoseModeOffsetReady);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_SystemInteractionModeChanged, OnInteractionModeChanged);
 			SystemEvent.Remove(WVR_EventType.WVR_EventType_InputDevMappingChanged, OnInputDevMappingChanged);
+
+#if UNITY_EDITOR
+			if (DummyPose.ToUpdatePose)
+			{
+				StopCoroutine(DummyPose.UpdatePoses());
+				DummyPose.ToUpdatePose = false;
+			}
+#endif
 		}
 		void Update()
 		{
@@ -398,7 +415,21 @@ namespace Wave.Essence
 		}
 		uint inputTypeLeft = (uint)(WVR_InputType.WVR_InputType_Button | WVR_InputType.WVR_InputType_Touch | WVR_InputType.WVR_InputType_Analog);
 		uint inputTypeRight = (uint)(WVR_InputType.WVR_InputType_Button | WVR_InputType.WVR_InputType_Touch | WVR_InputType.WVR_InputType_Analog);
-		WVR_AnalogState_t[] analogState = new WVR_AnalogState_t[(int)WVR_InputId.WVR_InputId_Max];
+		Dictionary<WVR_DeviceType, WVR_AnalogState_t[]> analogState = new Dictionary<WVR_DeviceType, WVR_AnalogState_t[]>()
+		{
+			{ WVR_DeviceType.WVR_DeviceType_Invalid, null },			// 0
+			{ WVR_DeviceType.WVR_DeviceType_HMD, null },
+			{ WVR_DeviceType.WVR_DeviceType_Controller_Right, null },
+			{ WVR_DeviceType.WVR_DeviceType_Controller_Left, null },
+			{ WVR_DeviceType.WVR_DeviceType_Camera, null },
+			{ WVR_DeviceType.WVR_DeviceType_EyeTracking, null },		// 5
+			{ WVR_DeviceType.WVR_DeviceType_HandGesture_Right, null },
+			{ WVR_DeviceType.WVR_DeviceType_HandGesture_Left, null },
+			{ WVR_DeviceType.WVR_DeviceType_NaturalHand_Right, null },
+			{ WVR_DeviceType.WVR_DeviceType_NaturalHand_Left, null },
+			{ WVR_DeviceType.WVR_DeviceType_ElectronicHand_Right, null },   // 10
+			{ WVR_DeviceType.WVR_DeviceType_ElectronicHand_Left, null },
+		};
 		private void UpdateEventButtonsController(WVR_DeviceType dev)
 		{
 			if (!m_Connected[dev]) return;
@@ -420,12 +451,12 @@ namespace Wave.Essence
 
 			if (analogCount > 0)
 			{
-				if (analogState == null || analogState.Length < analogCount)
+				if (analogState[dev] == null || analogState[dev].Length < analogCount)
 				{
-					analogState = new WVR_AnalogState_t[analogCount];
+					analogState[dev] = new WVR_AnalogState_t[analogCount];
 				}
 
-				if (Interop.WVR_GetInputDeviceState(dev, inputType, ref buttons, ref touches, analogState, (uint)analogCount))
+				if (Interop.WVR_GetInputDeviceState(dev, inputType, ref buttons, ref touches, analogState[dev], (uint)analogCount))
 				{
 					for (uint id = 0; id < (uint)WVR_InputId.WVR_InputId_Max; id++)
 					{
@@ -449,10 +480,10 @@ namespace Wave.Essence
 						{
 							for (uint index = 0; index < analogCount; index++)
 							{
-								if (id == (uint)analogState[index].id)
+								if (id == (uint)analogState[dev][index].id)
 								{
-									s_ButtonAxis[(uint)dev, id].x = analogState[index].axis.x;
-									s_ButtonAxis[(uint)dev, id].y = analogState[index].axis.y;
+									s_ButtonAxis[(uint)dev, id].x = analogState[dev][index].axis.x;
+									s_ButtonAxis[(uint)dev, id].y = analogState[dev][index].axis.y;
 								}
 							}
 						}
@@ -1002,6 +1033,13 @@ namespace Wave.Essence
 			DEBUG("OnInteractionModeChanged()");
 			UpdateInteractionMode();
 		}
+		#endregion
+
+		#region Pose in Editor Playing Mode
+#if UNITY_EDITOR
+		public Vector3 GetPosition(WVR_DeviceType device) { return DummyPose.GetPosition(device); }
+		public Quaternion GetRotation(WVR_DeviceType device) { return DummyPose.GetRotation(device); }
+#endif
 		#endregion
 	}
 }

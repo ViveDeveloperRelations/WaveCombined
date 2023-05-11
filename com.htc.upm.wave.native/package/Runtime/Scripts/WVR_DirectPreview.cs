@@ -56,8 +56,119 @@ namespace Wave.Native
 
 		public delegate void debugcallback(string z);
 
+		#region wvr_hand.h
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_GetInteractionMode_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_InteractionMode WVR_GetInteractionMode_S();
+		public override WVR_InteractionMode GetInteractionMode()
+		{
+			return WVR_GetInteractionMode_S();
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_GetHandGestureInfo_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetHandGestureInfo_S(ref WVR_HandGestureInfo_t info);
+		public override WVR_Result GetHandGestureInfo(ref WVR_HandGestureInfo_t info)
+		{
+			return WVR_GetHandGestureInfo_S(ref info);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_StartHandGesture_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StartHandGesture_S(ulong demands);
+		public override WVR_Result StartHandGesture(ulong demands)
+		{
+			return WVR_StartHandGesture_S(demands);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_StopHandGesture_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_StopHandGesture_S();
+		public override void StopHandGesture()
+		{
+			WVR_StopHandGesture_S();
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_GetHandGestureData_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetHandGestureData_S(ref WVR_HandGestureData_t data);
+		public override WVR_Result GetHandGestureData(ref WVR_HandGestureData_t data)
+		{
+			return WVR_GetHandGestureData_S(ref data);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_StartHandTracking_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StartHandTracking_S(WVR_HandTrackerType type);
+		public override WVR_Result StartHandTracking(WVR_HandTrackerType type)
+		{
+			return WVR_StartHandTracking_S(type);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_StopHandTracking_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_StopHandTracking_S(WVR_HandTrackerType type);
+		public override void StopHandTracking(WVR_HandTrackerType type)
+		{
+			WVR_StopHandTracking_S(type);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_GetHandJointCount_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetHandJointCount_S(WVR_HandTrackerType type, ref uint jointCount);
+		public override WVR_Result GetHandJointCount(WVR_HandTrackerType type, ref uint jointCount)
+		{
+			return WVR_GetHandJointCount_S(type, ref jointCount);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_GetHandTrackerInfo_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetHandTrackerInfo_S(WVR_HandTrackerType type, ref WVR_HandTrackerInfo_t info);
+		public override WVR_Result GetHandTrackerInfo(WVR_HandTrackerType type, ref WVR_HandTrackerInfo_t info)
+		{
+			return WVR_GetHandTrackerInfo_S(type, ref info);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_GetHandTrackingData_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetHandTrackingData_S(
+					WVR_HandTrackerType trackerType,
+					WVR_HandModelType modelType,
+					WVR_PoseOriginModel originModel,
+					ref WVR_HandTrackingData_t handTrackerData,
+					ref WVR_HandPoseData_t pose);
+		public override WVR_Result GetHandTrackingData(
+					WVR_HandTrackerType trackerType,
+					WVR_HandModelType modelType,
+					WVR_PoseOriginModel originModel,
+					ref WVR_HandTrackingData_t handTrackerData,
+					ref WVR_HandPoseData_t pose)
+		{
+			return WVR_GetHandTrackingData_S(trackerType, modelType, originModel, ref handTrackerData, ref pose);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_ControllerSupportElectronicHand_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_ControllerSupportElectronicHand_S();
+		public override bool ControllerSupportElectronicHand()
+		{
+			return WVR_ControllerSupportElectronicHand_S();
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_EnhanceHandStable_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_EnhanceHandStable_S(bool wear);
+		public override void EnhanceHandStable(bool wear)
+		{
+			WVR_EnhanceHandStable_S(wear);
+		}
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_IsEnhanceHandStable_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_IsEnhanceHandStable_S();
+		public override bool IsEnhanceHandStable()
+		{
+			return WVR_IsEnhanceHandStable_S();
+		}
+		#endregion
+
 		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_Render_Image_S")]
 		public static extern void WVR_Render_Image_S(bool isRenderImageState, bool isRenderImageStateUpdate);
+
+		[DllImportAttribute("wvr_plugins_directpreview", EntryPoint = "WVR_GetSupportedFeatures_S", CallingConvention = CallingConvention.Cdecl)]
+		public static extern ulong WVR_GetSupportedFeatures_S();
+		public override ulong GetSupportedFeatures()
+		{
+			return WVR_GetSupportedFeatures_S();
+		}
 
 		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_Init_S")]
 		public static extern SIM_InitError WVR_Init_S(int a, System.IntPtr ip, bool enablePreview, bool saveLogToFile, bool saveImage);
@@ -218,6 +329,20 @@ namespace Wave.Native
 		public override void Quit()
 		{
 			WVR_Quit_S();
+		}
+
+		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_TriggerVibrationScale_S")]
+		public static extern void WVR_TriggerVibrationScale_S(WVR_DeviceType type, WVR_InputId id, uint durationMicroSec, uint frequency, float amplitude);
+		public override void TriggerVibrationScale(WVR_DeviceType type, WVR_InputId id, uint durationMicroSec, uint frequency, float amplitude)
+		{
+			WVR_TriggerVibrationScale_S(type, id, durationMicroSec, frequency, amplitude);
+		}
+
+		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_TriggerVibration_S")]
+		public static extern void WVR_TriggerVibration_S(WVR_DeviceType type, WVR_InputId id, uint durationMicroSec, uint frequency, WVR_Intensity intensity);
+		public override void TriggerVibration(WVR_DeviceType type, WVR_InputId id, uint durationMicroSec, uint frequency, WVR_Intensity intensity)
+		{
+			WVR_TriggerVibration_S(type, id, durationMicroSec, frequency, intensity);
 		}
 
 		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_SetControllerPoseMode_S")]

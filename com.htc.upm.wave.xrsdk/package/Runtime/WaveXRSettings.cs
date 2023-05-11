@@ -146,7 +146,17 @@ namespace Wave.XR.Settings
         [SerializeField, Tooltip("0. not accept, 1. accept, 2. accept and don't ask again")]
         public int amcModeConfirm = 0;
 
-		[SerializeField, Tooltip("Set the App supported FPS. (Experimental function)\nHMD Default:\nApp will run with HMD default FPS.\n120 FPS:\nDeclare the App can support up to 120 FPS and the HMD display will switch to 120 FPS to run your App if it can support.\nNotice : You must to tune your App to make it suitable for running at 120FPS, or App might get worse rendering performance and cause jitter phenomenon.")]
+        [SerializeField, Tooltip("Default is off.  Before you enable this option, please see online document \"FadeOut effect\" chapter first.")]
+        public bool fadeOut = false;
+
+        [SerializeField, Tooltip("Disabled by default. Enable this option to enable the Frame Sharpness Enhancement feature.\nWhen enabled, the final image will be sharpened which can improve things like text sharpness.")]
+        public bool enableFSE = false;
+
+        [SerializeField, Tooltip("Set the enhancement level of the Frame Sharpness Enhancement feature.\nThe higher the level, the stronger the sharpening effect.")]
+        [Range(0f, 1f)]
+        public float FSE_Level = 0.5f;
+
+        [SerializeField, Tooltip("Set the App supported FPS. (Experimental function)\nHMD Default:\nApp will run with HMD default FPS.\n120 FPS:\nDeclare the App can support up to 120 FPS and the HMD display will switch to 120 FPS to run your App if it can support.\nNotice : You must to tune your App to make it suitable for running at 120FPS, or App might get worse rendering performance and cause jitter phenomenon.")]
 		public SupportedFPS supportedFPS = SupportedFPS.HMD_Default;
 
 		[SerializeField, Tooltip("Wave XR Feature Package folder location")]

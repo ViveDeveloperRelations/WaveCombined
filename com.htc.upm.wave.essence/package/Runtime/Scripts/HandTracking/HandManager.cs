@@ -131,6 +131,7 @@ namespace Wave.Essence.Hand
 			ThumbUp = WVR_HandGestureType.WVR_HandGestureType_ThumbUp,
 			IndexUp = WVR_HandGestureType.WVR_HandGestureType_IndexUp,
 			Palm_Pinch = WVR_HandGestureType.WVR_HandGestureType_Palm_Pinch,
+			Yeah = WVR_HandGestureType.WVR_HandGestureType_Yeah,
 		}
 		[Serializable]
 		public class GestureSetter
@@ -142,6 +143,7 @@ namespace Wave.Essence.Hand
 			public bool ThumbUp = false;
 			public bool IndexUp = false;
 			public bool Palm_Pinch = false;
+			public bool Yeah = false;
 
 			public ulong optionValue { get; private set; }
 			public void UpdateOptionValue()
@@ -161,6 +163,8 @@ namespace Wave.Essence.Hand
 					optionValue |= (ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_IndexUp;
 				if (Palm_Pinch)
 					optionValue |= (ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_Palm_Pinch;
+				if (Yeah)
+					optionValue |= (ulong)1 << (int)WVR_HandGestureType.WVR_HandGestureType_Yeah;
 			}
 		}
 		[Serializable]
@@ -266,6 +270,10 @@ namespace Wave.Essence.Hand
 		const string kHandConfidenceRight = "HandConfidenceRight";
 		const string kHandScaleLeftX = "HandScaleLeftX", kHandScaleLeftY = "HandScaleLeftY", kHandScaleLeftZ = "HandScaleLeftZ";
 		const string kHandScaleRightX = "HandScaleRightX", kHandScaleRightY = "HandScaleRightY", kHandScaleRightZ = "HandScaleRightZ";
+		const string kWristLinearVelocityLeftX = "WristLinearVelocityLeftX", kWristLinearVelocityLeftY = "WristLinearVelocityLeftY", kWristLinearVelocityLeftZ = "WristLinearVelocityLeftZ";
+		const string kWristLinearVelocityRightX = "WristLinearVelocityRightX", kWristLinearVelocityRightY = "WristLinearVelocityRightY", kWristLinearVelocityRightZ = "WristLinearVelocityRightZ";
+		const string kWristAngularVelocityLeftX = "WristAngularVelocityLeftX", kWristAngularVelocityLeftY = "WristAngularVelocityLeftY", kWristAngularVelocityLeftZ = "WristAngularVelocityLeftZ";
+		const string kWristAngularVelocityRightX = "WristAngularVelocityRightX", kWristAngularVelocityRightY = "WristAngularVelocityRightY", kWristAngularVelocityRightZ = "WristAngularVelocityRightZ";
 		const string kHandMotionLeft = "HandMotionLeft";
 		const string kHandMotionRight = "HandMotionRight";
 		const string kHandRoleLeft = "HandRoleLeft";
@@ -1406,13 +1414,19 @@ namespace Wave.Essence.Hand
 			if (tracker == TrackerType.Natural)
 			{
 				var scaleGL = isLeft ? m_NaturalHandJointDataLeft.scale : m_NaturalHandJointDataRight.scale;
-				scale = new Vector3(scaleGL.v0, scaleGL.v1, scaleGL.v2);
+				scale.x = scaleGL.v0;
+				scale.y = scaleGL.v1;
+				scale.z = scaleGL.v2;
+
 				ret = true;
 			}
 			if (tracker == TrackerType.Electronic)
 			{
 				var scaleGL = isLeft ? m_ElectronicHandJointDataLeft.scale : m_ElectronicHandJointDataRight.scale;
-				scale = new Vector3(scaleGL.v0, scaleGL.v1, scaleGL.v2);
+				scale.x = scaleGL.v0;
+				scale.y = scaleGL.v1;
+				scale.z = scaleGL.v2;
+
 				ret = true;
 			}
 
@@ -1441,6 +1455,156 @@ namespace Wave.Essence.Hand
 		public bool GetHandScale(ref Vector3 scale, HandType hand)
 		{
 			return GetHandScale(ref scale, hand == HandType.Left ? true : false);
+		}
+
+		/// <summary> @velocity will not be updated when no velocity. </summary>
+		public bool GetWristLinearVelocity(TrackerType tracker, ref Vector3 velocity, bool isLeft)
+		{
+			if (!IsHandPoseValid(tracker, isLeft))
+				return false;
+
+			if (UseXRData())
+			{
+				float velocity_x = 0, velocity_y = 0, velocity_z = 0;
+				if (isLeft)
+				{
+					SettingsHelper.GetFloat(kWristLinearVelocityLeftX, ref velocity_x);
+					SettingsHelper.GetFloat(kWristLinearVelocityLeftY, ref velocity_y);
+					SettingsHelper.GetFloat(kWristLinearVelocityLeftZ, ref velocity_z);
+				}
+				else
+				{
+					SettingsHelper.GetFloat(kWristLinearVelocityRightX, ref velocity_x);
+					SettingsHelper.GetFloat(kWristLinearVelocityRightY, ref velocity_y);
+					SettingsHelper.GetFloat(kWristLinearVelocityRightZ, ref velocity_z);
+				}
+				velocity.x = velocity_x;
+				velocity.y = velocity_y;
+				velocity.z = velocity_z;
+				return true;
+			}
+
+			bool ret = false;
+
+			if (tracker == TrackerType.Natural)
+			{
+				if (isLeft)
+					Coordinate.GetVectorFromGL(m_NaturalHandJointDataLeft.wristLinearVelocity, out velocity);
+				else
+					Coordinate.GetVectorFromGL(m_NaturalHandJointDataRight.wristLinearVelocity, out velocity);
+
+				ret = true;
+			}
+			if (tracker == TrackerType.Electronic)
+			{
+				if (isLeft)
+					Coordinate.GetVectorFromGL(m_ElectronicHandJointDataLeft.wristLinearVelocity, out velocity);
+				else
+					Coordinate.GetVectorFromGL(m_ElectronicHandJointDataRight.wristLinearVelocity, out velocity);
+
+				ret = true;
+			}
+
+			if (Log.gpl.Print)
+			{
+				DEBUG("GetWristLinearVelocity()"
+					+ " tracker: " + tracker
+					+ ", " + (isLeft ? "Left" : "Right")
+					+ ", velocity {" + velocity.x.ToString() + ", " + velocity.y.ToString() + ", " + velocity.z.ToString() + ")");
+			}
+
+			return ret;
+		}
+		/// <summary> @velocity will not be updated when no velocity. </summary>
+		public bool GetWristLinearVelocity(TrackerType tracker, ref Vector3 velocity, HandType hand)
+		{
+			return GetWristLinearVelocity(tracker, ref velocity, hand == HandType.Left ? true : false);
+		}
+		public bool GetWristLinearVelocity(ref Vector3 velocity, bool isLeft)
+		{
+			TrackerType tracker = TrackerType.Electronic;
+			if (GetPreferTracker(ref tracker))
+				return GetWristLinearVelocity(tracker, ref velocity, isLeft);
+			return false;
+		}
+		public bool GetWristLinearVelocity(ref Vector3 velocity, HandType hand)
+		{
+			return GetWristLinearVelocity(ref velocity, hand == HandType.Left ? true : false);
+		}
+
+		/// <summary> @velocity will not be updated when no velocity. </summary>
+		public bool GetWristAngularVelocity(TrackerType tracker, ref Vector3 velocity, bool isLeft)
+		{
+			if (!IsHandPoseValid(tracker, isLeft))
+				return false;
+
+			if (UseXRData())
+			{
+				float velocity_x = 0, velocity_y = 0, velocity_z = 0;
+				if (isLeft)
+				{
+					SettingsHelper.GetFloat(kWristAngularVelocityLeftX, ref velocity_x);
+					SettingsHelper.GetFloat(kWristAngularVelocityLeftY, ref velocity_y);
+					SettingsHelper.GetFloat(kWristAngularVelocityLeftZ, ref velocity_z);
+				}
+				else
+				{
+					SettingsHelper.GetFloat(kWristAngularVelocityRightX, ref velocity_x);
+					SettingsHelper.GetFloat(kWristAngularVelocityRightY, ref velocity_y);
+					SettingsHelper.GetFloat(kWristAngularVelocityRightZ, ref velocity_z);
+				}
+				velocity.x = velocity_x;
+				velocity.y = velocity_y;
+				velocity.z = velocity_z;
+				return true;
+			}
+
+			bool ret = false;
+
+			if (tracker == TrackerType.Natural)
+			{
+				if (isLeft)
+					Coordinate.GetVectorFromGL(m_NaturalHandJointDataLeft.wristAngularVelocity, out velocity);
+				else
+					Coordinate.GetVectorFromGL(m_NaturalHandJointDataRight.wristAngularVelocity, out velocity);
+
+				ret = true;
+			}
+			if (tracker == TrackerType.Electronic)
+			{
+				if (isLeft)
+					Coordinate.GetVectorFromGL(m_ElectronicHandJointDataLeft.wristAngularVelocity, out velocity);
+				else
+					Coordinate.GetVectorFromGL(m_ElectronicHandJointDataRight.wristAngularVelocity, out velocity);
+
+				ret = true;
+			}
+
+			if (Log.gpl.Print)
+			{
+				DEBUG("GetWristAngularVelocity()"
+					+ " tracker: " + tracker
+					+ ", " + (isLeft ? "Left" : "Right")
+					+ ", velocity {" + velocity.x.ToString() + ", " + velocity.y.ToString() + ", " + velocity.z.ToString() + ")");
+			}
+
+			return ret;
+		}
+		/// <summary> @velocity will not be updated when no velocity. </summary>
+		public bool GetWristAngularVelocity(TrackerType tracker, ref Vector3 velocity, HandType hand)
+		{
+			return GetWristAngularVelocity(tracker, ref velocity, hand == HandType.Left ? true : false);
+		}
+		public bool GetWristAngularVelocity(ref Vector3 velocity, bool isLeft)
+		{
+			TrackerType tracker = TrackerType.Electronic;
+			if (GetPreferTracker(ref tracker))
+				return GetWristAngularVelocity(tracker, ref velocity, isLeft);
+			return false;
+		}
+		public bool GetWristAngularVelocity(ref Vector3 velocity, HandType hand)
+		{
+			return GetWristAngularVelocity(ref velocity, hand == HandType.Left ? true : false);
 		}
 
 		/// <summary> Checks if the player in taking a motion, e.g. Pinch, Hold. </summary>
@@ -2178,6 +2342,18 @@ namespace Wave.Essence.Hand
 				v1 = 1,
 				v2 = 1
 			};
+			handJointData.wristLinearVelocity = new WVR_Vector3f_t()
+			{
+				v0 = 0,
+				v1 = 0,
+				v2 = 0
+			};
+			handJointData.wristAngularVelocity = new WVR_Vector3f_t()
+			{
+				v0 = 0,
+				v1 = 0,
+				v2 = 0
+			};
 
 			jointsPose = new WVR_Pose_t[count];
 
@@ -2528,7 +2704,8 @@ namespace Wave.Essence.Hand
 			OK = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_OK,
 			THUMBUP = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_ThumbUp,
 			INDEXUP = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_IndexUp,
-			INVERSE = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_Palm_Pinch,
+			PALM_PINCH = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_Palm_Pinch,
+			YEAH = 1 << (int)WVR_HandGestureType.WVR_HandGestureType_Yeah,
 		}
 
 		[Obsolete("This function is deprecated.")]
@@ -2551,6 +2728,12 @@ namespace Wave.Essence.Hand
 					break;
 				case GestureType.OK:
 					gesture_value = (ulong)StaticGestures.OK;
+					break;
+				case GestureType.Palm_Pinch:
+					gesture_value = (ulong)StaticGestures.PALM_PINCH;
+					break;
+				case GestureType.Yeah:
+					gesture_value = (ulong)StaticGestures.YEAH;
 					break;
 				default:
 					break;
@@ -2577,6 +2760,12 @@ namespace Wave.Essence.Hand
 					break;
 				case GestureType.OK:
 					gesture_value = (ulong)StaticGestures.OK;
+					break;
+				case GestureType.Palm_Pinch:
+					gesture_value = (ulong)StaticGestures.PALM_PINCH;
+					break;
+				case GestureType.Yeah:
+					gesture_value = (ulong)StaticGestures.YEAH;
 					break;
 				default:
 					break;
@@ -2615,6 +2804,8 @@ namespace Wave.Essence.Hand
 					return HandManager.GestureType.IndexUp;
 				case WVR_HandGestureType.WVR_HandGestureType_Palm_Pinch:
 					return HandManager.GestureType.Palm_Pinch;
+				case WVR_HandGestureType.WVR_HandGestureType_Yeah:
+					return HandManager.GestureType.Yeah;
 				default:
 					break;
 			}
@@ -2638,6 +2829,8 @@ namespace Wave.Essence.Hand
 					return "IndexUp";
 				case HandManager.GestureType.Palm_Pinch:
 					return "Palm_Pinch";
+				case HandManager.GestureType.Yeah:
+					return "Yeah";
 				default:
 					break;
 			}

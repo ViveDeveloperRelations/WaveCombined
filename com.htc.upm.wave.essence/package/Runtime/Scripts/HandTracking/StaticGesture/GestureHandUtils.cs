@@ -131,6 +131,8 @@ namespace Wave.Essence.Hand.StaticGesture
 					return GestureType.OK;
 				case HandManager.GestureType.ThumbUp:
 					return GestureType.Like;
+				case HandManager.GestureType.Yeah:
+					return GestureType.Victory;
 				default:
 					break;
 			}

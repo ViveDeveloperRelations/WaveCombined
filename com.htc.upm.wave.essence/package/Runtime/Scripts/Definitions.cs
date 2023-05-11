@@ -176,5 +176,29 @@ namespace Wave.Essence
 
 			return "Unknown";
 		}
+
+		public static WVR_InputId ViveFocus3Button(this InputFeatureUsage<bool> input, bool isLeft)
+		{
+			switch(input.name)
+			{
+				case XR_BinaryButton.menuButtonName:
+					return WVR_InputId.WVR_InputId_Alias1_Menu;
+				case XR_BinaryButton.gripButtonName:
+					return WVR_InputId.WVR_InputId_Alias1_Grip;
+				case XR_BinaryButton.primaryButtonName:
+					return (isLeft ? WVR_InputId.WVR_InputId_Alias1_X : WVR_InputId.WVR_InputId_Alias1_A);
+				case XR_BinaryButton.secondaryButtonName:
+					return (isLeft ? WVR_InputId.WVR_InputId_Alias1_Y : WVR_InputId.WVR_InputId_Alias1_B);
+				case XR_BinaryButton.triggerButtonName:
+					return WVR_InputId.WVR_InputId_Alias1_Trigger;
+				case XR_BinaryButton.primary2DAxisClickName:
+				case XR_BinaryButton.primary2DAxisTouchName:
+					return WVR_InputId.WVR_InputId_Alias1_Thumbstick;
+				default:
+					break;
+			}
+
+			return WVR_InputId.WVR_InputId_Max;
+		}
 	}
 }

@@ -49,6 +49,14 @@ namespace Wave.Essence.Tracker
 
 	public static class TrackerUtils
 	{
+		public static TrackerId[] s_TrackerIds = new TrackerId[]
+		{
+			TrackerId.Tracker0,
+			TrackerId.Tracker1,
+			TrackerId.Tracker2,
+			TrackerId.Tracker3,
+		};
+
 		public static TrackerId Id(this WVR_TrackerId trackerId)
 		{
 			if (trackerId == WVR_TrackerId.WVR_TrackerId_0) { return TrackerId.Tracker0; }
