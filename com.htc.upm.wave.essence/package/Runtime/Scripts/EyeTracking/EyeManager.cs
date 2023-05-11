@@ -13,6 +13,8 @@ using System.Threading;
 using System;
 using Wave.Native;
 using Wave.Essence.Events;
+using Wave.OpenXR;
+using Wave.XR.Settings;
 #if UNITY_EDITOR
 using Wave.Essence.Editor;
 #endif
@@ -57,7 +59,7 @@ namespace Wave.Essence.Eye
 			// Do nothing.
 			UNSUPPORT
 		}
-		public enum EyeSpace
+		public enum EyeSpace : UInt32
 		{
 			Local = WVR_CoordinateSystem.WVR_CoordinateSystem_Local,
 			World = WVR_CoordinateSystem.WVR_CoordinateSystem_Global
@@ -79,6 +81,21 @@ namespace Wave.Essence.Eye
 		private bool m_NormalizeZ = true;
 		public bool NormalizeZ { get { return m_NormalizeZ; } set { m_NormalizeZ = value; } }
 		#endregion
+
+		static bool m_UseXRDevice = true;
+		public bool UseXRDevice { get { return m_UseXRDevice; } set { m_UseXRDevice = value; } }
+		private WaveXRSettings m_WaveXRSettings = null;
+		private InputDeviceEye.TrackingStatus m_XRTrackingStatus = InputDeviceEye.TrackingStatus.UNSUPPORT;
+		bool UseXRData()
+		{
+			// Tracker is already enabled in WaveXRSettings.
+			bool XRAlreadyEnabled = (m_WaveXRSettings != null ? m_WaveXRSettings.EnableEyeTracking : false);
+
+			return (
+				(XRAlreadyEnabled || m_UseXRDevice)
+				&& (!Application.isEditor)
+				);
+		}
 
 		#region MonoBehaviour overrides
 		private void Awake()
@@ -115,6 +132,8 @@ namespace Wave.Essence.Eye
 		}
 		void Update()
 		{
+			Log.gpl.check();
+
 			if (m_EnableEyeTrackingEx != m_EnableEyeTracking)
 			{
 				m_EnableEyeTrackingEx = m_EnableEyeTracking;
@@ -202,6 +221,12 @@ namespace Wave.Essence.Eye
 		private event EyeTrackingResultDelegate m_EyeTrackingResultCB = null;
 		private void StartEyeTrackingLock()
 		{
+			if (UseXRData())
+			{
+				DEBUG("StartEyeTrackingLock() XR");
+				InputDeviceEye.ActivateEyeTracking(true);
+				return;
+			}
 			if (!CanStartEyeTracking())
 				return;
 
@@ -251,6 +276,13 @@ namespace Wave.Essence.Eye
 
 		private void StopEyeTrackingLock()
 		{
+			if (UseXRData())
+			{
+				DEBUG("StopEyeTrackingLock() XR");
+				InputDeviceEye.ActivateEyeTracking(false);
+				return;
+			}
+
 			if (!CanStopEyeTracking())
 				return;
 
@@ -330,6 +362,30 @@ namespace Wave.Essence.Eye
 		private bool hasEyeTrackingData = false;
 		private void GetEyeTrackingData()
 		{
+			if (UseXRData())
+			{
+				InputDeviceEye.SetEyeTrackingSpace(m_LocationSpace.TrackingSpace());
+				hasEyeTrackingData = InputDeviceEye.IsEyeTrackingTracked();
+				if (hasEyeTrackingData)
+				{
+					m_CombinedEyeOriginValid = InputDeviceEye.GetCombinedEyeOrigin(out m_CombinedEyeOrigin);
+					m_CombinedEyeDirectionValid = InputDeviceEye.GetCombinedEyeDirection(out m_CombinedEyeDirection);
+
+					m_LeftEyeOriginValid = InputDeviceEye.GetLeftEyeOrigin(out m_LeftEyeOrigin);
+					m_LeftEyeDirectionValid = InputDeviceEye.GetLeftEyeDirection(out m_LeftEyeDirection);
+					m_LeftEyeOpennessValid = InputDeviceEye.GetLeftEyeOpenness(out m_LeftEyeOpenness);
+					m_LeftEyePupilDiameterValid = InputDeviceEye.GetLeftEyePupilDiameter(out m_LeftEyePupilDiameter);
+					m_LeftEyePupilPositionInSensorAreaValid = InputDeviceEye.GetLeftEyePupilPositionInSensorArea(out m_LeftEyePupilPositionInSensorArea);
+
+					m_RightEyeOriginValid = InputDeviceEye.GetRightEyeOrigin(out m_RightEyeOrigin);
+					m_RightEyeDirectionValid = InputDeviceEye.GetRightEyeDirection(out m_RightEyeDirection);
+					m_RightEyeOpennessValid = InputDeviceEye.GetRightEyeOpenness(out m_RightEyeOpenness);
+					m_RightEyePupilDiameterValid = InputDeviceEye.GetRightEyePupilDiameter(out m_RightEyePupilDiameter);
+					m_RightEyePupilPositionInSensorAreaValid = InputDeviceEye.GetRightEyePupilPositionInSensorArea(out m_RightEyePupilPositionInSensorArea);
+				}
+				return;
+			}
+
 			EyeTrackingStatus status = GetEyeTrackingStatus();
 			if (status == EyeTrackingStatus.AVAILABLE)
 			{
@@ -426,6 +482,42 @@ namespace Wave.Essence.Eye
 		/// <summary> Retrieves current eye tracking service status. </summary>
 		public EyeTrackingStatus GetEyeTrackingStatus()
 		{
+			if (UseXRData())
+			{
+				m_XRTrackingStatus = InputDeviceEye.GetEyeTrackingStatus();
+
+				// Sends an event when status changes.
+				bool sendEvent = false;
+				if (m_XRTrackingStatus != m_EyeTrackingStatus.TrackingStatus())
+				{
+					sendEvent = true;
+
+					switch (m_XRTrackingStatus)
+					{
+						case InputDeviceEye.TrackingStatus.NOT_START:
+							m_EyeTrackingStatus = EyeTrackingStatus.NOT_START;
+							break;
+						case InputDeviceEye.TrackingStatus.START_FAILURE:
+							m_EyeTrackingStatus = EyeTrackingStatus.START_FAILURE;
+							break;
+						case InputDeviceEye.TrackingStatus.STARTING:
+							m_EyeTrackingStatus = EyeTrackingStatus.STARTING;
+							break;
+						case InputDeviceEye.TrackingStatus.STOPPING:
+							m_EyeTrackingStatus = EyeTrackingStatus.STOPING;
+							break;
+						case InputDeviceEye.TrackingStatus.AVAILABLE:
+							m_EyeTrackingStatus = EyeTrackingStatus.AVAILABLE;
+							break;
+						default:
+							m_EyeTrackingStatus = EyeTrackingStatus.UNSUPPORT;
+							break;
+					}
+				}
+
+				if (sendEvent) { GeneralEvent.Send(EYE_TRACKING_STATUS, m_EyeTrackingStatus); }
+			}
+
 			try
 			{
 				m_EyeTrackingStatusRWLock.TryEnterReadLock(2000);
@@ -613,5 +705,33 @@ namespace Wave.Essence.Eye
 			return m_RightEyePupilPositionInSensorAreaValid;
 		}
 		#endregion
+	}
+
+	public static class EyeManagerHelper
+	{
+		public static InputDeviceEye.TrackingSpace TrackingSpace(this EyeManager.EyeSpace space)
+		{
+			if (space == EyeManager.EyeSpace.Local) { return InputDeviceEye.TrackingSpace.Local; }
+			return InputDeviceEye.TrackingSpace.World;
+		}
+
+		public static InputDeviceEye.TrackingStatus TrackingStatus(this EyeManager.EyeTrackingStatus status)
+		{
+			switch(status)
+			{
+				case EyeManager.EyeTrackingStatus.NOT_START:
+					return InputDeviceEye.TrackingStatus.NOT_START;
+				case EyeManager.EyeTrackingStatus.START_FAILURE:
+					return InputDeviceEye.TrackingStatus.START_FAILURE;
+				case EyeManager.EyeTrackingStatus.STARTING:
+					return InputDeviceEye.TrackingStatus.STARTING;
+				case EyeManager.EyeTrackingStatus.STOPING:
+					return InputDeviceEye.TrackingStatus.STOPPING;
+				case EyeManager.EyeTrackingStatus.AVAILABLE:
+					return InputDeviceEye.TrackingStatus.AVAILABLE;
+				default:
+					return InputDeviceEye.TrackingStatus.UNSUPPORT;
+			}
+		}
 	}
 }

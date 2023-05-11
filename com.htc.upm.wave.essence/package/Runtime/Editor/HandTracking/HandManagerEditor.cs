@@ -34,12 +34,11 @@ namespace Wave.Essence.Hand.Editor
 			return (FindObjectOfType<HandManager>() == null && m_HandManager == null);
 		}
 
-		SerializedProperty m_GestureOptions/*, m_TrackerOptions*/, m_UseXRDevice;
+		SerializedProperty m_GestureOptions/*, m_TrackerOptions*/;
 		private void OnEnable()
 		{
 			m_GestureOptions = serializedObject.FindProperty("m_GestureOptions");
 			//m_TrackerOptions = serializedObject.FindProperty("m_TrackerOptions");
-			m_UseXRDevice = serializedObject.FindProperty("m_UseXRDevice");
 		}
 
 		public override void OnInspectorGUI()
@@ -64,13 +63,6 @@ namespace Wave.Essence.Hand.Editor
 				"Wave > HandTracking > EnableHandTracking",
 				MessageType.Info);
 			myScript.TrackerOptions.Natural.InitialStart = EditorGUILayout.Toggle("Initial Start Natural Hand", myScript.TrackerOptions.Natural.InitialStart);
-
-			GUILayout.Space(5);
-			EditorGUILayout.HelpBox(
-				"This option will be removed in next release.\n" +
-				"Retrieves the Hand Tracking data from UnityEngine.XR.InputDevice.",
-				MessageType.Warning);
-			EditorGUILayout.PropertyField(m_UseXRDevice);
 
 			serializedObject.ApplyModifiedProperties();
 

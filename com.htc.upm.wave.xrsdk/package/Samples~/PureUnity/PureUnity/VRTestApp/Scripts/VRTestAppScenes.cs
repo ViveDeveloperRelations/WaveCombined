@@ -124,6 +124,9 @@ namespace Wave.Generic.Sample
 				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_Cylinder_Underlay", NoHelp, NotForPC),
 				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_UICanvasOverlay", NoHelp, NotForPC),
 				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_UICanvasUnderlay", NoHelp, NotForPC),
+				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_ShapeSwitch", NoHelp, NotForPC),
+				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_Scaling", NoHelp, NotForPC),
+				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_Passthrough", NoHelp, NotForPC),
 
 				new SceneData(Entry, "318 Mirror Test", "MirrorTest", NoHelp, NotForPC),
 
@@ -133,9 +136,10 @@ namespace Wave.Generic.Sample
 				new SceneData(Entry, "320 Hand Gesture", "HandGesture"),
 				new SceneData(Entry, "321 Role Change", "RoleChange"),
 				new SceneData(Entry, "322 Pass Through", "PassThrough"),
-				new SceneData(Entry, "323 Bracelet", "Trackers"),
+				new SceneData(Entry, "323 Trackers", "Trackers"),
 				new SceneData(Entry, "324 Facial Expression", "FaceSample_v2"),
 				new SceneData(Entry, "325 Eye Tracking", "RaycastEyeTracking"),
+				new SceneData(Entry, "326 Spectator Test", "SpectatorTest", NoHelp, NotForPC),
 			};
 		}
 

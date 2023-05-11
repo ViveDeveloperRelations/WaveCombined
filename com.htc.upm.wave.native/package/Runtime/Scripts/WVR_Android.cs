@@ -226,8 +226,29 @@ namespace Wave.Native
 		}
 		#endregion
 
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetSpectatorRenderTargetSize", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_GetSpectatorRenderTargetSize(ref uint width, ref uint height);
+		public override void GetSpectatorRenderTargetSize(ref uint width, ref uint height)
+		{
+			WVR_GetSpectatorRenderTargetSize(ref width, ref height);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetSpectatorClippingPlaneBoundary", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_GetSpectatorClippingPlaneBoundary(ref float l, ref float r, ref float t, ref float b);
+		public override void GetSpectatorClippingPlaneBoundary(ref float l, ref float r, ref float t, ref float b)
+		{
+			WVR_GetSpectatorClippingPlaneBoundary(ref l, ref r, ref t, ref b);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_PreSpectatorRender", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_PreSpectatorRender(ref WVR_SpectatorState state);
+		public override bool PreSpectatorRender(ref WVR_SpectatorState state)
+		{
+			return WVR_PreSpectatorRender(ref state);
+		}
+
 		#region wvr_tracker.h
-		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StartTracker", CallingConvention = CallingConvention.Cdecl)]
+			[DllImportAttribute("wvr_api", EntryPoint = "WVR_StartTracker", CallingConvention = CallingConvention.Cdecl)]
 		public static extern WVR_Result WVR_StartTracker();
 		public override WVR_Result StartTracker()
 		{
@@ -597,6 +618,101 @@ namespace Wave.Native
 			WVR_StopLipExp();
 		}
 		#endregion
+
+		#region wvr_scene.h
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StartScene", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StartScene();
+		public override WVR_Result StartScene()
+		{
+			return WVR_StartScene();
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StopScene", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StopScene();
+
+		public override void StopScene()
+		{
+			WVR_StopScene();
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StartScenePerception", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StartScenePerception(WVR_ScenePerceptionTarget target);
+		public override WVR_Result StartScenePerception(WVR_ScenePerceptionTarget target)
+		{
+			return WVR_StartScenePerception(target);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_StopScenePerception", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_StopScenePerception(WVR_ScenePerceptionTarget target);
+		public override WVR_Result StopScenePerception(WVR_ScenePerceptionTarget target)
+		{
+			return WVR_StopScenePerception(target);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetScenePerceptionState", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetScenePerceptionState(WVR_ScenePerceptionTarget target, ref WVR_ScenePerceptionState state /* WVR_ScenePerceptionState* */);
+		public override WVR_Result GetScenePerceptionState(WVR_ScenePerceptionTarget target, ref WVR_ScenePerceptionState state /* WVR_ScenePerceptionState* */)
+		{
+			return WVR_GetScenePerceptionState(target, ref state);
+		
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetScenePlanes", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetScenePlanes([In, Out] WVR_ScenePlaneFilter[] planeFilter /* WVR_ScenePlaneFilter*,nullptr if no need filter. */, UInt32 planeCapacityInput, out UInt32 planeCountOutput /* uint32_t* */, WVR_PoseOriginModel originModel, IntPtr planes /* WVR_ScenePlane* */);
+		public override WVR_Result GetScenePlanes([In, Out] WVR_ScenePlaneFilter[] planeFilter /* WVR_ScenePlaneFilter*,nullptr if no need filter. */, UInt32 planeCapacityInput, out UInt32 planeCountOutput /* uint32_t* */, WVR_PoseOriginModel originModel, IntPtr planes /* WVR_ScenePlane* */)
+		{
+			return WVR_GetScenePlanes(planeFilter, planeCapacityInput, out planeCountOutput, originModel, planes);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetSceneMeshes", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetSceneMeshes(WVR_SceneMeshType meshType, UInt32 meshCapacityInput, out UInt32 meshCountOutput /* uint32_t* */, IntPtr meshes /* WVR_SceneMesh* */);
+		public override WVR_Result GetSceneMeshes(WVR_SceneMeshType meshType, UInt32 meshCapacityInput, out UInt32 meshCountOutput /* uint32_t* */, IntPtr meshes /* WVR_SceneMesh* */)
+		{
+			return WVR_GetSceneMeshes(meshType, meshCapacityInput, out meshCountOutput, meshes);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetSceneMeshBuffer", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetSceneMeshBuffer(UInt64 meshBufferId, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */);
+		public override WVR_Result GetSceneMeshBuffer(UInt64 meshBufferId, ref WVR_SceneMeshBuffer sceneMeshBuffer /* WVR_SceneMeshBuffer* */)
+		{
+			return WVR_GetSceneMeshBuffer(meshBufferId, ref sceneMeshBuffer);
+		}
+
+		#endregion
+
+		#region wvr_anchor.h
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_CreateSpatialAnchor", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_CreateSpatialAnchor([In, Out] WVR_SpatialAnchorCreateInfo[] createInfo /* WVR_SpatialAnchorCreateInfo* */, out UInt64 anchor /* WVR_SpatialAnchor* */);
+		public override WVR_Result CreateSpatialAnchor([In, Out] WVR_SpatialAnchorCreateInfo[] createInfo /* WVR_SpatialAnchorCreateInfo* */, out UInt64 anchor /* WVR_SpatialAnchor* */)
+		{
+			return WVR_CreateSpatialAnchor(createInfo, out anchor);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_DestroySpatialAnchor", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_DestroySpatialAnchor(UInt64 anchor /* WVR_SpatialAnchor */);
+		public override WVR_Result DestroySpatialAnchor(UInt64 anchor /* WVR_SpatialAnchor */)
+		{
+			return WVR_DestroySpatialAnchor(anchor);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_EnumerateSpatialAnchors", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_EnumerateSpatialAnchors(UInt32 anchorCapacityInput, out UInt32 anchorCountOutput /* uint32_t* */, out UInt64 anchors /* WVR_SpatialAnchor* */);
+		public override WVR_Result EnumerateSpatialAnchors(UInt32 anchorCapacityInput, out UInt32 anchorCountOutput /* uint32_t* */, out UInt64 anchors /* WVR_SpatialAnchor* */)
+		{
+			return WVR_EnumerateSpatialAnchors(anchorCapacityInput, out anchorCountOutput, out anchors);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetSpatialAnchorState", CallingConvention = CallingConvention.Cdecl)]
+		public static extern WVR_Result WVR_GetSpatialAnchorState(UInt64 anchor /* WVR_SpatialAnchor */, WVR_PoseOriginModel originModel, out WVR_SpatialAnchorState anchorState /* WVR_SpatialAnchorState* */);
+		public override WVR_Result GetSpatialAnchorState(UInt64 anchor /* WVR_SpatialAnchor */, WVR_PoseOriginModel originModel, out WVR_SpatialAnchorState anchorState /* WVR_SpatialAnchorState* */)
+		{
+			return WVR_GetSpatialAnchorState(anchor, originModel, out anchorState);
+		}
+
+		#endregion
+
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetSupportedFeatures", CallingConvention = CallingConvention.Cdecl)]
 		public static extern ulong WVR_GetSupportedFeatures();

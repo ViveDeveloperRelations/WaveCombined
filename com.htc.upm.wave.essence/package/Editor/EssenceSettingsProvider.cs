@@ -233,6 +233,8 @@ namespace Wave.Essence.Editor
 		internal const string kRenderDocPackage = "wave_essence_renderdoc.unitypackage";
 		internal const string kTrackerModelPath = "/Tracker/Model";
 		internal const string kTrackerModelPackage = "wave_essence_tracker_model.unitypackage";
+		internal const string kScenePerceptionPath = "/ScenePerception";
+		internal const string kScenePerceptionPackage = "wave_essence_sceneperception.unitypackage";
 
 		internal static bool featureControllerModelImported = false;
 		internal static bool featureInputModuleImported = false;
@@ -244,6 +246,7 @@ namespace Wave.Essence.Editor
 		internal static bool featureBundlePreviewImported = false;
 		internal static bool featureRenderDocImported = false;
 		internal static bool featureTrackerModelImported = false;
+		internal static bool featureScenePerceptionImported = false;
 
 		internal static bool featureControllerModelNeedUpdate = false;
 		internal static bool featureInputModuleNeedUpdate = false;
@@ -255,6 +258,7 @@ namespace Wave.Essence.Editor
 		internal static bool featureBundlePreviewNeedUpdate = false;
 		internal static bool featureRenderDocNeedUpdate = false;
 		internal static bool featureTrackerModelNeedUpdate = false;
+		internal static bool featureScenePerceptionNeedUpdate = false;
 
 		internal static bool hasFeatureNeedUpdate = false;
 
@@ -270,6 +274,7 @@ namespace Wave.Essence.Editor
 			featureBundlePreviewImported = Directory.Exists(WaveEssencePath + kBundlePreviewPath);
 			featureRenderDocImported = Directory.Exists(WaveEssencePath + kRenderDocPath);
 			featureTrackerModelImported = Directory.Exists(WaveEssencePath + kTrackerModelPath);
+			featureScenePerceptionImported = Directory.Exists(WaveEssencePath + kScenePerceptionPath);
 
 			if (pi == null)
 				return false;
@@ -294,9 +299,11 @@ namespace Wave.Essence.Editor
 				!Directory.Exists(WaveEssencePath + kRenderDocPath + "/" + FAKE_VERSION);
 			featureTrackerModelNeedUpdate = featureTrackerModelImported && !Directory.Exists(WaveEssencePath + kTrackerModelPath + "/" + pi.version) &&
 				!Directory.Exists(WaveEssencePath + kTrackerModelPath + "/" + FAKE_VERSION);
+			featureScenePerceptionNeedUpdate = featureScenePerceptionImported && !Directory.Exists(WaveEssencePath + kScenePerceptionPath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kScenePerceptionPath + "/" + FAKE_VERSION);
 
 			hasFeatureNeedUpdate = featureControllerModelNeedUpdate || featureInputModuleNeedUpdate || featureHandModelNeedUpdate || featureInteractionModeNeedUpdate || featureInteractionToolkitNeedUpdate ||
-				featureCameraTextureNeedUpdate || featureCompositorLayerNeedUpdate || featureBundlePreviewNeedUpdate || featureRenderDocNeedUpdate;
+				featureCameraTextureNeedUpdate || featureCompositorLayerNeedUpdate || featureBundlePreviewNeedUpdate || featureRenderDocNeedUpdate || featureScenePerceptionNeedUpdate;
 
 			return hasFeatureNeedUpdate;
 		}
@@ -324,6 +331,8 @@ namespace Wave.Essence.Editor
 				UpdateModule(WaveEssencePath + kInteractionToolkitPath, kInteractionToolkitPackage);
 			if (featureTrackerModelNeedUpdate)
 				UpdateModule(WaveEssencePath + kTrackerModelPath, kTrackerModelPackage);
+			if (featureScenePerceptionNeedUpdate)
+				UpdateModule(WaveEssencePath + kScenePerceptionPath, kScenePerceptionPackage);
 		}
 
 		public override void OnGUI(string searchContext)
@@ -339,6 +348,7 @@ namespace Wave.Essence.Editor
 			bool showRenderDoc = searchContext.Contains("RenderDoc");
 			bool showInteractionToolkit = searchContext.Contains("Interaction");
 			bool showTrackerModel = searchContext.Contains("Tracker");
+			bool showScenePerception = false;
 
 			if (showControllerModel ||
 				showInputModule ||
@@ -349,7 +359,8 @@ namespace Wave.Essence.Editor
 				showBundlePreview ||
 				showRenderDoc ||
 				showInteractionToolkit ||
-				showTrackerModel)
+				showTrackerModel ||
+				showScenePerception)
 			{
 				hasKeyword = true;
 			}
@@ -366,6 +377,7 @@ namespace Wave.Essence.Editor
              * 8. RenderDoc
              * 9. Interaction Toolkit
              * 10. Tracker Model
+             * 11. Scene Perception
             **/
 
 			checkFeaturePackages();
@@ -668,6 +680,33 @@ namespace Wave.Essence.Editor
 							ImportModule(kTrackerModelPackage);
 					}
 
+					GUILayout.Space(5f);
+					GUI.enabled = true;
+				}
+				GUILayout.EndVertical();
+			}
+
+			if (showScenePerception || !hasKeyword)
+			{
+				GUILayout.BeginVertical(EditorStyles.helpBox);
+				{
+					GUILayout.Label("Scene Perception", EditorStyles.boldLabel);
+					GUILayout.Label("Note: This feature is currenty in Beta.\n" +
+									"Scene Perception is feature which facilitates Mixed Reality development by bringing in spatial information from the users' surroundings into the virtual environment.\n" +
+									"The aspects of this feature that are currently supported are Scene Planes and Spatial Anchors.", new GUIStyle(EditorStyles.label) { wordWrap = true });
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + kScenePerceptionPath, EditorStyles.label);
+					GUILayout.Space(5f);
+					GUI.enabled = !featureScenePerceptionImported || featureScenePerceptionNeedUpdate;
+					if (featureScenePerceptionNeedUpdate)
+					{
+						if (GUILayout.Button("Update Feature - Scene Perception", GUILayout.ExpandWidth(false)))
+							UpdateModule(WaveEssencePath + kScenePerceptionPath, kScenePerceptionPackage);
+					}
+					else
+					{
+						if (GUILayout.Button("Import Feature - Scene Perception", GUILayout.ExpandWidth(false)))
+							ImportModule(kScenePerceptionPackage);
+					}
 					GUILayout.Space(5f);
 					GUI.enabled = true;
 				}
@@ -997,6 +1036,13 @@ namespace Wave.Essence.Editor
 				IsShow = () => { return EssenceSettingsProvider.featureInteractionToolkitImported; },
 				IsReady = () => { return !EssenceSettingsProvider.featureInteractionToolkitNeedUpdate; },
 				GetCurrent = () => { return EssenceSettingsProvider.featureInteractionToolkitNeedUpdate.ToString(); },
+			};
+
+			var ScenePerception = new Item("Scene Perception")
+			{
+				IsShow = () => { return EssenceSettingsProvider.featureCompositorLayerImported; },
+				IsReady = () => { return !EssenceSettingsProvider.featureCompositorLayerNeedUpdate; },
+				GetCurrent = () => { return EssenceSettingsProvider.featureCompositorLayerNeedUpdate.ToString(); },
 			};
 
 			return new List<Item>()

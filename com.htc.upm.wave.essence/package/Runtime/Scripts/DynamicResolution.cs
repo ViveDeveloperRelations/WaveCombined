@@ -303,7 +303,7 @@ namespace Wave.Essence.Render
 			float resolutionScale = Mathf.Sqrt(P60D / (Mathf.Pow(tan30, 2) * halfHeight * halfWidth * (1 / Mathf.Abs(projection[0]) + 1 / Mathf.Abs(projection[1])) * (1 / Mathf.Abs(projection[2]) + 1 / Mathf.Abs(projection[3]))));
 
 			Log.d(LOG_TAG, "Eye Buffer Width: " + halfWidth + " Eye Buffer Height: " + halfHeight);
-			Log.d(LOG_TAG, "Projection: " + string.Join(", ", projection.Select(p => p.ToString()).ToArray()));
+			//Log.d(LOG_TAG, "Projection: " + string.Join(", ", projection.Select(p => p.ToString()).ToArray()));
 			Log.d(LOG_TAG, "Get Resolution Scale from P60D: " + resolutionScale);
 
 			return resolutionScale;
@@ -349,33 +349,32 @@ namespace Wave.Essence.Render
 				var displays = new List<XRDisplaySubsystem>();
 				SubsystemManager.GetInstances(displays);
 
-				if (displays.Count > 0)
+				float[] projLRaw = new float[4];
+				if (displays.Count <= 0 || displays[0].GetRenderPassCount() <= 0 || Camera.main == null)
+				{
+					Log.d(LOG_TAG, "Using WVR_GetClippingPlaneBoundary for projection");
+					Interop.WVR_GetClippingPlaneBoundary(WVR_Eye.WVR_Eye_Left, ref projLRaw[0], ref projLRaw[1], ref projLRaw[2], ref projLRaw[3]);
+				}
+				else
 				{
 					//Get first render parameter from display 0 (VR display)
 					//Single pass: 1 pass with 2 render parameters
 					//Multi pass: 2 pass with 1 render parameter each
 					//First render parameter for both Stereo Rendering Paths
-					if (displays[0].GetRenderPassCount() > 0)
-					{
-						displays[0].GetRenderPass(0, out XRDisplaySubsystem.XRRenderPass renderPasses);
-						renderPasses.GetRenderParameter(Camera.main, 0, out XRDisplaySubsystem.XRRenderParameter renderParametersL);
 
-						Matrix4x4 projL = renderParametersL.projection;
-						Matrix4x4 inverseProjL = projL.inverse;
+					displays[0].GetRenderPass(0, out XRDisplaySubsystem.XRRenderPass renderPasses);
+					renderPasses.GetRenderParameter(Camera.main, 0, out XRDisplaySubsystem.XRRenderParameter renderParametersL);
 
-						float l = (Coordinate.MatrixMulVector(inverseProjL, new Vector4(0, -1, 1, 1)).y);
-						float r = (Coordinate.MatrixMulVector(inverseProjL, new Vector4(0, 1, 1, 1)).y);
-						float t = (Coordinate.MatrixMulVector(inverseProjL, new Vector4(1, 0, 1, 1)).x);
-						float b = (Coordinate.MatrixMulVector(inverseProjL, new Vector4(-1, 0, 1, 1)).x);
+					Matrix4x4 projL = renderParametersL.projection;
+					Matrix4x4 inverseProjL = projL.inverse;
 
-						float[] projLRaw = new float[4] { l, r, t, b };
-
-						Log.d(LOG_TAG, "projLRaw: " + string.Join(" ", projLRaw));
-						return projLRaw;
-					}
+					projLRaw[0] = (Coordinate.MatrixMulVector(inverseProjL, new Vector4(-1, 0, 1, 1)).x);
+					projLRaw[1] = (Coordinate.MatrixMulVector(inverseProjL, new Vector4(1, 0, 1, 1)).x);
+					projLRaw[2] = (Coordinate.MatrixMulVector(inverseProjL, new Vector4(0, 1, 1, 1)).y);
+					projLRaw[3] = (Coordinate.MatrixMulVector(inverseProjL, new Vector4(0, -1, 1, 1)).y);
 				}
-				Log.d(LOG_TAG, "Displays/Render passes not found.");
-				return new float[4] { 0, 0, 0, 0 };
+				Log.d(LOG_TAG, "projLRaw: " + string.Join(" ", projLRaw));
+				return projLRaw;
 			}
 			catch (Exception e)
 			{

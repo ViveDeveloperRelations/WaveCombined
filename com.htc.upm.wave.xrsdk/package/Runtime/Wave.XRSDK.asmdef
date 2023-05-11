@@ -1,7 +1,8 @@
 {
     "name": "Wave.XRSDK",
     "references": [
-        "Unity.XR.Management"
+        "GUID:e40ba710768534012815d3193fa296cb",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [
         "Android",

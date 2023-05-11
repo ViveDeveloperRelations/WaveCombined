@@ -31,8 +31,7 @@ namespace Wave.Essence.Tracker
 				Log.d(LOG_TAG, msg, true);
 		}
 
-		[SerializeField]
-		private bool m_UseXRDevice = false;
+		private bool m_UseXRDevice = true;
 		public bool UseXRDevice { get { return m_UseXRDevice; } set { m_UseXRDevice = value; } }
 
 		WaveXRSettings m_WaveXRSettings = null;

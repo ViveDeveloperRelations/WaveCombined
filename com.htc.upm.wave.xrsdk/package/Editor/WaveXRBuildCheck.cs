@@ -22,6 +22,8 @@ using UnityEngine.XR.Management;
 using System.Xml;
 using Wave.XR.Settings;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Wave.XR.BuildCheck
 {
@@ -606,6 +608,144 @@ namespace Wave.XR.BuildCheck
 		public static bool ValidateEnabled()
 		{
 			return true;
+		}
+	}
+
+	[InitializeOnLoad]
+	public static class CheckIfWaveEnabled
+	{
+		const string LOG_TAG = "Wave.XR.CheckIfWaveEnabled";
+		static void DEBUG(string msg) { Debug.Log(LOG_TAG + " " + msg); }
+		const string VERSION_DEFINE_WAVE_XR_5_0_4 = "USE_VIVE_WAVE_XR_5_0_4";
+		internal struct ScriptingDefinedSettings
+		{
+			public string[] scriptingDefinedSymbols;
+			public BuildTargetGroup[] targetGroups;
+
+			public ScriptingDefinedSettings(string[] symbols, BuildTargetGroup[] groups)
+			{
+				scriptingDefinedSymbols = symbols;
+				targetGroups = groups;
+			}
+		}
+		static readonly ScriptingDefinedSettings m_ScriptDefineSettingWaveXR = new ScriptingDefinedSettings(
+			new string[] { VERSION_DEFINE_WAVE_XR_5_0_4, },
+			new BuildTargetGroup[] { BuildTargetGroup.Android, }
+		);
+		const string XR_LOADER_WAVE_XR_NAME = "Wave.XR.Loader.WaveXRLoader";
+		internal static bool ViveWaveXRAndroidAssigned {
+			get {
+				var androidGenericSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
+				if (androidGenericSettings == null)
+					return false;
+
+				var androidXRMSettings = androidGenericSettings.AssignedSettings;
+				if (androidXRMSettings == null)
+					return false;
+
+				var loaders = androidXRMSettings.loaders;
+				foreach (var loader in loaders)
+				{
+					if (loader.GetType() == typeof(WaveXRLoader))
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+		static void AddScriptingDefineSymbols(ScriptingDefinedSettings setting)
+		{
+			for (int group_index = 0; group_index < setting.targetGroups.Length; group_index++)
+			{
+				var group = setting.targetGroups[group_index];
+				string definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
+				List<string> allDefines = definesString.Split(';').ToList();
+				for (int symbol_index = 0; symbol_index < setting.scriptingDefinedSymbols.Length; symbol_index++)
+				{
+					if (!allDefines.Contains(setting.scriptingDefinedSymbols[symbol_index]))
+					{
+						DEBUG("AddDefineSymbols() " + setting.scriptingDefinedSymbols[symbol_index] + " to group " + group);
+						allDefines.Add(setting.scriptingDefinedSymbols[symbol_index]);
+					}
+					else
+					{
+						DEBUG("AddDefineSymbols() " + setting.scriptingDefinedSymbols[symbol_index] + " already existed.");
+					}
+				}
+				PlayerSettings.SetScriptingDefineSymbolsForGroup(
+					group,
+					string.Join(";", allDefines.ToArray())
+				);
+			}
+		}
+		static void RemoveScriptingDefineSymbols(ScriptingDefinedSettings setting)
+		{
+			for (int group_index = 0; group_index < setting.targetGroups.Length; group_index++)
+			{
+				var group = setting.targetGroups[group_index];
+				string definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
+				List<string> allDefines = definesString.Split(';').ToList();
+				for (int symbol_index = 0; symbol_index < setting.scriptingDefinedSymbols.Length; symbol_index++)
+				{
+					if (allDefines.Contains(setting.scriptingDefinedSymbols[symbol_index]))
+					{
+						DEBUG("RemoveDefineSymbols() " + setting.scriptingDefinedSymbols[symbol_index] + " from group " + group);
+						allDefines.Remove(setting.scriptingDefinedSymbols[symbol_index]);
+					}
+					else
+					{
+						DEBUG("RemoveDefineSymbols() " + setting.scriptingDefinedSymbols[symbol_index] + " already existed.");
+					}
+				}
+				PlayerSettings.SetScriptingDefineSymbolsForGroup(
+					group,
+					string.Join(";", allDefines.ToArray())
+				);
+			}
+		}
+		static bool HasScriptingDefineSymbols(ScriptingDefinedSettings setting)
+		{
+			for (int group_index = 0; group_index < setting.targetGroups.Length; group_index++)
+			{
+				var group = setting.targetGroups[group_index];
+				string definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
+				List<string> allDefines = definesString.Split(';').ToList();
+				for (int symbol_index = 0; symbol_index < setting.scriptingDefinedSymbols.Length; symbol_index++)
+				{
+					if (!allDefines.Contains(setting.scriptingDefinedSymbols[symbol_index]))
+					{
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
+		static void OnUpdate()
+		{
+			// Adds the script symbol if Vive Wave XR Plugin is imported and assigned in XR Plugin-in Management.
+			if (ViveWaveXRAndroidAssigned)
+			{
+				if (!HasScriptingDefineSymbols(m_ScriptDefineSettingWaveXR))
+				{
+					DEBUG("OnUpdate() Adds m_ScriptDefineSettingWaveXR.");
+					AddScriptingDefineSymbols(m_ScriptDefineSettingWaveXR);
+				}
+			}
+			// Removes the script symbol if Vive Wave XR Plugin is uninstalled.
+			else
+			{
+				if (HasScriptingDefineSymbols(m_ScriptDefineSettingWaveXR))
+				{
+					DEBUG("OnUpdate() Removes m_ScriptDefineSettingWaveXR.");
+					RemoveScriptingDefineSymbols(m_ScriptDefineSettingWaveXR);
+				}
+			}
+		}
+		static CheckIfWaveEnabled()
+		{
+			EditorApplication.update += OnUpdate;
 		}
 	}
 

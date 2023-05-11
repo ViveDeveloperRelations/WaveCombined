@@ -20,6 +20,8 @@ public class rotatebytime : MonoBehaviour {
 	public bool AxisX = true;
 	public bool AxisY = false;
 	public bool AxisZ = true;
+	float angle = 0;
+	float timeAcc = 0;
 
 	// To trigger reset in Editor, click this in inspector
 	public bool reset = false;
@@ -39,7 +41,7 @@ public class rotatebytime : MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	void Update () {
+	void Update() {
 		if (reset) {
 			reset = false;
 			Reset();
@@ -47,21 +49,25 @@ public class rotatebytime : MonoBehaviour {
 
 		float deltaTime = useFixedTime ? Time.fixedDeltaTime : Time.deltaTime;
 
-		float angle = 0;
 		if (ChangePerSecond == 0)
 		{
-			angle = deltaTime * AnglePerSecond;
+			angle += deltaTime * AnglePerSecond;
 		}
 		else
 		{
-			var pass = deltaTime * count++;
-			if (pass >= ChangePerSecond)
+			timeAcc += deltaTime;
+			if (timeAcc >= ChangePerSecond)
 			{
-				count = 0;
-				angle = pass * AnglePerSecond;
+				angle += timeAcc * AnglePerSecond;
+				timeAcc = 0;
 			}
 		}
 
-		transform.Rotate(AxisX ? angle : 0, AxisY ? angle : 0, AxisZ ? angle : 0);
+		if (!AxisX && !AxisY && !AxisZ)
+			return;
+
+		angle %= 360;
+		Vector3 axis = new Vector3(AxisX ? 1 : 0, AxisY ? 1 : 0, AxisZ ? 1 : 0);
+		transform.localRotation = Quaternion.AngleAxis(angle, axis);
 	}
 }
