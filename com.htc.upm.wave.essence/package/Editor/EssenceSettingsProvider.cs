@@ -16,128 +16,168 @@ using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using Wave.XR;
+using Wave.XR.Settings;
 
 #if UNITY_EDITOR
 namespace Wave.Essence.Editor
 {
-	internal class EssenceSettingsProvider : SettingsProvider
+	public class EssenceSettingsProvider : SettingsProvider
 	{
+		public static string WaveEssencePath = "Assets/Wave/Essence";
+		private static void CheckingWavePackagePath()
+		{
+			if (!File.Exists("Assets/Wave/Essence/ControllerModel.asset"))
+			{
+				var guids = AssetDatabase.FindAssets("ControllerModel");
+
+				foreach (string guid in guids)
+				{
+					var path = AssetDatabase.GUIDToAssetPath(guid);
+					if (path.EndsWith("ControllerModel.asset"))
+					{
+						UnityEngine.Object asset = AssetDatabase.LoadAssetAtPath(path, typeof(PackageEssenceAsset));
+
+						if (asset != null && asset.GetType() == typeof(PackageEssenceAsset))
+						{
+							WaveXRSettings settings;
+							EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+							var sub = path.Substring(0, path.Length - "/ControllerModel.asset".Length);
+							WaveEssencePath = sub;
+							if (settings != null)
+								settings.waveEssenceFolder = sub;
+
+							Debug.Log("WaveEssencePath = " + WaveEssencePath);
+						}
+					}
+				}
+			}
+			else
+			{
+				WaveXRSettings settings;
+				EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+				WaveEssencePath = "Assets/Wave/Essence";
+				if (settings != null)
+					settings.waveEssenceFolder = "Assets/Wave/Essence";
+				Debug.Log("WaveEssencePath = " + WaveEssencePath);
+			}
+		}
+
 		#region Essence.Controller.Model asset
-		const string kControllerModelAsset = "Assets/Wave/Essence/ControllerModel.asset";
+		const string kControllerModelAsset = "/ControllerModel.asset";
 		public static void UpdateAssetControllerModel(bool importedControllerModelPackage)
 		{
 			PackageEssenceAsset asset = null;
-			if (File.Exists(kControllerModelAsset))
+			if (File.Exists(WaveEssencePath + kControllerModelAsset))
 			{
-				asset = AssetDatabase.LoadAssetAtPath(kControllerModelAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
+				asset = AssetDatabase.LoadAssetAtPath(WaveEssencePath + kControllerModelAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 				asset.importedControllerModelPackage = importedControllerModelPackage;
 			}
 			else
 			{
 				asset = ScriptableObject.CreateInstance(typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 				asset.importedControllerModelPackage = importedControllerModelPackage;
-				if (!Directory.Exists("Assets/Wave"))
-					Directory.CreateDirectory("Assets/Wave");
-				if (!Directory.Exists("Assets/Wave/Essence"))
-					Directory.CreateDirectory("Assets/Wave/Essence");
-				AssetDatabase.CreateAsset(asset, kControllerModelAsset);
+				if (!Directory.Exists(WaveEssencePath.Substring(0, WaveEssencePath.Length - "/Essence".Length)))
+					Directory.CreateDirectory(WaveEssencePath.Substring(0, WaveEssencePath.Length - "/Essence".Length));
+				if (!Directory.Exists(WaveEssencePath))
+					Directory.CreateDirectory(WaveEssencePath);
+				AssetDatabase.CreateAsset(asset, WaveEssencePath + kControllerModelAsset);
 			}
 			AssetDatabase.SaveAssets();
-			Debug.Log("UpdateAssetControllerModel() " + kControllerModelAsset + ", importedControllerModelPackage: " + asset.importedControllerModelPackage);
+			Debug.Log("UpdateAssetControllerModel() " + WaveEssencePath + kControllerModelAsset + ", importedControllerModelPackage: " + asset.importedControllerModelPackage);
 		}
 		internal static bool IsControllerModelPackageOnceImported()
 		{
-			if (!File.Exists(kControllerModelAsset))
+			if (!File.Exists(WaveEssencePath + kControllerModelAsset))
 				return false;
 
-			PackageEssenceAsset asset = AssetDatabase.LoadAssetAtPath(kControllerModelAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
+			PackageEssenceAsset asset = AssetDatabase.LoadAssetAtPath(WaveEssencePath + kControllerModelAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 			return asset.importedControllerModelPackage;
 		}
 		#endregion
 
 		#region Essence.InputModule asset
-		const string kInputModuleAsset = "Assets/Wave/Essence/InputModule.asset";
+		const string kInputModuleAsset = "/InputModule.asset";
 		public static void UpdateAssetInputModule(bool importedInputModulePackage)
 		{
 			PackageEssenceAsset asset = null;
-			if (File.Exists(kInputModuleAsset))
+			if (File.Exists(WaveEssencePath + kInputModuleAsset))
 			{
-				asset = AssetDatabase.LoadAssetAtPath(kInputModuleAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
+				asset = AssetDatabase.LoadAssetAtPath(WaveEssencePath + kInputModuleAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 				asset.importedInputModulePackage = importedInputModulePackage;
 			}
 			else
 			{
 				asset = ScriptableObject.CreateInstance(typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 				asset.importedInputModulePackage = importedInputModulePackage;
-				AssetDatabase.CreateAsset(asset, kInputModuleAsset);
+				AssetDatabase.CreateAsset(asset, WaveEssencePath + kInputModuleAsset);
 			}
 			AssetDatabase.SaveAssets();
-			Debug.Log("UpdateAssetInputModule() " + kInputModuleAsset + ", importedInputModulePackage: " + asset.importedInputModulePackage);
+			Debug.Log("UpdateAssetInputModule() " + WaveEssencePath + kInputModuleAsset + ", importedInputModulePackage: " + asset.importedInputModulePackage);
 		}
 		internal static bool IsInputModulePackageOnceImported()
 		{
-			if (!File.Exists(kInputModuleAsset))
+			if (!File.Exists(WaveEssencePath + kInputModuleAsset))
 				return false;
 
-			PackageEssenceAsset asset = AssetDatabase.LoadAssetAtPath(kInputModuleAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
+			PackageEssenceAsset asset = AssetDatabase.LoadAssetAtPath(WaveEssencePath + kInputModuleAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 			return asset.importedInputModulePackage;
 		}
 		#endregion
 
 		#region Essence.Hand.Model asset
-		const string kHandModelAsset = "Assets/Wave/Essence/HandModel.asset";
+		const string kHandModelAsset = "/HandModel.asset";
 		public static void UpdateAssetHandModel(bool importedHandModelPackage)
 		{
 			PackageEssenceAsset asset = null;
-			if (File.Exists(kHandModelAsset))
+			if (File.Exists(WaveEssencePath + kHandModelAsset))
 			{
-				asset = AssetDatabase.LoadAssetAtPath(kHandModelAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
+				asset = AssetDatabase.LoadAssetAtPath(WaveEssencePath + kHandModelAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 				asset.importedHandModelPackage = importedHandModelPackage;
 			}
 			else
 			{
 				asset = ScriptableObject.CreateInstance(typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 				asset.importedHandModelPackage = importedHandModelPackage;
-				AssetDatabase.CreateAsset(asset, kHandModelAsset);
+				AssetDatabase.CreateAsset(asset, WaveEssencePath + kHandModelAsset);
 			}
 			AssetDatabase.SaveAssets();
-			Debug.Log("UpdateAssetHandModel() " + kHandModelAsset + ", importedHandModelPackage: " + asset.importedHandModelPackage);
+			Debug.Log("UpdateAssetHandModel() " + WaveEssencePath + kHandModelAsset + ", importedHandModelPackage: " + asset.importedHandModelPackage);
 		}
 		internal static bool IsHandModelPackageOnceImported()
 		{
-			if (!File.Exists(kHandModelAsset))
+			if (!File.Exists(WaveEssencePath + kHandModelAsset))
 				return false;
 
-			PackageEssenceAsset asset = AssetDatabase.LoadAssetAtPath(kHandModelAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
+			PackageEssenceAsset asset = AssetDatabase.LoadAssetAtPath(WaveEssencePath + kHandModelAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 			return asset.importedHandModelPackage;
 		}
 		#endregion
 
 		#region Essence.Interaction.Mode asset
-		const string kInteractionModeAsset = "Assets/Wave/Essence/InteractionMode.asset";
+		const string kInteractionModeAsset = "/InteractionMode.asset";
 		public static void UpdateAssetInteractionMode(bool importedInteractionModePackage)
 		{
 			PackageEssenceAsset asset = null;
-			if (File.Exists(kInteractionModeAsset))
+			if (File.Exists(WaveEssencePath + kInteractionModeAsset))
 			{
-				asset = AssetDatabase.LoadAssetAtPath(kInteractionModeAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
+				asset = AssetDatabase.LoadAssetAtPath(WaveEssencePath + kInteractionModeAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 				asset.importedInteractionModePackage = importedInteractionModePackage;
 			}
 			else
 			{
 				asset = ScriptableObject.CreateInstance(typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 				asset.importedInteractionModePackage = importedInteractionModePackage;
-				AssetDatabase.CreateAsset(asset, kInteractionModeAsset);
+				AssetDatabase.CreateAsset(asset, WaveEssencePath + kInteractionModeAsset);
 			}
 			AssetDatabase.SaveAssets();
-			Debug.Log("UpdateAssetInteractionMode() " + kInteractionModeAsset + ", importedInteractionModePackage: " + asset.importedInteractionModePackage);
+			Debug.Log("UpdateAssetInteractionMode() " + WaveEssencePath + kInteractionModeAsset + ", importedInteractionModePackage: " + asset.importedInteractionModePackage);
 		}
 		internal static bool IsInteractionModePackageOnceImported()
 		{
-			if (!File.Exists(kInteractionModeAsset))
+			if (!File.Exists(WaveEssencePath + kInteractionModeAsset))
 				return false;
 
-			PackageEssenceAsset asset = AssetDatabase.LoadAssetAtPath(kInteractionModeAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
+			PackageEssenceAsset asset = AssetDatabase.LoadAssetAtPath(WaveEssencePath + kInteractionModeAsset, typeof(PackageEssenceAsset)) as PackageEssenceAsset;
 			return asset.importedInteractionModePackage;
 		}
 		#endregion
@@ -160,33 +200,35 @@ namespace Wave.Essence.Editor
 		public EssenceSettingsProvider(string path, SettingsScope scope = SettingsScope.Project)
 			: base(path, scope, essenceKeywords)
 		{
+			CheckingWavePackagePath();
 			pi = SearchInPackageList(Constants.EssencePackageName);
 		}
 
 		internal static void Init()
 		{
+			CheckingWavePackagePath();
 			pi = SearchInPackageList(Constants.EssencePackageName);
 		}
 
 		private const string FAKE_VERSION = "0.0.0";
 
-		internal const string kControllerModelPath = "Assets/Wave/Essence/Controller/Model";
+		internal const string kControllerModelPath = "/Controller/Model";
 		internal const string kControllerModelPackage = "wave_essence_controller_model.unitypackage";
-		internal const string kInputModulePath = "Assets/Wave/Essence/InputModule";
+		internal const string kInputModulePath = "/InputModule";
 		internal const string kInputModulePackage = "wave_essence_inputmodule.unitypackage";
-		internal const string kHandModelPath = "Assets/Wave/Essence/Hand/Model";
+		internal const string kHandModelPath = "/Hand/Model";
 		internal const string kHandModelPackage = "wave_essence_hand_model.unitypackage";
-		internal const string kInteractionModePath = "Assets/Wave/Essence/Interaction/Mode";
+		internal const string kInteractionModePath = "/Interaction/Mode";
 		internal const string kInteractionModePackage = "wave_essence_interaction_mode.unitypackage";
-		internal const string kInteractionToolkitPath = "Assets/Wave/Essence/Interaction/Toolkit";
+		internal const string kInteractionToolkitPath = "/Interaction/Toolkit";
 		internal const string kInteractionToolkitPackage = "wave_essence_interaction_toolkit.unitypackage";
-		internal const string kCameraTexturePath = "Assets/Wave/Essence/CameraTexture/";
+		internal const string kCameraTexturePath = "/CameraTexture/";
 		internal const string kCameraTexturePackage = "wave_essence_cameratexture.unitypackage";
-		internal const string kCompositorLayerPath = "Assets/Wave/Essence/CompositorLayer";
+		internal const string kCompositorLayerPath = "/CompositorLayer";
 		internal const string kCompositorLayerPackage = "wave_essence_compositorlayer.unitypackage";
-		internal const string kBundlePreviewPath = "Assets/Wave/Essence/BundlePreview";
+		internal const string kBundlePreviewPath = "/BundlePreview";
 		internal const string kBundlePreviewPackage = "wave_essence_bundlepreview.unitypackage";
-		internal const string kRenderDocPath = "Assets/Wave/Essence/RenderDoc/";
+		internal const string kRenderDocPath = "/RenderDoc/";
 		internal const string kRenderDocPackage = "wave_essence_renderdoc.unitypackage";
 
 		internal static bool featureControllerModelImported = false;
@@ -213,34 +255,34 @@ namespace Wave.Essence.Editor
 
 		internal static bool checkFeaturePackages()
 		{
-			featureControllerModelImported = Directory.Exists(kControllerModelPath);
-			featureInputModuleImported = Directory.Exists(kInputModulePath);
-			featureHandModelImported = Directory.Exists(kHandModelPath);
-			featureInteractionModeImported = Directory.Exists(kInteractionModePath);
-			featureInteractionToolkitImported = Directory.Exists(kInteractionToolkitPath);
-			featureCameraTextureImported = Directory.Exists(kCameraTexturePath);
-			featureCompositorLayerImported = Directory.Exists(kCompositorLayerPath);
-			featureBundlePreviewImported = Directory.Exists(kBundlePreviewPath);
-			featureRenderDocImported = Directory.Exists(kRenderDocPath);
+			featureControllerModelImported = Directory.Exists(WaveEssencePath + kControllerModelPath);
+			featureInputModuleImported = Directory.Exists(WaveEssencePath + kInputModulePath);
+			featureHandModelImported = Directory.Exists(WaveEssencePath + kHandModelPath);
+			featureInteractionModeImported = Directory.Exists(WaveEssencePath + kInteractionModePath);
+			featureInteractionToolkitImported = Directory.Exists(WaveEssencePath + kInteractionToolkitPath);
+			featureCameraTextureImported = Directory.Exists(WaveEssencePath + kCameraTexturePath);
+			featureCompositorLayerImported = Directory.Exists(WaveEssencePath + kCompositorLayerPath);
+			featureBundlePreviewImported = Directory.Exists(WaveEssencePath + kBundlePreviewPath);
+			featureRenderDocImported = Directory.Exists(WaveEssencePath + kRenderDocPath);
 
-			featureControllerModelNeedUpdate = featureControllerModelImported && !Directory.Exists(kControllerModelPath + "/" + pi.version) &&
-				!Directory.Exists(kControllerModelPath + "/" + FAKE_VERSION);
-			featureInputModuleNeedUpdate = featureInputModuleImported && !Directory.Exists(kInputModulePath + "/" + pi.version) &&
-				!Directory.Exists(kInputModulePath + "/" + FAKE_VERSION);
-			featureHandModelNeedUpdate = featureHandModelImported && !Directory.Exists(kHandModelPath + "/" + pi.version) &&
-				!Directory.Exists(kHandModelPath + "/" + FAKE_VERSION);
-			featureInteractionModeNeedUpdate = featureInteractionModeImported && !Directory.Exists(kInteractionModePath + "/" + pi.version) &&
-				!Directory.Exists(kInteractionModePath + "/" + FAKE_VERSION);
-			featureInteractionToolkitNeedUpdate = featureInteractionToolkitImported && !Directory.Exists(kInteractionToolkitPath + "/" + pi.version) &&
-				!Directory.Exists(kInteractionToolkitPath + "/" + FAKE_VERSION);
-			featureCameraTextureNeedUpdate = featureCameraTextureImported && !Directory.Exists(kCameraTexturePath + "/" + pi.version) &&
-				!Directory.Exists(kCameraTexturePath + "/" + FAKE_VERSION);
-			featureCompositorLayerNeedUpdate = featureCompositorLayerImported && !Directory.Exists(kCompositorLayerPath + "/" + pi.version) &&
-				!Directory.Exists(kCompositorLayerPath + "/" + FAKE_VERSION);
-			featureBundlePreviewNeedUpdate = featureBundlePreviewImported && !Directory.Exists(kBundlePreviewPath + "/" + pi.version) &&
-				!Directory.Exists(kBundlePreviewPath + "/" + FAKE_VERSION);
-			featureRenderDocNeedUpdate = featureRenderDocImported && !Directory.Exists(kRenderDocPath + "/" + pi.version) &&
-				!Directory.Exists(kRenderDocPath + "/" + FAKE_VERSION);
+			featureControllerModelNeedUpdate = featureControllerModelImported && !Directory.Exists(WaveEssencePath + kControllerModelPath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kControllerModelPath + "/" + FAKE_VERSION);
+			featureInputModuleNeedUpdate = featureInputModuleImported && !Directory.Exists(WaveEssencePath + kInputModulePath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kInputModulePath + "/" + FAKE_VERSION);
+			featureHandModelNeedUpdate = featureHandModelImported && !Directory.Exists(WaveEssencePath + kHandModelPath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kHandModelPath + "/" + FAKE_VERSION);
+			featureInteractionModeNeedUpdate = featureInteractionModeImported && !Directory.Exists(WaveEssencePath + kInteractionModePath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kInteractionModePath + "/" + FAKE_VERSION);
+			featureInteractionToolkitNeedUpdate = featureInteractionToolkitImported && !Directory.Exists(WaveEssencePath + kInteractionToolkitPath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kInteractionToolkitPath + "/" + FAKE_VERSION);
+			featureCameraTextureNeedUpdate = featureCameraTextureImported && !Directory.Exists(WaveEssencePath + kCameraTexturePath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kCameraTexturePath + "/" + FAKE_VERSION);
+			featureCompositorLayerNeedUpdate = featureCompositorLayerImported && !Directory.Exists(WaveEssencePath + kCompositorLayerPath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kCompositorLayerPath + "/" + FAKE_VERSION);
+			featureBundlePreviewNeedUpdate = featureBundlePreviewImported && !Directory.Exists(WaveEssencePath + kBundlePreviewPath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kBundlePreviewPath + "/" + FAKE_VERSION);
+			featureRenderDocNeedUpdate = featureRenderDocImported && !Directory.Exists(WaveEssencePath + kRenderDocPath + "/" + pi.version) &&
+				!Directory.Exists(WaveEssencePath + kRenderDocPath + "/" + FAKE_VERSION);
 
 			hasFeatureNeedUpdate = featureControllerModelNeedUpdate || featureInputModuleNeedUpdate || featureHandModelNeedUpdate || featureInteractionModeNeedUpdate || featureInteractionToolkitNeedUpdate ||
 				featureCameraTextureNeedUpdate || featureCompositorLayerNeedUpdate || featureBundlePreviewNeedUpdate || featureRenderDocNeedUpdate;
@@ -252,23 +294,23 @@ namespace Wave.Essence.Editor
 		{
 			checkFeaturePackages();
 			if (featureControllerModelNeedUpdate)
-				UpdateModule(kControllerModelPath, kControllerModelPackage);
+				UpdateModule(WaveEssencePath + kControllerModelPath, kControllerModelPackage);
 			if (featureInputModuleNeedUpdate)
-				UpdateModule(kInputModulePath, kInputModulePackage);
+				UpdateModule(WaveEssencePath + kInputModulePath, kInputModulePackage);
 			if (featureHandModelNeedUpdate)
-				UpdateModule(kHandModelPath, kHandModelPackage);
+				UpdateModule(WaveEssencePath + kHandModelPath, kHandModelPackage);
 			if (featureInteractionModeNeedUpdate)
-				UpdateModule(kInteractionModePath, kInteractionModePackage);
+				UpdateModule(WaveEssencePath + kInteractionModePath, kInteractionModePackage);
 			if (featureCameraTextureNeedUpdate)
-				UpdateModule(kCameraTexturePath, kCameraTexturePackage);
+				UpdateModule(WaveEssencePath + kCameraTexturePath, kCameraTexturePackage);
 			if (featureCompositorLayerNeedUpdate)
-				UpdateModule(kCompositorLayerPath, kCompositorLayerPackage);
+				UpdateModule(WaveEssencePath + kCompositorLayerPath, kCompositorLayerPackage);
 			if (featureBundlePreviewNeedUpdate)
-				UpdateModule(kBundlePreviewPath, kBundlePreviewPackage);
+				UpdateModule(WaveEssencePath + kBundlePreviewPath, kBundlePreviewPackage);
 			if (featureRenderDocNeedUpdate)
-				UpdateModule(kRenderDocPath, kRenderDocPackage);
+				UpdateModule(WaveEssencePath + kRenderDocPath, kRenderDocPackage);
 			if (featureInteractionToolkitNeedUpdate)
-				UpdateModule(kInteractionToolkitPath, kInteractionToolkitPackage);
+				UpdateModule(WaveEssencePath + kInteractionToolkitPath, kInteractionToolkitPackage);
 		}
 
 		public override void OnGUI(string searchContext)
@@ -338,13 +380,13 @@ namespace Wave.Essence.Editor
 					GUILayout.Label("This feature is imported by default.\n\n" +
 						"This package provides features of render model, button effect and controller tips. \n" +
 						"Please import XR interaction toolkit and refer Demo scene to check how to use it.", new GUIStyle(EditorStyles.label) { wordWrap = true });
-					GUILayout.Label("The feature will be imported at Assets/Wave/Essence/Controller/Model.", EditorStyles.label);
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/Controller/Model.", EditorStyles.label);
 					GUILayout.Space(5f);
 					GUI.enabled = !featureControllerModelImported || featureControllerModelNeedUpdate;
 					if (featureControllerModelNeedUpdate)
 					{
 						if (GUILayout.Button("Update Feature - Controller Model", GUILayout.ExpandWidth(false)))
-							UpdateModule(kControllerModelPath, kControllerModelPackage);
+							UpdateModule(WaveEssencePath + kControllerModelPath, kControllerModelPackage);
 					}
 					else
 					{
@@ -371,13 +413,13 @@ namespace Wave.Essence.Editor
 					GUILayout.Label("Input Module", EditorStyles.boldLabel);
 					GUILayout.Label("This feature is imported by default.\n\n" +
 						"The Input Module feature provides a controller input module and a gaze input module. In the demo you will see how to interact with scene objects.", new GUIStyle(EditorStyles.label) { wordWrap = true });
-					GUILayout.Label("The feature will be imported at Assets/Wave/Essence/InputModule.", EditorStyles.label);
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/InputModule.", EditorStyles.label);
 					GUILayout.Space(5f);
 					GUI.enabled = !featureInputModuleImported || featureInputModuleNeedUpdate;
 					if (featureInputModuleNeedUpdate)
 					{
 						if (GUILayout.Button("Update Feature - Input Module", GUILayout.ExpandWidth(false)))
-							UpdateModule(kInputModulePath, kInputModulePackage);
+							UpdateModule(WaveEssencePath + kInputModulePath, kInputModulePackage);
 					}
 					else
 					{
@@ -404,13 +446,13 @@ namespace Wave.Essence.Editor
 					GUILayout.Label("Hand Model", EditorStyles.boldLabel);
 					GUILayout.Label("This feature is imported by default.\n\n" +
 						"The Hand Model feature provides the models of hand.", new GUIStyle(EditorStyles.label) { wordWrap = true });
-					GUILayout.Label("The feature will be imported at Assets/Wave/Essence/Hand/Model.", EditorStyles.label);
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/Hand/Model.", EditorStyles.label);
 					GUILayout.Space(5f);
 					GUI.enabled = !featureHandModelImported || featureHandModelNeedUpdate;
 					if (featureHandModelNeedUpdate)
 					{
 						if (GUILayout.Button("Update Feature - Hand Model", GUILayout.ExpandWidth(false)))
-							UpdateModule(kHandModelPath, kHandModelPackage);
+							UpdateModule(WaveEssencePath + kHandModelPath, kHandModelPackage);
 					}
 					else
 					{
@@ -442,13 +484,13 @@ namespace Wave.Essence.Editor
 						"- Gaze: A player will use gaze for interaction.\n" +
 						"- Controller: A player will use controllers for interaction.\n" +
 						"- Hand: A player will use his hands for interaction.", new GUIStyle(EditorStyles.label) { wordWrap = true });
-					GUILayout.Label("The feature will be imported at Assets/Wave/Essence/Interaction/Mode.", EditorStyles.label);
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/Interaction/Mode.", EditorStyles.label);
 					GUILayout.Space(5f);
 					GUI.enabled = (!featureInteractionModeImported || featureInteractionModeNeedUpdate) && featureControllerModelImported && featureInputModuleImported && featureHandModelImported;
 					if (featureInteractionModeNeedUpdate)
 					{
 						if (GUILayout.Button("Update Feature - Interaction Mode", GUILayout.ExpandWidth(false)))
-							UpdateModule(kInteractionModePath, kInteractionModePackage);
+							UpdateModule(WaveEssencePath + kInteractionModePath, kInteractionModePackage);
 					}
 					else
 					{
@@ -470,7 +512,7 @@ namespace Wave.Essence.Editor
 				if (featureCameraTextureNeedUpdate)
 				{
 					if (GUILayout.Button("Update Feature - CameraTexture", GUILayout.ExpandWidth(false)))
-						UpdateModule(kCameraTexturePath, kCameraTexturePackage);
+						UpdateModule(WaveEssencePath + kCameraTexturePath, kCameraTexturePackage);
 				}
 				else
 				{
@@ -486,13 +528,13 @@ namespace Wave.Essence.Editor
 				{
 					GUILayout.Label("Compositor Layer", EditorStyles.boldLabel);
 					GUILayout.Label("This feature leverages the Wave Multi-Layer Rendering Architecture to display textures on layers other than the eye buffer.", new GUIStyle(EditorStyles.label) { wordWrap = true });
-					GUILayout.Label("The feature will be imported at Assets/Wave/Essence/CompositorLayer.", EditorStyles.label);
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/CompositorLayer.", EditorStyles.label);
 					GUILayout.Space(5f);
 					GUI.enabled = !featureCompositorLayerImported || featureCompositorLayerNeedUpdate;
 					if (featureCompositorLayerNeedUpdate)
 					{
 						if (GUILayout.Button("Update Feature - Compositor Layer", GUILayout.ExpandWidth(false)))
-							UpdateModule(kCompositorLayerPath, kCompositorLayerPackage);
+							UpdateModule(WaveEssencePath + kCompositorLayerPath, kCompositorLayerPackage);
 					}
 					else
 					{
@@ -512,13 +554,13 @@ namespace Wave.Essence.Editor
 					GUILayout.Label("Bundle Preview", EditorStyles.boldLabel);
 					GUILayout.Label("Bundle Preview allows you to quickly preview project changes by modularizing the project building process. \n" +
 						"Select Wave/BundlePreview in the menu to start using this feature.", new GUIStyle(EditorStyles.label) { wordWrap = true });
-					GUILayout.Label("The feature will be imported at Assets/Wave/Essence/BundlePreview.", EditorStyles.label);
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/BundlePreview.", EditorStyles.label);
 					GUILayout.Space(5f);
 					GUI.enabled = !featureBundlePreviewImported || featureBundlePreviewNeedUpdate;
 					if (featureBundlePreviewNeedUpdate)
 					{
 						if (GUILayout.Button("Update Feature - BundlePreview", GUILayout.ExpandWidth(false)))
-							UpdateModule(kBundlePreviewPath, kBundlePreviewPackage);
+							UpdateModule(WaveEssencePath + kBundlePreviewPath, kBundlePreviewPackage);
 					}
 					else
 					{
@@ -543,11 +585,11 @@ namespace Wave.Essence.Editor
 				GUILayout.Label("RenderDoc", EditorStyles.boldLabel);
 				GUILayout.Label(renderDocLabel, new GUIStyle(EditorStyles.label) { wordWrap = true });
 				GUILayout.Space(5f);
-				GUILayout.Label("The feature will be imported at Assets/Wave/Essence/RenderDoc.", EditorStyles.label);
+				GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/RenderDoc.", EditorStyles.label);
 				if (featureRenderDocNeedUpdate)
 				{
 					if (GUILayout.Button("Update RenderDoc tool", GUILayout.ExpandWidth(false)))
-						UpdateModule(kRenderDocPath, kRenderDocPackage);
+						UpdateModule(WaveEssencePath + kRenderDocPath, kRenderDocPackage);
 				}
 				else
 				{
@@ -563,13 +605,13 @@ namespace Wave.Essence.Editor
 				{
 					GUILayout.Label("Interaction Toolkit", EditorStyles.boldLabel);
 					GUILayout.Label("The Wave Extension of Unity XR Interaction Toolkit.", new GUIStyle(EditorStyles.label) { wordWrap = true });
-					GUILayout.Label("The feature will be imported at Assets/Wave/Essence/Interaction/Toolkit.", EditorStyles.label);
+					GUILayout.Label("The feature will be imported at " + WaveEssencePath + "/Interaction/Toolkit.", EditorStyles.label);
 					GUILayout.Space(5f);
 					GUI.enabled = !featureInteractionToolkitImported | featureInteractionToolkitNeedUpdate;
 					if (featureInteractionToolkitNeedUpdate)
 					{
 						if (GUILayout.Button("Update Feature - Interaction Toolkit", GUILayout.ExpandWidth(false)))
-							UpdateModule(kInteractionToolkitPath, kInteractionToolkitPackage);
+							UpdateModule(WaveEssencePath + kInteractionToolkitPath, kInteractionToolkitPackage);
 					}
 					else
 					{
@@ -599,6 +641,76 @@ namespace Wave.Essence.Editor
 					Directory.Delete(dir, true);
 				}
 			}
+		}
+
+		public static void MoveFolder(string srcpath, string destpath)
+		{
+			if (Directory.Exists(srcpath))
+			{
+				var srcfiles = Directory.GetFiles(srcpath);
+				var srcdirs = Directory.GetDirectories(srcpath);
+				foreach (var file in srcfiles)
+				{
+					string destfile = destpath + file.Substring(srcpath.Length, file.Length - srcpath.Length);
+					if (!File.Exists(destfile))
+						File.Move(file, destfile);
+				}
+				foreach (var dir in srcdirs)
+				{
+					string destdir = destpath + dir.Substring(srcpath.Length, dir.Length - srcpath.Length);
+					if (!Directory.Exists(destdir))
+						Directory.Move(dir, destdir);
+					else if (Directory.EnumerateFiles(destdir).Any()) // allow two layers
+					{
+						var dirname = Path.GetFileName(dir);
+						var srcpath2 = srcpath + "/" + dirname;
+						var destpath2 = destpath + "/" + dirname;
+						var srcfiles2 = Directory.GetFiles(srcpath2);
+						var srcdirs2 = Directory.GetDirectories(srcpath2);
+						foreach (var file2 in srcfiles2)
+						{
+							string destfile2 = destpath2 + file2.Substring(srcpath2.Length, file2.Length - srcpath2.Length);
+							if (!File.Exists(destfile2))
+								File.Move(file2, destfile2);
+							else // layer 2 force write
+							{
+								File.Delete(destfile2);
+								File.Move(file2, destfile2);
+							}
+						}
+						foreach (var dir2 in srcdirs2)
+						{
+							string destdir2 = destpath2 + dir2.Substring(srcpath2.Length, dir2.Length - srcpath2.Length);
+							if (!Directory.Exists(destdir2))
+								Directory.Move(dir2, destdir2);
+							else // layer 2 force write
+							{
+								Directory.Delete(destdir2, true);
+								Directory.Move(dir2, destdir2);
+							}
+						}
+						Directory.Delete(dir, true);
+						File.Delete(dir + ".meta");
+					}
+					else
+					{
+						Directory.Delete(destdir);
+						Directory.Move(dir, destdir);
+					}
+				}
+			}
+		}
+
+		public static void CleanHouse()
+		{
+			if (Directory.Exists("Assets/Wave/Essence"))
+				Directory.Delete("Assets/Wave/Essence");
+			if (File.Exists("Assets/Wave/Essence.meta"))
+				File.Delete("Assets/Wave/Essence.meta");
+			if (Directory.Exists("Assets/Wave"))
+				Directory.Delete("Assets/Wave");
+			if (File.Exists("Assets/Wave.meta"))
+				File.Delete("Assets/Wave.meta");
 		}
 
 		internal static void UpdateModule(string ModelPath, string packagePath)
@@ -712,6 +824,8 @@ namespace Wave.Essence.Editor
 			}
 			else
 			    IsImporting = false;
+			if (!EssenceSettingsProvider.WaveEssencePath.Equals("Assets/Wave/Essence"))
+				MoveEssenceFolder();
 		}
 
 		public static void ResetToDefaultPackages()
@@ -720,8 +834,18 @@ namespace Wave.Essence.Editor
 			EssenceSettingsProvider.UpdateAssetInputModule(false);
 			EssenceSettingsProvider.UpdateAssetHandModel(false);
 			EssenceSettingsProvider.UpdateAssetInteractionMode(false);
-			EssenceSettingsProvider.DeleteFolder("Assets/Wave/Essence");
+			EssenceSettingsProvider.DeleteFolder(EssenceSettingsProvider.WaveEssencePath);
 			AssetDatabase.Refresh();			
+		}
+
+		private static void MoveEssenceFolder()
+		{
+			if (Directory.Exists("Assets/Wave/Essence"))
+			{
+				EssenceSettingsProvider.MoveFolder("Assets/Wave/Essence", EssenceSettingsProvider.WaveEssencePath);
+				EssenceSettingsProvider.CleanHouse();
+				AssetDatabase.Refresh();
+			}
 		}
 	}
 
@@ -790,13 +914,6 @@ namespace Wave.Essence.Editor
 				GetCurrent = () => { return EssenceSettingsProvider.featureInteractionModeNeedUpdate.ToString(); },
 			};
 
-			var InteractionToolkit = new Item("Interaction Toolkit")
-			{
-				IsShow = () => { return EssenceSettingsProvider.featureInteractionToolkitImported; },
-				IsReady = () => { return !EssenceSettingsProvider.featureInteractionToolkitNeedUpdate; },
-				GetCurrent = () => { return EssenceSettingsProvider.featureInteractionToolkitNeedUpdate.ToString(); },
-			};
-
 			var CameraTexture = new Item("Camera Texture")
 			{
 				IsShow = () => { return EssenceSettingsProvider.featureCameraTextureImported; },
@@ -823,6 +940,13 @@ namespace Wave.Essence.Editor
 				IsShow = () => { return EssenceSettingsProvider.featureRenderDocImported; },
 				IsReady = () => { return !EssenceSettingsProvider.featureRenderDocNeedUpdate; },
 				GetCurrent = () => { return EssenceSettingsProvider.featureRenderDocNeedUpdate.ToString(); },
+			};
+
+			var InteractionToolkit = new Item("Interaction Toolkit")
+			{
+				IsShow = () => { return EssenceSettingsProvider.featureInteractionToolkitImported; },
+				IsReady = () => { return !EssenceSettingsProvider.featureInteractionToolkitNeedUpdate; },
+				GetCurrent = () => { return EssenceSettingsProvider.featureInteractionToolkitNeedUpdate.ToString(); },
 			};
 
 			return new List<Item>()

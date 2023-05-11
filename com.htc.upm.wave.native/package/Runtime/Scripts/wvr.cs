@@ -65,6 +65,7 @@ namespace Wave.Native
 		WVR_EventType_ClearHmdTrackingMapDone            = 2015,    /**< Notification of the finish of clearing operation of HMD tracking map from device service*/
 		WVR_EventType_InputDevMappingChanged			 = 2016,    /**< Notification for input device mapping table changed.*/
 		WVR_EventType_BatteryPercentageUpdate			 = 2017,    /**< Notification for battery percentage update.*/
+		WVR_EventType_DeviceInfoUpdate                   = 2018,
 
 		WVR_EventType_PassThroughOverlayShownBySystem	 = 2100,    /**< Notification for passthrough overlay is shown by the system.*/
 		WVR_EventType_PassThroughOverlayHiddenBySystem   = 2101,    /**< Notification for passthrough overlay is hidden by the system. */
@@ -80,6 +81,17 @@ namespace Wave.Native
 		WVR_EventType_RightToLeftSwipe                   = 3005,     /**< Notification of swipe motion (move Right to Left) on touchpad */
 		WVR_EventType_DownToUpSwipe                      = 3006,     /**< Notification of swipe motion (move Down to Up) on touchpad */
 		WVR_EventType_UpToDownSwipe                      = 3007,     /**< Notification of swipe motion (move Up to Down) on touchpad */
+
+		/** Accessory events region */
+		WVR_EventType_TrackerConnected = 4000,    /**< @ref WVR_TrackerId is connected. */
+		WVR_EventType_TrackerDisconnected = 4001,    /**< @ref WVR_TrackerId is disconnected. */
+		WVR_EventType_TrackerBatteryLevelUpdate = 4002,    /**< The battery level of @ref WVR_TrackerId has changed. Use @ref WVR_GetAcceBatteryLevel to check the current battery level. */
+
+		/** Input Event of the accessory region */
+		WVR_EventType_TrackerButtonPressed = 5000,     /**< @ref WVR_InputId status of @ref WVR_TrackerId changed to pressed. */
+		WVR_EventType_TrackerButtonUnpressed = 5001,     /**< @ref WVR_InputId status of @ref WVR_TrackerId changed to not pressed */
+		WVR_EventType_TrackerTouchTapped = 5002,     /**< @ref WVR_InputId status of @ref WVR_TrackerId changed to touched. */
+		WVR_EventType_TrackerTouchUntapped = 5003,     /**< @ref WVR_InputId status of @ref WVR_TrackerId changed to untouched. */
 	}
 
 	public enum WVR_PeripheralQuality
@@ -641,12 +653,28 @@ namespace Wave.Native
 		public WVR_InputId inputId;
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_TrackerEvent_t
+	{
+		public WVR_CommonEvent_t common;
+		public WVR_TrackerId trackerId;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_TrackerInputEvent
+	{
+		public WVR_TrackerEvent_t tracker;
+		public WVR_InputId inputId;
+	}
+
 	[StructLayout(LayoutKind.Explicit)]
 	public struct WVR_Event_t
 	{
 		[FieldOffset(0)] public WVR_CommonEvent_t common;
 		[FieldOffset(0)] public WVR_DeviceEvent_t device;
 		[FieldOffset(0)] public WVR_InputEvent_t input;
+		[FieldOffset(0)] public WVR_TrackerEvent_t tracker;      /**< @ref WVR_TrackerEvent_t*/
+		[FieldOffset(0)] public WVR_TrackerInputEvent trackerInput; /**< @ref WVR_TrackerInputEvent*/
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -1037,11 +1065,13 @@ namespace Wave.Native
 		WVR_Error_CameraNotAvailable             = 6,    /**< Camera was unavailable, cannot query camera related information. */
 		WVR_Error_CameraPermissionNotGranted     = 7,    /**< The Android camera permission was not granted yet. */
 		WVR_Error_DeviceDisconnected             = 8,    /**< The device is disconnected */
+
 		WVR_Error_CtrlerModel_WrongDeviceType    = 100,  /**< Input wrong device type for asking controller model. */
 		WVR_Error_CtrlerModel_DeviceDisconnected = 101,  /**< The controller device you want to get its model is disconnected. */
 		WVR_Error_CtrlerModel_InvalidModel       = 102,  /**< We can't get model that can be use. */
 		WVR_Error_CtrlerModel_Unknown            = 103,  /**< Unknown error. */
 		WVR_Error_InvalidRenderModel			 = 110,
+
 		WVR_Error_EyeTracking_NotInitial         = 200,  /**< The eye calibration procedure has not been initialized. */
 		WVR_Error_EyeTracking_NotWorking         = 201,  /**< The operation of eye tracking is not working. */
 
@@ -1050,9 +1080,31 @@ namespace Wave.Native
 
 
 	#region Hand
+	public enum WVR_HandGestureType
+	{
+		WVR_HandGestureType_Invalid = 0,    /**< The gesture is invalid. */
+		WVR_HandGestureType_Unknown = 1,    /**< Unknow gesture type. */
+		WVR_HandGestureType_Fist = 2,    /**< Represent fist gesture. */
+		WVR_HandGestureType_Five = 3,    /**< Represent five gesture. */
+		WVR_HandGestureType_OK = 4,    /**< Represent OK gesture. */
+		WVR_HandGestureType_ThumbUp = 5,    /**< Represent thumb up gesture. */
+		WVR_HandGestureType_IndexUp = 6,    /**< Represent index up gesture. */
+		WVR_HandGestureType_Inverse = 7,    /**< Represent inverse gesture. */
+		WVR_HandGestureType_Reserved1 = 32,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved2 = 33,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved3 = 34,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved4 = 35,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved5 = 36,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved6 = 37,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved7 = 38,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved8 = 39,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved9 = 40,   /**< Reserved gesture. */
+		WVR_HandGestureType_Reserved10 = 41,   /**< Reserved gesture. */
+	}
+
 	/**
 	 * @brief The type of hand tracker device.
-	 * @version API Level 6
+	 * @version API Level 7
 	 */
 	public enum WVR_HandTrackerType
 	{
@@ -1062,7 +1114,7 @@ namespace Wave.Native
 
 	/**
 	 * @brief The type of the hand model.
-	 * @version API Level 6
+	 * @version API Level 7
 	 */
 	public enum WVR_HandModelType
 	{
@@ -1072,7 +1124,7 @@ namespace Wave.Native
 
 	/**
 	 * @brief The flags that indicate data validity of one hand joint.
-	 * @version API Level 6
+	 * @version API Level 7
 	 */
 	public enum WVR_HandJointValidFlag
 	{
@@ -1082,7 +1134,7 @@ namespace Wave.Native
 
 	/**
 	 * @brief The conventions of hand joints
-	 * @version API Level 6
+	 * @version API Level 7
 	 */
 	public enum WVR_HandJoint
 	{
@@ -1114,26 +1166,23 @@ namespace Wave.Native
 		WVR_HandJoint_Pinky_Tip = 25,
 	};
 
-	public enum WVR_HandGestureType
+	/* 21Aug New. */
+	public enum WVR_HandHoldObjectType
 	{
-		WVR_HandGestureType_Invalid = 0,    /**< The gesture is invalid. */
-		WVR_HandGestureType_Unknown = 1,    /**< Unknow gesture type. */
-		WVR_HandGestureType_Fist = 2,    /**< Represent fist gesture. */
-		WVR_HandGestureType_Five = 3,    /**< Represent five gesture. */
-		WVR_HandGestureType_OK = 4,    /**< Represent OK gesture. */
-		WVR_HandGestureType_ThumbUp = 5,    /**< Represent thumb up gesture. */
-		WVR_HandGestureType_IndexUp = 6,    /**< Represent index up gesture. */
-		WVR_HandGestureType_Inverse = 7,    /**< Represent inverse gesture. */
-		WVR_HandGestureType_Reserved1 = 32,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved2 = 33,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved3 = 34,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved4 = 35,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved5 = 36,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved6 = 37,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved7 = 38,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved8 = 39,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved9 = 40,   /**< Reserved gesture. */
-		WVR_HandGestureType_Reserved10 = 41,   /**< Reserved gesture. */
+		WVR_HandHoldObjectType_None       = 0,  /**< The object type of hand hold is none. */
+		WVR_HandHoldObjectType_Gun        = 1,  /**< The object type of hand hold is a gun. */
+		WVR_HandHoldObjectType_OCSpray    = 2,  /**< The object type of hand hold is a OC spray. */
+		WVR_HandHoldObjectType_LongGun    = 3,  /**< The object type of hand hold is a long gun. */
+		WVR_HandHoldObjectType_Baton      = 4,  /**< The object type of hand hold is a baton. */
+		WVR_HandHoldObjectType_FlashLight = 5   /**< The object type of hand hold is a flashlight. */
+	}
+
+	/* 21Aug New. */
+	public enum WVR_HandHoldRoleType
+	{
+		WVR_HandHoldRoleType_None     = 0,  /**< The role type of hand hold is none. */
+		WVR_HandHoldRoleType_MainHold = 1,  /**< The role type of hand hold is main hold. */
+		WVR_HandHoldRoleType_SideHold = 2   /**< The role type of hand hold is side hold. */
 	}
 
 	/**
@@ -1162,10 +1211,12 @@ namespace Wave.Native
 		WVR_FingerType_Pinky = 5     /**< Represent pinky finger. */
 	}
 
+	/* Added 21Aug: Hold */
 	public enum WVR_HandPoseType
 	{
 		WVR_HandPoseType_Invalid = 0,  /**< The hand pose type is invalid. */
 		WVR_HandPoseType_Pinch = 1,  /**< The hand pose type is pinch. */
+		WVR_HandPoseType_Hold = 2,  /**< The hand pose type is hold. */
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -1177,26 +1228,37 @@ namespace Wave.Native
 	[StructLayout(LayoutKind.Sequential)]
 	public struct WVR_HandPosePinchState_t
 	{
-		public WVR_HandPoseStateBase_t state;   /**< Refer to @ref WVR_HandPoseStateBase */
+		public WVR_HandPoseStateBase_t state;   /**< Refer to @ref WVR_HandPoseStateBase_t */
 		public WVR_FingerType finger;           /**< Move someone finger and thumb apart or bring them together.*/
 		public float strength;                  /**< The value of ranges between 0 to 1 for each finger pich, 1 means pinch with the finger touching the thumb fully. */
 		public WVR_Vector3f_t origin;           /**< The pinch origin. */
 		public WVR_Vector3f_t direction;        /**< The pinch direction. */
 	}
 
+	/* New 21Aug. */
+	[StructLayout(LayoutKind.Sequential)]
+	public struct WVR_HandPoseHoldState_t
+	{
+		public WVR_HandPoseStateBase_t state;    /**< Refer to @ref WVR_HandPoseStateBase_t. */
+		public WVR_HandHoldRoleType role;        /**< The role type of hand hold, refer to @ref WVR_HandHoldRoleType. */
+		public WVR_HandHoldObjectType type;      /**< The object type of hand hold, refer to @ref WVR_HandHoldObjectType. */
+	}
+
+	/* Added 21Aug: hold. */
 	[StructLayout(LayoutKind.Explicit)]
 	public struct WVR_HandPoseState_t
 	{
-		[FieldOffset(0)] public WVR_HandPoseStateBase_t state;  /**< @ref WVR_HandPoseStateBase */
-		[FieldOffset(0)] public WVR_HandPosePinchState_t pinch;  /**< @ref WVR_HandPosePinchState */
+		[FieldOffset(0)] public WVR_HandPoseStateBase_t state;
+		[FieldOffset(0)] public WVR_HandPosePinchState_t pinch;
+		[FieldOffset(0)] public WVR_HandPoseHoldState_t hold;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct WVR_HandPoseData_t
 	{
 		public long timestamp;  /**< The current time in milliseconds. */
-		public WVR_HandPoseState_t right;      /**< The pose state of right hand, refer to @ref WVR_HandPoseState. */
-		public WVR_HandPoseState_t left;       /**< The pose state of left hand, refer to @ref WVR_HandPoseState. */
+		public WVR_HandPoseState_t right;      /**< The pose state of right hand, refer to @ref WVR_HandPoseState_t. */
+		public WVR_HandPoseState_t left;       /**< The pose state of left hand, refer to @ref WVR_HandPoseState_t. */
 	}
 
 	/**
@@ -1210,7 +1272,7 @@ namespace Wave.Native
 		public ulong handModelTypeBitMask;    /**< Support how many types of @ref WVR_HandModelType. */
 		public IntPtr jointMappingArray;      /**< The array corresponds to the conventions of hand joints. Refer to @ref WVR_HandJoint. */
 		public IntPtr jointValidFlagArray;    /**< The array that indicates which data of each hand joint is valid, refer to @ref WVR_HandJointValidFlag. */
-		public float strength;                /**< The value of ranges between 0 to 1. */
+		public float pinchThreshold;          /**< The value of ranges between 0 to 1. */
 	}
 
 	/**
@@ -1260,18 +1322,53 @@ namespace Wave.Native
 	[StructLayout(LayoutKind.Sequential)]
 	public struct WVR_HandJointData_t
 	{
-		public bool isValidPose;    /**< The label of valid(true)/invalid(false) pose. */
+		public bool isValidPose;     /**< The label of valid(true)/invalid(false) pose. */
 		public float confidence;     /**< The hand confidence value. */
-		public uint jointCount;     /**< Specify the size of the @ref WVR_Pose_t array. */
+		public uint jointCount;      /**< Specify the size of the @ref WVR_Pose_t array. */
 		public IntPtr joints;        /**< The array of the @ref WVR_Pose_t. */
-		public WVR_Vector3f_t scale;  /**< defualt is 1. */
+		public WVR_Vector3f_t scale; /**< defualt is 1. */
 	}
 
-	/**
+    [StructLayout(LayoutKind.Sequential)]
+    public struct HandJointData26
+    {
+        public bool isValidPose;
+        public float confidence;
+        public uint jointCount;
+        public WVR_Pose_t j00;
+        public WVR_Pose_t j01;
+        public WVR_Pose_t j02;
+        public WVR_Pose_t j03;
+        public WVR_Pose_t j04;
+        public WVR_Pose_t j05;
+        public WVR_Pose_t j06;
+        public WVR_Pose_t j07;
+        public WVR_Pose_t j08;
+        public WVR_Pose_t j09;
+        public WVR_Pose_t j10;
+        public WVR_Pose_t j11;
+        public WVR_Pose_t j12;
+        public WVR_Pose_t j13;
+        public WVR_Pose_t j14;
+        public WVR_Pose_t j15;
+        public WVR_Pose_t j16;
+        public WVR_Pose_t j17;
+        public WVR_Pose_t j18;
+        public WVR_Pose_t j19;
+        public WVR_Pose_t j20;
+        public WVR_Pose_t j21;
+        public WVR_Pose_t j22;
+        public WVR_Pose_t j23;
+        public WVR_Pose_t j24;
+        public WVR_Pose_t j25;
+        public WVR_Vector3f_t scale;
+    }
+
+    /**
 	 * @brief The data structure of the hand tracker data that contains both hands.
 	 * @version API Level 6
 	 */
-	[StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct WVR_HandTrackingData_t
 	{
 		public long timestamp;
@@ -1280,12 +1377,49 @@ namespace Wave.Native
 	}
 	#endregion
 
+	#region Tracker
+	public enum WVR_TrackerId
+	{
+		WVR_TrackerId_0 = 0,
+		WVR_TrackerId_1 = 1,
+		WVR_TrackerId_2 = 2,
+		WVR_TrackerId_3 = 3,
+	}
+
+	public enum WVR_TrackerRole
+	{
+		WVR_TrackerRole_Undefined = 0,
+		WVR_TrackerRole_Standalone = 1,    // Tracker role is standalone.
+		WVR_TrackerRole_Pair1_Right = 2,    // Tracker role is the right of 1st pair.
+		WVR_TrackerRole_Pair1_Left = 3,    // Tracker role is the left of 1st pair.
+	}
+
+	/**
+	 * @brief The capabilities of the accessory type.
+	 * @version API Level 8
+	 */
+	[StructLayout(LayoutKind.Explicit)]
+	public struct WVR_TrackerCapabilities
+	{
+		[FieldOffset(0)] public bool supportsOrientationTracking;
+		[FieldOffset(1)] public bool supportsPositionTracking;
+		[FieldOffset(2)] public bool supportsInputDevice;
+		[FieldOffset(3)] public bool supportsHapticVibration;
+		[FieldOffset(4)] public bool supportsBatteryLevel;
+	}
+	#endregion
+
 	public enum WVR_SupportedFeature {
-		WVR_SupportedFeature_PassthroughImage   = 1 << 0,
-		WVR_SupportedFeature_PassthroughOverlay = 1 << 1,
-		WVR_SupportedFeature_HandTracking       = 1 << 4,
-		WVR_SupportedFeature_HandGesture        = 1 << 5,
-		WVR_SupportedFeature_ElectronicHand     = 1 << 6,
+		WVR_SupportedFeature_PassthroughImage   = 1 << 0,    /**< Passthrough image feature type */
+		WVR_SupportedFeature_PassthroughOverlay = 1 << 1,    /**< Passthrough overlay feature type */
+
+		WVR_SupportedFeature_HandTracking       = 1 << 4,    /**< Hand tracking feature type */
+		WVR_SupportedFeature_HandGesture        = 1 << 5,    /**< Hand gesture feature type */
+		WVR_SupportedFeature_ElectronicHand     = 1 << 6,    /**< Electronic hand feature type */
+		WVR_SupportedFeature_ColorGamutsRGB     = 1 << 7,    /**< Color gamut sRGB */
+		WVR_SupportedFeature_ColorGamutP3       = 1 << 8,    /**< Color gamut P3 */
+
+		WVR_SupportedFeature_Tracker            = 1 << 16,   /**< Tracker feature type */
 	}
 
 	#region Controller Pose Mode
@@ -1630,6 +1764,73 @@ namespace Wave.Native
 		public static bool WVR_GetControllerPoseModeOffset(WVR_DeviceType type, WVR_ControllerPoseMode mode, ref WVR_Vector3f_t translation, ref WVR_Quatf_t quaternion)
 		{
 			return WVR_Base.Instance.GetControllerPoseModeOffset(type, mode, ref translation, ref quaternion);
+		}
+		#endregion
+
+		#region Tracker
+		public static WVR_Result WVR_StartTracker()
+		{
+			return WVR_Base.Instance.StartTracker();
+		}
+
+		public static void WVR_StopTracker()
+		{
+			WVR_Base.Instance.StopTracker();
+		}
+
+		public static bool WVR_IsTrackerConnected(WVR_TrackerId trackerId)
+		{
+			return WVR_Base.Instance.IsTrackerConnected(trackerId);
+		}
+
+		public static WVR_TrackerRole WVR_GetTrackerRole(WVR_TrackerId trackerId)
+		{
+			return WVR_Base.Instance.GetTrackerRole(trackerId);
+		}
+
+		public static WVR_Result WVR_GetTrackerCapabilities(WVR_TrackerId trackerId, ref WVR_TrackerCapabilities capabilities)
+		{
+			return WVR_Base.Instance.GetTrackerCapabilities(trackerId, ref capabilities);
+		}
+
+		public static WVR_Result WVR_GetTrackerPoseState(WVR_TrackerId trackerId, WVR_PoseOriginModel originModel, UInt32 predictedMilliSec, ref WVR_PoseState_t poseState)
+		{
+			return WVR_Base.Instance.GetTrackerPoseState(trackerId, originModel, predictedMilliSec, ref poseState);
+		}
+
+		public static Int32 WVR_GetTrackerInputDeviceCapability(WVR_TrackerId trackerId, WVR_InputType inputType)
+		{
+			return WVR_Base.Instance.GetTrackerInputDeviceCapability(trackerId, inputType);
+		}
+
+		public static WVR_AnalogType WVR_GetTrackerInputDeviceAnalogType(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return WVR_Base.Instance.GetTrackerInputDeviceAnalogType(trackerId, id);
+		}
+
+		public static bool WVR_GetTrackerInputButtonState(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return WVR_Base.Instance.GetTrackerInputButtonState(trackerId, id);
+		}
+
+		public static bool WVR_GetTrackerInputTouchState(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return WVR_Base.Instance.GetTrackerInputTouchState(trackerId, id);
+		}
+
+		public static WVR_Axis_t WVR_GetTrackerInputAnalogAxis(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			return WVR_Base.Instance.GetTrackerInputAnalogAxis(trackerId, id);
+		}
+
+		public static float WVR_GetTrackerBatteryLevel(WVR_TrackerId trackerId)
+		{
+			return WVR_Base.Instance.GetTrackerBatteryLevel(trackerId);
+		}
+
+		public static WVR_Result WVR_TriggerTrackerVibration(WVR_TrackerId trackerId, UInt32 durationMicroSec = 65535, UInt32 frequency = 0, float amplitude = 0.0f)
+		{
+			return WVR_Base.Instance.TriggerTrackerVibration(trackerId, durationMicroSec, frequency, amplitude);
 		}
 		#endregion
 
@@ -2444,14 +2645,67 @@ namespace Wave.Native
 			}
 			#endregion
 
+			#region Tracker
+			public virtual WVR_Result StartTracker()
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			public virtual void StopTracker()
+			{
+			}
+			public virtual bool IsTrackerConnected(WVR_TrackerId trackerId)
+			{
+				return false;
+			}
+			public virtual WVR_TrackerRole GetTrackerRole(WVR_TrackerId trackerId)
+			{
+				return WVR_TrackerRole.WVR_TrackerRole_Undefined;
+			}
+			public virtual WVR_Result GetTrackerCapabilities(WVR_TrackerId trackerId, ref WVR_TrackerCapabilities capabilities)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			public virtual WVR_Result GetTrackerPoseState(WVR_TrackerId trackerId, WVR_PoseOriginModel originModel, UInt32 predictedMilliSec, ref WVR_PoseState_t poseState)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			public virtual Int32 GetTrackerInputDeviceCapability(WVR_TrackerId trackerId, WVR_InputType inputType)
+			{
+				return -1;
+			}
+			public virtual WVR_AnalogType GetTrackerInputDeviceAnalogType(WVR_TrackerId trackerId, WVR_InputId id)
+			{
+				return WVR_AnalogType.WVR_AnalogType_None;
+			}
+			public virtual bool GetTrackerInputButtonState(WVR_TrackerId trackerId, WVR_InputId id)
+			{
+				return false;
+			}
+			public virtual bool GetTrackerInputTouchState(WVR_TrackerId trackerId, WVR_InputId id)
+			{
+				return false;
+			}
+			public virtual WVR_Axis_t GetTrackerInputAnalogAxis(WVR_TrackerId trackerId, WVR_InputId id)
+			{
+				WVR_Axis_t axis2d;
+				axis2d.x = 0;
+				axis2d.y = 0;
+
+				return axis2d;
+			}
+			public virtual float GetTrackerBatteryLevel(WVR_TrackerId trackerId)
+			{
+				return 0;
+			}
+			public virtual WVR_Result TriggerTrackerVibration(WVR_TrackerId trackerId, UInt32 durationMicroSec = 65535, UInt32 frequency = 0, float amplitude = 0.0f)
+			{
+				return WVR_Result.WVR_Error_FeatureNotSupport;
+			}
+			#endregion
+
 			public virtual ulong GetSupportedFeatures()
 			{
-				return (
-					(ulong)WVR_SupportedFeature.WVR_SupportedFeature_PassthroughImage |
-					(ulong)WVR_SupportedFeature.WVR_SupportedFeature_PassthroughOverlay|
-					(ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandTracking |
-					(ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandGesture
-				);
+				return 0;
 			}
 
 			// wvr.h

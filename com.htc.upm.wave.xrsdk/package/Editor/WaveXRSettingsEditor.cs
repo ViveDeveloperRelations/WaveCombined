@@ -9,7 +9,7 @@ namespace Wave.XR.Settings
     public class AMCDialog
     {
         public static readonly string amcDialogTitleNoEssence = "AMC Mode";
-        public static readonly string amcDialogContentNoEssence = 
+        public static readonly string amcDialogContentNoEssence =
             "Before using AMC, you need import the\n" +
             "\"VIVE Wave XR Plugin - Essence\" package.\n" +
             "Without it, the AMC mode keep off.";
@@ -99,11 +99,11 @@ namespace Wave.XR.Settings
         static GUIContent Label_UseRenderMask = new GUIContent("RenderMask");
         SerializedProperty Property_UseRenderMask;
 
-		static string PropertyName_EnableTimeWarpStabilizedMode = "enableTimeWarpStabilizedMode";
-		static GUIContent Label_EnableTimeWarpStabilizedMode = new GUIContent("Enable TimeWarp Stabilized Mode");
-		SerializedProperty Property_EnableTimeWarpStabilizedMode;
+        static string PropertyName_EnableTimeWarpStabilizedMode = "enableTimeWarpStabilizedMode";
+        static GUIContent Label_EnableTimeWarpStabilizedMode = new GUIContent("Enable TimeWarp Stabilized Mode");
+        SerializedProperty Property_EnableTimeWarpStabilizedMode;
 
-		static string PropertyName_UseAQDR = "useAQDynamicResolution";
+        static string PropertyName_UseAQDR = "useAQDynamicResolution";
         static GUIContent Label_UseAQDR = new GUIContent("Dynamic Resolution");
         SerializedProperty Property_UseAQDR;
 
@@ -157,7 +157,23 @@ namespace Wave.XR.Settings
         static string PropertyName_AMCModeConfirm = "amcModeConfirm";
         SerializedProperty Property_AMCModeConfirm;
 
-        DisplayGamutPreference displayGamutPreference = null;
+		static string PropertyName_SupportedFPS = "supportedFPS";
+		static GUIContent Label_SupportedFPS = new GUIContent("Supported FPS");
+		SerializedProperty Property_SupportedFPS;
+
+        static string PropertyName_EnableAutoFallbackForMultiLayer = "enableAutoFallbackForMultiLayer";
+        static GUIContent Label_EnableAutoFallbackForMultiLayer = new GUIContent("Multi-Layer auto fallback");
+        SerializedProperty Property_EnableAutoFallbackForMultiLayer;
+
+		static string PropertyName_WaveXRFolder = "waveXRFolder";
+		static GUIContent Label_WaveXRFolder = new GUIContent("Wave XR Folder");
+		SerializedProperty Property_WaveXRFolder;
+
+		static string PropertyName_WaveEssenceFolder = "waveEssenceFolder";
+		static GUIContent Label_WaveEssenceFolder = new GUIContent("Wave Essence Folder");
+		SerializedProperty Property_WaveEssenceFolder;
+
+		DisplayGamutPreference displayGamutPreference = null;
 
         static string PropertyName_LogFlagForNative = "debugLogFlagForNative";
         static GUIContent Label_LogFlagForNative = new GUIContent("LogFlagForNative");
@@ -167,7 +183,13 @@ namespace Wave.XR.Settings
         static GUIContent Label_OverrideLogFlag = new GUIContent("Override LogFlag");
         SerializedProperty Property_OverrideLogFlag;
 
-        enum Platform
+		#region Tracker
+		static string PropertyName_EnableTracker = "EnableTracker";
+		static GUIContent Label_EnableTracker = new GUIContent("Enable Tracker");
+		SerializedProperty Property_EnableTracker;
+		#endregion
+
+		enum Platform
         {
             Standalone,
             Android
@@ -182,7 +204,7 @@ namespace Wave.XR.Settings
             BuildTargetGroup selectedBuildTargetGroup = EditorGUILayout.BeginBuildTargetSelectionGrouping();
             if (selectedBuildTargetGroup == BuildTargetGroup.Android)
             {
-				AndroidSettings();
+                AndroidSettings();
             }
 
             if (selectedBuildTargetGroup == BuildTargetGroup.Standalone)
@@ -197,9 +219,10 @@ namespace Wave.XR.Settings
         }
 
         bool foldoutRendering = true;
+		bool foldoutTracker = true;
         bool foldoutCommon = true;
 
-		public void AndroidSettings()
+        public void AndroidSettings()
         {
             if (Property_PreferedStereoRenderingPath == null) Property_PreferedStereoRenderingPath = serializedObject.FindProperty(PropertyName_PreferedStereoRenderingPath);
             if (Property_UseDoubleWidth == null) Property_UseDoubleWidth = serializedObject.FindProperty(PropertyName_UseDoubleWidth);
@@ -207,8 +230,8 @@ namespace Wave.XR.Settings
             if (Property_AQSendEvent == null) Property_AQSendEvent = serializedObject.FindProperty(PropertyName_AQSendEvent);
             if (Property_AQAutoFoveation == null) Property_AQAutoFoveation = serializedObject.FindProperty(PropertyName_AQAutoFoveation);
             if (Property_UseRenderMask == null) Property_UseRenderMask = serializedObject.FindProperty(PropertyName_UseRenderMask);
-			if (Property_EnableTimeWarpStabilizedMode == null) Property_EnableTimeWarpStabilizedMode = serializedObject.FindProperty(PropertyName_EnableTimeWarpStabilizedMode);
-			if (Property_UseAQDR == null) Property_UseAQDR = serializedObject.FindProperty(PropertyName_UseAQDR);
+            if (Property_EnableTimeWarpStabilizedMode == null) Property_EnableTimeWarpStabilizedMode = serializedObject.FindProperty(PropertyName_EnableTimeWarpStabilizedMode);
+            if (Property_UseAQDR == null) Property_UseAQDR = serializedObject.FindProperty(PropertyName_UseAQDR);
             if (Property_ResolutionScaleList == null) Property_ResolutionScaleList = serializedObject.FindProperty(PropertyName_ResolutionScaleList);
             if (Property_TextSize == null) Property_TextSize = serializedObject.FindProperty(PropertyName_TextSize);
             if (Property_DefaultIndex == null) Property_DefaultIndex = serializedObject.FindProperty(PropertyName_DefaultIndex);
@@ -226,10 +249,21 @@ namespace Wave.XR.Settings
             if (Property_AMCMode == null) Property_AMCMode = serializedObject.FindProperty(PropertyName_AMCMode);
             if (Property_AMCModeConfirm == null) Property_AMCModeConfirm = serializedObject.FindProperty(PropertyName_AMCModeConfirm);
 
+			if (Property_SupportedFPS == null) Property_SupportedFPS = serializedObject.FindProperty(PropertyName_SupportedFPS);
+			if (Property_WaveXRFolder == null) Property_WaveXRFolder = serializedObject.FindProperty(PropertyName_WaveXRFolder);
+			if (Property_WaveEssenceFolder == null) Property_WaveEssenceFolder = serializedObject.FindProperty(PropertyName_WaveEssenceFolder);
+
+			if (Property_LogFlagForNative == null) Property_LogFlagForNative = serializedObject.FindProperty(PropertyName_LogFlagForNative);
+            if (Property_EnableAutoFallbackForMultiLayer == null) Property_EnableAutoFallbackForMultiLayer = serializedObject.FindProperty(PropertyName_EnableAutoFallbackForMultiLayer);
+
             if (Property_LogFlagForNative == null) Property_LogFlagForNative = serializedObject.FindProperty(PropertyName_LogFlagForNative);
             if (Property_OverrideLogFlag == null) Property_OverrideLogFlag = serializedObject.FindProperty(PropertyName_OverrideLogFlag);
-            
-            if (displayGamutPreference == null)
+
+			#region Tracker
+			if (Property_EnableTracker == null) Property_EnableTracker = serializedObject.FindProperty(PropertyName_EnableTracker);
+			#endregion
+
+			if (displayGamutPreference == null)
             {
                 displayGamutPreference = new DisplayGamutPreference(serializedObject);
             }
@@ -258,8 +292,8 @@ namespace Wave.XR.Settings
                 AdaptiveQualityGUI();
 
                 EditorGUILayout.PropertyField(Property_UseRenderMask, Label_UseRenderMask);
-				EditorGUILayout.PropertyField(Property_EnableTimeWarpStabilizedMode, Label_EnableTimeWarpStabilizedMode);
-				EditorGUILayout.PropertyField(Property_FoveationMode, Label_FoveationMode);
+                EditorGUILayout.PropertyField(Property_EnableTimeWarpStabilizedMode, Label_EnableTimeWarpStabilizedMode);
+                EditorGUILayout.PropertyField(Property_FoveationMode, Label_FoveationMode);
                 guiEnableLastCond = GUI.enabled;
                 GUI.enabled = Property_FoveationMode.enumValueIndex == (int)WaveXRSettings.FoveationMode.Enable && guiEnableLastCond;
                 EditorGUI.indentLevel++;
@@ -278,12 +312,34 @@ namespace Wave.XR.Settings
 
                 AMCGUI();
 
+				GUI.enabled = true;
+				//EditorGUILayout.PropertyField(Property_SupportedFPS, Label_SupportedFPS);
+
+				GUI.enabled = false;
+				EditorGUILayout.PropertyField(Property_WaveXRFolder, Label_WaveXRFolder);
+				EditorGUILayout.PropertyField(Property_WaveEssenceFolder, Label_WaveEssenceFolder);
+
+				GUI.enabled = true;
+
+                MultiLayerGUI();
                 EditorGUI.indentLevel--;
             }
 
             EditorGUILayout.Space();
 
-            foldoutCommon = EditorGUILayout.Foldout(foldoutCommon, "Common");
+			#region Tracker
+			foldoutTracker = EditorGUILayout.Foldout(foldoutTracker, "Tracker");
+			if (foldoutTracker)
+			{
+				EditorGUI.indentLevel++;
+				EditorGUILayout.PropertyField(Property_EnableTracker, Label_EnableTracker);
+				EditorGUI.indentLevel--;
+			}
+
+			EditorGUILayout.Space();
+			#endregion
+
+			foldoutCommon = EditorGUILayout.Foldout(foldoutCommon, "Common");
             if (foldoutCommon)
             {
                 EditorGUI.indentLevel++;
@@ -300,76 +356,77 @@ namespace Wave.XR.Settings
         {
             bool guiEnableLastCond = false;
 
-			// AQ
-			EditorGUILayout.PropertyField(Property_AdaptiveQualityMode, Label_AdaptiveQualityMode);
-			if (Property_AdaptiveQualityMode.intValue == (int)WaveXRSettings.AdaptiveQualityMode.QualityOrientedMode)
-			{
-				Property_AQSendEvent.boolValue = true;
-				Property_AQAutoFoveation.boolValue = true;
-				Property_UseAQDR.boolValue = true;
-				Property_ResolutionScaleList.arraySize = 5;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(0).floatValue = 1.4f;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(1).floatValue = 1.3f;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(2).floatValue = 1.2f;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(3).floatValue = 1.1f;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(4).floatValue = 1.0f;
-			}
-			else if (Property_AdaptiveQualityMode.intValue == (int)WaveXRSettings.AdaptiveQualityMode.PerformanceOrientedMode)
-			{
-				Property_AQSendEvent.boolValue = true;
-				Property_AQAutoFoveation.boolValue = true;
-				Property_UseAQDR.boolValue = true;
-				Property_ResolutionScaleList.arraySize = 5;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(0).floatValue = 1.0f;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(1).floatValue = 0.9f;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(2).floatValue = 0.8f;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(3).floatValue = 0.7f;
-				Property_ResolutionScaleList.GetArrayElementAtIndex(4).floatValue = 0.6f;
-			} else if (Property_AdaptiveQualityMode.intValue == (int)WaveXRSettings.AdaptiveQualityMode.Disabled)
-			{
-				return;
-			}
-			GUI.enabled = Property_AdaptiveQualityMode.intValue == (int)WaveXRSettings.AdaptiveQualityMode.CustomizationMode;
-			EditorGUI.indentLevel++;
-			EditorGUILayout.PropertyField(Property_AQSendEvent, Label_AQSendEvent);
-			EditorGUILayout.PropertyField(Property_AQAutoFoveation, Label_AQAutoFoveation);
+            // AQ
+            EditorGUILayout.PropertyField(Property_AdaptiveQualityMode, Label_AdaptiveQualityMode);
+            if (Property_AdaptiveQualityMode.intValue == (int)WaveXRSettings.AdaptiveQualityMode.QualityOrientedMode)
+            {
+                Property_AQSendEvent.boolValue = true;
+                Property_AQAutoFoveation.boolValue = true;
+                Property_UseAQDR.boolValue = true;
+                Property_ResolutionScaleList.arraySize = 5;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(0).floatValue = 1.4f;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(1).floatValue = 1.3f;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(2).floatValue = 1.2f;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(3).floatValue = 1.1f;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(4).floatValue = 1.0f;
+            }
+            else if (Property_AdaptiveQualityMode.intValue == (int)WaveXRSettings.AdaptiveQualityMode.PerformanceOrientedMode)
+            {
+                Property_AQSendEvent.boolValue = true;
+                Property_AQAutoFoveation.boolValue = true;
+                Property_UseAQDR.boolValue = true;
+                Property_ResolutionScaleList.arraySize = 5;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(0).floatValue = 1.0f;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(1).floatValue = 0.9f;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(2).floatValue = 0.8f;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(3).floatValue = 0.7f;
+                Property_ResolutionScaleList.GetArrayElementAtIndex(4).floatValue = 0.6f;
+            }
+            else if (Property_AdaptiveQualityMode.intValue == (int)WaveXRSettings.AdaptiveQualityMode.Disabled)
+            {
+                return;
+            }
+            GUI.enabled = Property_AdaptiveQualityMode.intValue == (int)WaveXRSettings.AdaptiveQualityMode.CustomizationMode;
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(Property_AQSendEvent, Label_AQSendEvent);
+            EditorGUILayout.PropertyField(Property_AQAutoFoveation, Label_AQAutoFoveation);
 
-			// DR
-			guiEnableLastCond = GUI.enabled;
+            // DR
+            guiEnableLastCond = GUI.enabled;
 #if WAVE_ESSENCE
-			GUI.enabled = Property_AQSendEvent.boolValue && guiEnableLastCond;
+            GUI.enabled = Property_AQSendEvent.boolValue && guiEnableLastCond;
 #else
             GUI.enabled = false;
             Property_UseAQDR.boolValue = false;
 #endif
-			if (Property_AQSendEvent.boolValue == false)
-				Property_UseAQDR.boolValue = false;
-			EditorGUILayout.PropertyField(Property_UseAQDR, Label_UseAQDR);
+            if (Property_AQSendEvent.boolValue == false)
+                Property_UseAQDR.boolValue = false;
+            EditorGUILayout.PropertyField(Property_UseAQDR, Label_UseAQDR);
 
-			if (Property_UseAQDR.boolValue)
-			{
-				EditorGUI.indentLevel++;
-				EditorGUILayout.PropertyField(Property_TextSize, Label_TextSize);
+            if (Property_UseAQDR.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(Property_TextSize, Label_TextSize);
 
-				EditorGUI.BeginChangeCheck();
-				EditorGUILayout.PropertyField(Property_ResolutionScaleList, Label_ResolutionScaleList, true);
-				//Validate values of resolution scale list
-				if (EditorGUI.EndChangeCheck())
-				{
-					if (Property_ResolutionScaleList.arraySize < 2)
-					{
-						Property_ResolutionScaleList.arraySize = 2;
-						Property_ResolutionScaleList.GetArrayElementAtIndex(0).floatValue = 1f;
-						Property_ResolutionScaleList.GetArrayElementAtIndex(1).floatValue = 0.1f;
-					}
-				}
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.PropertyField(Property_ResolutionScaleList, Label_ResolutionScaleList, true);
+                //Validate values of resolution scale list
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (Property_ResolutionScaleList.arraySize < 2)
+                    {
+                        Property_ResolutionScaleList.arraySize = 2;
+                        Property_ResolutionScaleList.GetArrayElementAtIndex(0).floatValue = 1f;
+                        Property_ResolutionScaleList.GetArrayElementAtIndex(1).floatValue = 0.1f;
+                    }
+                }
 
-				Property_DefaultIndex.intValue = 0;
-				EditorGUI.indentLevel--;
-			}
-			GUI.enabled = true;
-			EditorGUI.indentLevel--;
-		}
+                Property_DefaultIndex.intValue = 0;
+                EditorGUI.indentLevel--;
+            }
+            GUI.enabled = true;
+            EditorGUI.indentLevel--;
+        }
 
         void AMCGUI()
         {
@@ -415,6 +472,20 @@ namespace Wave.XR.Settings
                         Property_AMCModeConfirm.intValue = 2; // Accept and don't ask again
                         break;
                 }
+            }
+        }
+
+        void MultiLayerGUI()
+        {
+            bool hasEssencePackage = false;
+#if WAVE_ESSENCE
+            hasEssencePackage = true;
+#endif
+
+            if (hasEssencePackage)
+            {
+                EditorGUILayout.PropertyField(Property_EnableAutoFallbackForMultiLayer, Label_EnableAutoFallbackForMultiLayer);
+                serializedObject.ApplyModifiedProperties();
             }
         }
 

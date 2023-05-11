@@ -53,7 +53,7 @@ namespace Wave.Essence.Hand.StaticGesture
 
 			/// OK
 			OK.Thumb = ThumbStateFlag.Close | ThumbStateFlag.Open;
-			OK.Index = FingerStateFlag.Close | FingerStateFlag.Open | FingerStateFlag.Relax;
+			OK.Index = FingerStateFlag.Close | FingerStateFlag.Relax;
 			OK.Middle = FingerStateFlag.Open;
 			OK.Ring = FingerStateFlag.Open;
 			OK.Pinky = FingerStateFlag.Open | FingerStateFlag.Relax;
@@ -96,6 +96,12 @@ namespace Wave.Essence.Hand.StaticGesture
 			Five.Middle = FingerStateFlag.Open;
 			Five.Ring = FingerStateFlag.Open;
 			Five.Pinky = FingerStateFlag.Open;
+			// Five NodeDistanceCondition
+			NodeDistanceCondition fiveCond = new NodeDistanceCondition();
+			fiveCond.node1 = GesturePoint.Thumb_Tip.Index(); // Thumb tip
+			fiveCond.node2 = GesturePoint.Index_Tip.Index(); // Index tip
+			fiveCond.distance = NodeDistanceType.Far;
+			Five.FingerTipDistance = new List<NodeDistanceCondition> { fiveCond };
 
 			// Victory
 			Victory.Thumb = ThumbStateFlag.Close;

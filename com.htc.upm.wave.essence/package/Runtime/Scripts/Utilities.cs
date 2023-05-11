@@ -16,6 +16,7 @@ using Wave.Native;
 using Wave.XR;
 using Wave.XR.Function;
 using System.Collections.Generic;
+using UnityEngine.Profiling;
 
 #if UNITY_EDITOR
 using Wave.Essence.Editor;
@@ -92,6 +93,7 @@ namespace Wave.Essence
 
 		public static string GetCurrentRenderModelName(WVR_DeviceType type)
 		{
+			Profiler.BeginSample("GetCurrentRenderModelName");
 			string parameterName = "GetRenderModelName";
 			IntPtr ptrParameterName = Marshal.StringToHGlobalAnsi(parameterName);
 			IntPtr ptrResult = Marshal.AllocHGlobal(64);
@@ -106,7 +108,7 @@ namespace Wave.Essence
 
 			Marshal.FreeHGlobal(ptrParameterName);
 			Marshal.FreeHGlobal(ptrResult);
-
+			Profiler.EndSample();
 			return tmprenderModelName;
 		}
 
@@ -218,6 +220,52 @@ namespace Wave.Essence
 		public static bool IsConnected(WVR_DeviceType deviceType)
 		{
 			return WaveEssence.Instance.IsConnected(deviceType);
+		}
+		/// <summary> Wave Head Mounted Device Characteristics </summary>
+		const InputDeviceCharacteristics kHMDCharacteristics = (
+			InputDeviceCharacteristics.HeadMounted |
+			InputDeviceCharacteristics.Camera |
+			InputDeviceCharacteristics.TrackedDevice
+		);
+		/// <summary> Wave Left Controller Characteristics </summary>
+		const InputDeviceCharacteristics kControllerLeftCharacteristics = (
+			InputDeviceCharacteristics.Left |
+			InputDeviceCharacteristics.TrackedDevice |
+			InputDeviceCharacteristics.Controller |
+			InputDeviceCharacteristics.HeldInHand
+		);
+		/// <summary> Wave Right Controller Characteristics </summary>
+		const InputDeviceCharacteristics kControllerRightCharacteristics = (
+			InputDeviceCharacteristics.Right |
+			InputDeviceCharacteristics.TrackedDevice |
+			InputDeviceCharacteristics.Controller |
+			InputDeviceCharacteristics.HeldInHand
+		);
+		public static bool IsConnected(XR_Device device, bool adaptiveHanded = false)
+		{
+			bool connected = false;
+#if UNITY_EDITOR
+			if (Application.isEditor)
+				return true;
+			else
+#endif
+			{
+				var inputDevices = new List<InputDevice>();
+				InputDevices.GetDevices(inputDevices);
+
+				foreach (InputDevice id in inputDevices)
+				{
+					if ((device == XR_Device.Head && id.characteristics.Equals(kHMDCharacteristics)) ||
+						(device == XR_Device.Right && id.characteristics.Equals(kControllerRightCharacteristics)) ||
+						(device == XR_Device.Left && id.characteristics.Equals(kControllerLeftCharacteristics)))
+					{
+						connected = true;
+						break;
+					}
+				}
+			}
+
+			return connected;
 		}
 
 		public static WVR_DeviceType GetRoleType(this XR_Device device, bool adaptiveHanded = false)

@@ -57,44 +57,15 @@ namespace Wave.Native
 		private const string MOUSE_SCROLLWHEEL = "Mouse ScrollWheel";
 
 		// =================== Button Events ===============================
-		static WVR_InputId[] pressIds = new WVR_InputId[] {
-			WVR_InputId.WVR_InputId_Alias1_System,
-			WVR_InputId.WVR_InputId_Alias1_Menu,
-			WVR_InputId.WVR_InputId_Alias1_Grip,
-			WVR_InputId.WVR_InputId_Alias1_DPad_Left,
-			WVR_InputId.WVR_InputId_Alias1_DPad_Up,
-			WVR_InputId.WVR_InputId_Alias1_DPad_Right,
-			WVR_InputId.WVR_InputId_Alias1_DPad_Down,
-			WVR_InputId.WVR_InputId_Alias1_Volume_Up,
-			WVR_InputId.WVR_InputId_Alias1_Volume_Down,
-			WVR_InputId.WVR_InputId_Alias1_Bumper,
-			WVR_InputId.WVR_InputId_Alias1_A,
-			WVR_InputId.WVR_InputId_Alias1_B,
-			WVR_InputId.WVR_InputId_Alias1_X,
-			WVR_InputId.WVR_InputId_Alias1_Y,
-			WVR_InputId.WVR_InputId_Alias1_Back,
-			WVR_InputId.WVR_InputId_Alias1_Enter,
-			WVR_InputId.WVR_InputId_Alias1_Touchpad,
-			WVR_InputId.WVR_InputId_Alias1_Trigger,
-			WVR_InputId.WVR_InputId_Alias1_Thumbstick,
-		};
-
 		uint state_press_hmd = 0;
 		uint state_press_right = 0;
 		uint state_press_left = 0;
-
-		static WVR_InputId[] touchIds = new WVR_InputId[] {
-			WVR_InputId.WVR_InputId_Alias1_Touchpad,
-			WVR_InputId.WVR_InputId_Alias1_Trigger,
-			WVR_InputId.WVR_InputId_Alias1_Thumbstick,
-			WVR_InputId.WVR_InputId_Alias1_Parking,
-		};
 
 		uint state_touch_right = 0;
 		private WVR_Axis_t[] state_axis_right = new WVR_Axis_t[(int)WVR_InputId.WVR_InputId_Max];
 		uint state_touch_left = 0;
 		private WVR_Axis_t[] state_axis_left = new WVR_Axis_t[(int)WVR_InputId.WVR_InputId_Max];
-		private const float kAxisX = .5f, kAxisY = -.3f;
+		private const float kAxisX = .6f, kAxisY = -.3f;
 
 		private bool mFocusIsCapturedBySystem = false;
 		private float mFPS = 60.0f;
@@ -139,6 +110,7 @@ namespace Wave.Native
 
 			InitializeBonesAndHandTrackingData();
 			InitHandGesture();
+			InitBracelet();
 
 #if ENABLE_INPUT_SYSTEM
 			wvrInput.Enable();
@@ -204,6 +176,13 @@ namespace Wave.Native
 			// Hand
 			UpdateBonesAndHandTrackingData();
 			UpdateHandGesture();
+
+			// Tracker
+			UpdateBracelet();
+			BraceletPressed(WVR_TrackerId.WVR_TrackerId_0);
+			BraceletUnpressed(WVR_TrackerId.WVR_TrackerId_0);
+			BraceletPressed(WVR_TrackerId.WVR_TrackerId_1);
+			BraceletUnpressed(WVR_TrackerId.WVR_TrackerId_1);
 		}
 		#endregion
 
@@ -331,7 +310,11 @@ namespace Wave.Native
 							mEvent.input.inputId = WVR_InputId.WVR_InputId_Alias1_Touchpad;
 							hasEvent = true;
 
+							state_axis_right[(uint)mEvent.input.inputId].x = kAxisX;
+							state_axis_right[(uint)mEvent.input.inputId].y = kAxisY;
+
 							state_press_right |= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Touchpad;
+							state_touch_right |= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Touchpad;
 						}
 					}
 					if (IsButtonAvailable(type, WVR_InputId.WVR_InputId_Alias1_Trigger))
@@ -348,6 +331,7 @@ namespace Wave.Native
 							state_axis_right[(uint)mEvent.input.inputId].y = kAxisY;
 
 							state_press_right |= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Trigger;
+							state_touch_right |= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Trigger;
 						}
 					}
 					if (IsButtonAvailable(type, WVR_InputId.WVR_InputId_Alias1_A))
@@ -466,6 +450,7 @@ namespace Wave.Native
 							hasEvent = true;
 
 							state_press_right ^= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Touchpad;
+							state_touch_right ^= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Touchpad;
 						}
 					}
 					if (IsButtonAvailable(type, WVR_InputId.WVR_InputId_Alias1_Trigger))
@@ -479,6 +464,7 @@ namespace Wave.Native
 							hasEvent = true;
 
 							state_press_right ^= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Trigger;
+							state_touch_right ^= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Trigger;
 						}
 					}
 					if (IsButtonAvailable(type, WVR_InputId.WVR_InputId_Alias1_A))
@@ -639,6 +625,22 @@ namespace Wave.Native
 							DEBUG("TouchTapped() " + type + ", Touchpad" + ", axis (" + state_axis_left[(uint)mEvent.input.inputId].x + ", " + state_axis_left[(uint)mEvent.input.inputId].y + ")");
 						}
 					}
+
+					/*{
+						if (WXRInput.GetKeyDown(KeyCode.W))
+						{
+							mEvent.common.type = WVR_EventType.WVR_EventType_TouchTapped;
+							mEvent.device.type = type;
+							mEvent.input.inputId = WVR_InputId.WVR_InputId_Alias1_Bumper;
+							hasEvent = true;
+
+							state_axis_left[(uint)mEvent.input.inputId].x = kAxisX;
+							state_axis_left[(uint)mEvent.input.inputId].y = kAxisY;
+
+							state_touch_left |= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Bumper;
+							DEBUG("TouchTapped() " + type + ", Bumper" + ", axis (" + state_axis_left[(uint)mEvent.input.inputId].x + ", " + state_axis_left[(uint)mEvent.input.inputId].y + ")");
+						}
+					}*/
 					break;
 				default:
 					break;
@@ -696,6 +698,22 @@ namespace Wave.Native
 							state_touch_left ^= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Touchpad;
 						}
 					}
+
+					/*{
+						if (WXRInput.GetKeyUp(KeyCode.W))   // left  mouse key
+						{
+							DEBUG("TouchUntapped() " + type + ", Bumper.");
+							mEvent.common.type = WVR_EventType.WVR_EventType_TouchUntapped;
+							mEvent.device.type = type;
+							mEvent.input.inputId = WVR_InputId.WVR_InputId_Alias1_Bumper;
+							hasEvent = true;
+
+							state_axis_left[(uint)mEvent.input.inputId].x = 0;
+							state_axis_left[(uint)mEvent.input.inputId].y = 0;
+
+							state_touch_left ^= 1 << (int)WVR_InputId.WVR_InputId_Alias1_Bumper;
+						}
+					}*/
 					break;
 				default:
 					break;
@@ -1987,6 +2005,9 @@ namespace Wave.Native
 		// Left wrist.
 		private readonly Vector3 WRIST_L_POS = new Vector3(-0.09f, 0, 0.2f);
 		private readonly Vector3 BONE_HAND_WRIST_L_ROT = new Vector3(7, 0, -15);
+		// Left palm.
+		private readonly Vector3 PALM_L_POS = new Vector3(-0.08f, 0.02f, 0.2f);
+		private readonly Vector3 HAND_PALM_L_ROT = new Vector3(0, 0, 1);
 		// Left thumb.
 		private readonly Vector3 THUMB_JOIN2_L_POS = new Vector3(-0.05f, 0.02f, 0.2f);
 		private readonly Vector3 THUMB_JOIN2_L_ROT = new Vector3(0, 0, -42.54f);
@@ -2034,6 +2055,9 @@ namespace Wave.Native
 		// Right wrist.
 		private readonly Vector3 HAND_WRIST_R_POS = new Vector3(0.09f, 0, 0.2f);
 		private readonly Vector3 HAND_WRIST_R_ROT = new Vector3(7, 0, 15);
+		// Right palm.
+		private readonly Vector3 HAND_PALM_R_POS = new Vector3(0.08f, 0.02f, 0.2f);
+		private readonly Vector3 HAND_PALM_R_ROT = new Vector3(0, 0, 1);
 		// Right thumb.
 		private readonly Vector3 THUMB_JOINT2_R_POS = new Vector3(0.05f, 0.02f, 0.2f);
 		private readonly Vector3 THUMB_JOINT2_R_ROT = new Vector3(0, 0, 42.54f);
@@ -2151,6 +2175,12 @@ namespace Wave.Native
 			leftBonesOrientation[(int)HandJointType.Wrist_L] = GetOpenGLQuaternion(qua);
 			leftWristMatrix = GetOpenGLMatrix44(vec, qua);
 
+			// Left palm.
+			vec = leftYawOrientation * (PALM_L_POS + BONE_HAND_L_POS_OFFSET);
+			qua = Quaternion.Euler(HAND_PALM_L_ROT);
+			leftBonesPosition[(int)HandJointType.Palm_L] = GetOpenGLVector(vec);
+			leftBonesOrientation[(int)HandJointType.Palm_L] = GetOpenGLQuaternion(qua);
+
 			// Left thumb.
 			vec = leftYawOrientation * (THUMB_JOIN2_L_POS + BONE_HAND_L_POS_OFFSET);
 			qua = Quaternion.Euler(THUMB_JOIN2_L_ROT);
@@ -2262,6 +2292,12 @@ namespace Wave.Native
 			rightBonesPosition[(int)HandJointType.Wrist_R] = GetOpenGLVector(vec_raw);
 			rightBonesOrientation[(int)HandJointType.Wrist_R] = GetOpenGLQuaternion(qua);
 			rightWristMatrix = GetOpenGLMatrix44(vec, qua);
+
+			// Right palm.
+			vec = rightYawOrientation * (HAND_PALM_R_POS + BONE_HAND_R_POS_OFFSET);
+			qua = Quaternion.Euler(HAND_PALM_R_ROT);
+			rightBonesPosition[(int)HandJointType.Palm_R] = GetOpenGLVector(vec);
+			rightBonesOrientation[(int)HandJointType.Palm_R] = GetOpenGLQuaternion(qua);
 
 			// Right thumb.
 			vec = rightYawOrientation * (THUMB_JOINT2_R_POS + BONE_HAND_R_POS_OFFSET);
@@ -2419,17 +2455,12 @@ namespace Wave.Native
 		private bool isNaturalHandEnabled = false, isElectronicHandEnabled = false;
 		public WVR_Result StartHandTracking(WVR_HandTrackerType tracker)
 		{
-			if (tracker == WVR_HandTrackerType.WVR_HandTrackerType_Natural)
-			{
-				isNaturalHandEnabled = true;
-				return WVR_Result.WVR_Success;
-			}
-			if (tracker == WVR_HandTrackerType.WVR_HandTrackerType_Electronic)
-			{
-				isElectronicHandEnabled = true;
-				return WVR_Result.WVR_Success;
-			}
-			return WVR_Result.WVR_Error_FeatureNotSupport;
+			if (interactionMode != WVR_InteractionMode.WVR_InteractionMode_Hand) { return WVR_Result.WVR_Error_FeatureNotSupport; }
+
+			if (tracker == WVR_HandTrackerType.WVR_HandTrackerType_Natural) { isNaturalHandEnabled = true; }
+			if (tracker == WVR_HandTrackerType.WVR_HandTrackerType_Electronic) { isElectronicHandEnabled = true; }
+
+			return WVR_Result.WVR_Success;
 		}
 		public void StopHandTracking(WVR_HandTrackerType tracker)
 		{
@@ -2439,7 +2470,7 @@ namespace Wave.Native
 				isElectronicHandEnabled = false;
 		}
 
-		const uint kJointCountNatural = 21, kJointCountElectronic = 21;
+		const uint kJointCountNatural = 22, kJointCountElectronic = 22;
 		private uint GetJointCount(WVR_HandTrackerType tracker)
 		{
 			if (tracker == WVR_HandTrackerType.WVR_HandTrackerType_Natural && isNaturalHandEnabled)
@@ -2496,6 +2527,8 @@ namespace Wave.Native
 			WVR_HandJoint.WVR_HandJoint_Pinky_Joint2,
 			WVR_HandJoint.WVR_HandJoint_Pinky_Joint3,
 			WVR_HandJoint.WVR_HandJoint_Pinky_Tip,
+
+			WVR_HandJoint.WVR_HandJoint_Palm,
 			};
 
 			s_intHandJoints = new int[s_HandJoints.Length];
@@ -2539,6 +2572,8 @@ namespace Wave.Native
 			kJointValidFlag, //WVR_HandJoint.WVR_HandJoint_Pinky_Joint2,
 			kJointValidFlag, //WVR_HandJoint.WVR_HandJoint_Pinky_Joint3,
 			kJointValidFlag, //WVR_HandJoint.WVR_HandJoint_Pinky_Tip,
+
+			kJointValidFlag, //WVR_HandJoint.WVR_HandJoint_Palm,
 			};
 
 			int byteBufferLength = Buffer.ByteLength(s_HandJointsFlag);
@@ -2571,7 +2606,7 @@ namespace Wave.Native
 				offset += Marshal.SizeOf(ulong_type);
 			}*/
 
-			handTrackerInfo.strength = 0.2f;
+			handTrackerInfo.pinchThreshold = 0.2f;
 		}
 		public WVR_Result GetHandTrackerInfo(WVR_HandTrackerType tracker, ref WVR_HandTrackerInfo_t info)
 		{
@@ -2625,6 +2660,8 @@ namespace Wave.Native
 				m_JointsPose[18].position = leftBonesPosition[(int)HandJointType.Pinky_Joint2_L];
 				m_JointsPose[19].position = leftBonesPosition[(int)HandJointType.Pinky_Joint3_L];
 				m_JointsPose[20].position = leftBonesPosition[(int)HandJointType.Pinky_Tip_L];
+
+				m_JointsPose[21].position = leftBonesPosition[(int)HandJointType.Palm_L];
 			}
 			else
 			{
@@ -2655,6 +2692,8 @@ namespace Wave.Native
 				m_JointsPose[18].position = rightBonesPosition[(int)HandJointType.Pinky_Joint2_R];
 				m_JointsPose[19].position = rightBonesPosition[(int)HandJointType.Pinky_Joint3_R];
 				m_JointsPose[20].position = rightBonesPosition[(int)HandJointType.Pinky_Tip_R];
+
+				m_JointsPose[21].position = rightBonesPosition[(int)HandJointType.Palm_R];
 			}
 
 			long offset = 0;
@@ -2683,6 +2722,57 @@ namespace Wave.Native
 			FillHandJointData(tracker, ref handJointDataRight, false);
 			m_HandTrackerData.right = handJointDataRight;
 		}
+
+		private WVR_HandPosePinchState_t handPinchStateLeft = new WVR_HandPosePinchState_t();
+		private WVR_HandPosePinchState_t handPinchStateRight = new WVR_HandPosePinchState_t();
+		private WVR_HandPoseHoldState_t handHoldStateLeft = new WVR_HandPoseHoldState_t();
+		private WVR_HandPoseHoldState_t handHoldStateRight = new WVR_HandPoseHoldState_t();
+		private void UpdateHandPoseData()
+		{
+			handPinchStateLeft.state.type = WVR_HandPoseType.WVR_HandPoseType_Pinch;
+			handPinchStateLeft.strength = pinchStrengthLeft;
+			handPinchStateLeft.origin = leftBonesPosition[(int)HandJointType.Wrist_L];
+			handPinchStateLeft.direction = GetOpenGLVector(leftPinchDirection);
+
+			handPinchStateRight.state.type = WVR_HandPoseType.WVR_HandPoseType_Pinch;
+			handPinchStateRight.finger = WVR_FingerType.WVR_FingerType_Index;
+			handPinchStateRight.strength = pinchStrengthRight;
+			handPinchStateRight.origin = rightBonesPosition[(int)HandJointType.Wrist_R];
+			handPinchStateRight.direction = GetOpenGLVector(rightPinchDirection);
+
+			handHoldStateLeft.state.type = WVR_HandPoseType.WVR_HandPoseType_Hold;
+			handHoldStateLeft.role = WVR_HandHoldRoleType.WVR_HandHoldRoleType_SideHold;
+			handHoldStateLeft.type = WVR_HandHoldObjectType.WVR_HandHoldObjectType_Gun;
+
+			handHoldStateRight.state.type = WVR_HandPoseType.WVR_HandPoseType_Hold;
+			handHoldStateRight.role = WVR_HandHoldRoleType.WVR_HandHoldRoleType_MainHold;
+			handHoldStateRight.type = WVR_HandHoldObjectType.WVR_HandHoldObjectType_Gun;
+		}
+		private WVR_HandPoseData_t m_HandPoseData = new WVR_HandPoseData_t();
+		private void FillHandPoseData(WVR_HandPoseType poseType)
+		{
+			UpdateHandPoseData();
+
+			m_HandPoseData.timestamp = Time.frameCount;
+			m_HandPoseData.left.state.type = poseType;
+			m_HandPoseData.right.state.type = poseType;
+
+			// WVR_HandPoseState_t is an union, should only use the data of a pose type.
+			switch (poseType)
+			{
+				case WVR_HandPoseType.WVR_HandPoseType_Pinch:
+					m_HandPoseData.left.pinch = handPinchStateLeft;
+					m_HandPoseData.right.pinch = handPinchStateRight;
+					break;
+				case WVR_HandPoseType.WVR_HandPoseType_Hold:
+					m_HandPoseData.left.hold = handHoldStateLeft;
+					m_HandPoseData.right.hold = handHoldStateRight;
+					break;
+				default:
+					break;
+			}
+		}
+
 		// Used for different joints poses.
 		//private WVR_HandModelType m_HandModelType = WVR_HandModelType.WVR_HandModelType_WithController;
 		public WVR_Result GetHandTrackingData(
@@ -2690,7 +2780,7 @@ namespace Wave.Native
 					WVR_HandModelType modelType,
 					WVR_PoseOriginModel originModel,
 					ref WVR_HandTrackingData_t handTrackerData,
-					ref WVR_HandPoseData_t pose)
+					ref WVR_HandPoseData_t handPoseData)
 		{
 			if (trackerType == WVR_HandTrackerType.WVR_HandTrackerType_Electronic && !isElectronicHandEnabled)
 				return WVR_Result.WVR_Error_FeatureNotSupport;
@@ -2704,18 +2794,8 @@ namespace Wave.Native
 			handTrackerData = m_HandTrackerData;
 
 			/// Fills WVR_HandPoseData_t
-			pose.timestamp = Time.frameCount;
-			pose.left.state.type = WVR_HandPoseType.WVR_HandPoseType_Pinch;
-			pose.left.pinch.strength = pinchStrengthLeft;
-			pose.left.pinch.origin = leftBonesPosition[(int)HandJointType.Wrist_L];
-			pose.left.pinch.direction = GetOpenGLVector(leftPinchDirection);
-
-			pose.right.state.type = WVR_HandPoseType.WVR_HandPoseType_Pinch;
-			pose.right.pinch.state.type = WVR_HandPoseType.WVR_HandPoseType_Pinch;
-			pose.right.pinch.finger = WVR_FingerType.WVR_FingerType_Index;
-			pose.right.pinch.strength = pinchStrengthRight;
-			pose.right.pinch.origin = rightBonesPosition[(int)HandJointType.Wrist_R];
-			pose.right.pinch.direction = GetOpenGLVector(rightPinchDirection);
+			FillHandPoseData(WVR_HandPoseType.WVR_HandPoseType_Hold);
+			handPoseData = m_HandPoseData;
 
 			return WVR_Result.WVR_Success;
 		}
@@ -2777,6 +2857,325 @@ namespace Wave.Native
 		}
 		#endregion
 
+		#region Bracelet
+		private WVR_TrackerCapabilities m_BraceletCaps;
+		private WVR_PoseState_t m_BraceletPoseLeft, m_BraceletPoseRight;
+		private Int32 m_BraceletInputButton = (Int32)(
+			WVR_InputId.WVR_InputId_Alias1_Menu |
+			WVR_InputId.WVR_InputId_Alias1_A |
+			WVR_InputId.WVR_InputId_Alias1_B |
+			WVR_InputId.WVR_InputId_Alias1_X |
+			WVR_InputId.WVR_InputId_Alias1_Y |
+			WVR_InputId.WVR_InputId_Alias1_Trigger);
+		private Dictionary<WVR_InputId, WVR_AnalogType> s_BraceletAnalogTypes = new Dictionary<WVR_InputId, WVR_AnalogType>()
+		{
+			{ WVR_InputId.WVR_InputId_Alias1_Grip, WVR_AnalogType.WVR_AnalogType_1D },
+			{ WVR_InputId.WVR_InputId_Alias1_Touchpad, WVR_AnalogType.WVR_AnalogType_2D },
+			{ WVR_InputId.WVR_InputId_Alias1_Trigger, WVR_AnalogType.WVR_AnalogType_1D },
+			{ WVR_InputId.WVR_InputId_Alias1_Thumbstick, WVR_AnalogType.WVR_AnalogType_2D },
+		};
+		private void InitBracelet()
+		{
+			/// Bracelet
+			m_BraceletCaps.supportsBatteryLevel = true;
+			m_BraceletCaps.supportsHapticVibration = true;
+			m_BraceletCaps.supportsInputDevice = true;
+			m_BraceletCaps.supportsOrientationTracking = true;
+			m_BraceletCaps.supportsPositionTracking = true;
+		}
+		private void UpdateBracelet()
+		{
+			m_BraceletPoseRight.IsValidPose = true;
+			m_BraceletPoseRight.PoseMatrix = rightPoseMatrix;
+			m_BraceletPoseRight.Velocity.v0 = 0.1f;
+			m_BraceletPoseRight.Velocity.v1 = 0.0f;
+			m_BraceletPoseRight.Velocity.v2 = 0.0f;
+			m_BraceletPoseRight.AngularVelocity.v0 = 0.1f;
+			m_BraceletPoseRight.AngularVelocity.v1 = 0.1f;
+			m_BraceletPoseRight.AngularVelocity.v2 = 0.1f;
+			m_BraceletPoseRight.Is6DoFPose = is6DoFPose;
+			m_BraceletPoseRight.OriginModel = hmdOriginModel;
+
+			m_BraceletPoseLeft.IsValidPose = true;
+			m_BraceletPoseLeft.PoseMatrix = leftPoseMatrix;
+			m_BraceletPoseLeft.Velocity.v0 = 0.1f;
+			m_BraceletPoseLeft.Velocity.v1 = 0.0f;
+			m_BraceletPoseLeft.Velocity.v2 = 0.0f;
+			m_BraceletPoseLeft.AngularVelocity.v0 = 0.1f;
+			m_BraceletPoseLeft.AngularVelocity.v1 = 0.1f;
+			m_BraceletPoseLeft.AngularVelocity.v2 = 0.1f;
+			m_BraceletPoseLeft.Is6DoFPose = is6DoFPose;
+			m_BraceletPoseLeft.OriginModel = hmdOriginModel;
+		}
+
+		bool m_TrackerEnabled = false;
+		public WVR_Result StartTracker()
+		{
+			m_TrackerEnabled = true;
+			return WVR_Result.WVR_Success;
+		}
+		public void StopTracker()
+		{
+			m_TrackerEnabled = false;
+		}
+		public bool IsTrackerConnected(WVR_TrackerId trackerId)
+		{
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		public WVR_TrackerRole GetTrackerRole(WVR_TrackerId trackerId)
+		{
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_0)
+				return WVR_TrackerRole.WVR_TrackerRole_Pair1_Right;
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1)
+				return WVR_TrackerRole.WVR_TrackerRole_Pair1_Left;
+
+			return WVR_TrackerRole.WVR_TrackerRole_Undefined;
+		}
+		public WVR_Result GetTrackerCapabilities(WVR_TrackerId trackerId, ref WVR_TrackerCapabilities capabilities)
+		{
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled)
+				{
+					capabilities = m_BraceletCaps;
+					return WVR_Result.WVR_Success;
+				}
+			}
+
+			return WVR_Result.WVR_Error_FeatureNotSupport;
+		}
+		public WVR_Result GetTrackerPoseState(WVR_TrackerId trackerId, WVR_PoseOriginModel originModel, UInt32 predictedMilliSec, ref WVR_PoseState_t poseState)
+		{
+			if (m_TrackerEnabled)
+			{
+				if (trackerId == WVR_TrackerId.WVR_TrackerId_0)
+				{
+					poseState = m_BraceletPoseRight;
+					return WVR_Result.WVR_Success;
+				}
+				if (trackerId == WVR_TrackerId.WVR_TrackerId_1)
+				{
+					poseState = m_BraceletPoseLeft;
+					return WVR_Result.WVR_Success;
+				}
+			}
+
+			return WVR_Result.WVR_Error_FeatureNotSupport;
+		}
+		public Int32 GetTrackerInputDeviceCapability(WVR_TrackerId trackerId, WVR_InputType inputType)
+		{
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled)
+				{
+					switch (inputType)
+					{
+						case WVR_InputType.WVR_InputType_Button:
+							return m_BraceletInputButton;
+						case WVR_InputType.WVR_InputType_Touch:
+						case WVR_InputType.WVR_InputType_Analog:
+						default:
+							break;
+					}
+				}
+			}
+			return -1;
+		}
+		public WVR_AnalogType GetTrackerInputDeviceAnalogType(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled && s_BraceletAnalogTypes.ContainsKey(id))
+				{
+					return s_BraceletAnalogTypes[id];
+				}
+			}
+			return WVR_AnalogType.WVR_AnalogType_None;
+		}
+
+		uint tracker_press_right = 0, tracker_press_left = 0;
+		private void BraceletPressed(WVR_TrackerId trackerId)
+		{
+			switch (trackerId)
+			{
+				case WVR_TrackerId.WVR_TrackerId_0:
+					if (WXRInput.GetKeyDown(KeyCode.P))
+					{
+						DEBUG("BraceletPressed() " + trackerId + ", A.");
+						mEvent.trackerInput.tracker.common.type = WVR_EventType.WVR_EventType_TrackerButtonPressed;
+						mEvent.trackerInput.tracker.trackerId = trackerId;
+						mEvent.trackerInput.inputId = WVR_InputId.WVR_InputId_Alias1_A;
+						hasEvent = true;
+
+						tracker_press_right |= 1 << (int)WVR_InputId.WVR_InputId_Alias1_A;
+					}
+					break;
+				case WVR_TrackerId.WVR_TrackerId_1:
+					if (WXRInput.GetKeyDown(KeyCode.Q))
+					{
+						DEBUG("BraceletPressed() " + trackerId + ", X.");
+						mEvent.trackerInput.tracker.common.type = WVR_EventType.WVR_EventType_TrackerButtonPressed;
+						mEvent.trackerInput.tracker.trackerId = trackerId;
+						mEvent.trackerInput.inputId = WVR_InputId.WVR_InputId_Alias1_X;
+						hasEvent = true;
+
+						tracker_press_left |= 1 << (int)WVR_InputId.WVR_InputId_Alias1_X;
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		private void BraceletUnpressed(WVR_TrackerId trackerId)
+		{
+			switch (trackerId)
+			{
+				case WVR_TrackerId.WVR_TrackerId_0:
+					if (WXRInput.GetKeyUp(KeyCode.P))
+					{
+						DEBUG("BraceletUnpressed() " + trackerId + ", A.");
+						mEvent.trackerInput.tracker.common.type = WVR_EventType.WVR_EventType_TrackerButtonUnpressed;
+						mEvent.trackerInput.tracker.trackerId = trackerId;
+						mEvent.trackerInput.inputId = WVR_InputId.WVR_InputId_Alias1_A;
+						hasEvent = true;
+
+						tracker_press_right ^= 1 << (int)WVR_InputId.WVR_InputId_Alias1_A;
+					}
+					break;
+				case WVR_TrackerId.WVR_TrackerId_1:
+					if (WXRInput.GetKeyUp(KeyCode.Q))
+					{
+						DEBUG("BraceletPressed() " + trackerId + ", X.");
+						mEvent.trackerInput.tracker.common.type = WVR_EventType.WVR_EventType_TrackerButtonUnpressed;
+						mEvent.trackerInput.tracker.trackerId = trackerId;
+						mEvent.trackerInput.inputId = WVR_InputId.WVR_InputId_Alias1_X;
+						hasEvent = true;
+
+						tracker_press_left ^= 1 << (int)WVR_InputId.WVR_InputId_Alias1_X;
+					}
+					break;
+				default:
+					break;
+			}
+		}
+
+		public bool GetTrackerInputButtonState(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			bool pressed = false;
+
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled)
+				{
+					int input = 1 << (int)id;
+					switch (trackerId)
+					{
+						case WVR_TrackerId.WVR_TrackerId_0:
+							pressed = ((tracker_press_right & input) == input);
+							break;
+						case WVR_TrackerId.WVR_TrackerId_1:
+							pressed = ((tracker_press_left & input) == input);
+							break;
+						default:
+							break;
+					}
+				}
+			}
+
+			return pressed;
+		}
+		public bool GetTrackerInputTouchState(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			bool touched = false;
+
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled)
+				{
+					int input = 1 << (int)id;
+					switch (trackerId)
+					{
+						case WVR_TrackerId.WVR_TrackerId_0:
+							touched = ((state_touch_right & input) == input);
+							break;
+						case WVR_TrackerId.WVR_TrackerId_1:
+							touched = ((state_touch_left & input) == input);
+							break;
+						default:
+							break;
+					}
+				}
+			}
+
+			return touched;
+		}
+		public WVR_Axis_t GetTrackerInputAnalogAxis(WVR_TrackerId trackerId, WVR_InputId id)
+		{
+			WVR_Axis_t axis2d;
+			axis2d.x = 0;
+			axis2d.y = 0;
+
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled)
+				{
+					switch (trackerId)
+					{
+						case WVR_TrackerId.WVR_TrackerId_1:
+							axis2d = state_axis_left[(uint)id];
+							break;
+						case WVR_TrackerId.WVR_TrackerId_0:
+							axis2d = state_axis_right[(uint)id];
+							break;
+						default:
+							break;
+					}
+				}
+			}
+
+			return axis2d;
+		}
+		public float GetTrackerBatteryLevel(WVR_TrackerId trackerId)
+		{
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled)
+				{
+					return .7f;
+				}
+			}
+			return 0;
+		}
+		public WVR_Result TriggerTrackerVibration(WVR_TrackerId trackerId, UInt32 durationMicroSec = 65535, UInt32 frequency = 0, float amplitude = 0.0f)
+		{
+			if (trackerId == WVR_TrackerId.WVR_TrackerId_1 ||
+				trackerId == WVR_TrackerId.WVR_TrackerId_0)
+			{
+				if (m_TrackerEnabled)
+				{
+					return WVR_Result.WVR_Success;
+				}
+			}
+
+			return WVR_Result.WVR_Error_FeatureNotSupport;
+		}
+		#endregion
+
 		public bool IsDeviceConnected(WVR_DeviceType type)
 		{
 			return true;
@@ -2802,7 +3201,9 @@ namespace Wave.Native
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_PassthroughImage |
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_PassthroughOverlay |
 				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandGesture |
-				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandTracking | (ulong)WVR_SupportedFeature.WVR_SupportedFeature_ElectronicHand
+				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_HandTracking |
+				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_ElectronicHand |
+				(ulong)WVR_SupportedFeature.WVR_SupportedFeature_Tracker
 			);
 		}
 	}

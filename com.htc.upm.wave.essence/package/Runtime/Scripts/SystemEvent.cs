@@ -1,4 +1,4 @@
-﻿// "Wave SDK 
+// "Wave SDK 
 // © 2020 HTC Corporation. All Rights Reserved.
 //
 // Unless otherwise required by copyright law and practice,
@@ -21,10 +21,12 @@ namespace Wave.Essence.Events
     {
         public delegate void Handler(WVR_Event_t wvrEvent);
 
-        public static void Listen(Handler action)
+        public static void Listen(Handler action, bool removedWhenException = false)
         {
             WaveVR_SystemEvent.CheckInstance();
-            if (allEventListeners.Contains(action))
+
+            // Only one listener can be registered.
+            if (allEventListeners.Contains(action) || allEventListenersSticky.Contains(action))
             {
                 Log.w("Event",
                     Log.CSB
@@ -33,20 +35,25 @@ namespace Wave.Essence.Events
                     .ToString());
                 return;
             }
-            allEventListeners.Add(action);
+            if (removedWhenException)
+                allEventListeners.Add(action);
+            else
+                allEventListenersSticky.Add(action);
         }
 
-        public static void Listen(WVR_EventType eventType, Handler action)
+        public static void Listen(WVR_EventType eventType, Handler action, bool removedWhenException = false)
         {
             WaveVR_SystemEvent.CheckInstance();
             List<Handler> handlerList = null;
+            List<Handler> handlerListSticky = null;
+
             listeners.TryGetValue(eventType, out handlerList);
-            if (handlerList == null)
-            {
-                handlerList = new List<Handler>();
-                listeners[eventType] = handlerList;
-            }
-            else if (handlerList.Contains(action))
+            listenersSticky.TryGetValue(eventType, out handlerListSticky);
+
+            bool exist = handlerList == null ? false : handlerList.Contains(action);
+            bool existSticky = handlerListSticky == null ? false : handlerListSticky.Contains(action);
+
+            if (exist || existSticky)
             {
                 Log.w("Event",
                     Log.CSB
@@ -56,34 +63,53 @@ namespace Wave.Essence.Events
                 return;
             }
 
-            handlerList.Add(action);
+            var targetList = removedWhenException ? listeners : listenersSticky;
+            var targetHandlerList = removedWhenException ? handlerList : handlerListSticky;
+            if (targetHandlerList == null)
+            {
+                targetHandlerList = new List<Handler>();
+                targetList[eventType] = targetHandlerList;
+            }
+
+            targetHandlerList.Add(action);
         }
 
         public static void Remove(Handler action)
         {
             if (allEventListeners.Contains(action))
                 allEventListeners.Remove(action);
+            else if (allEventListenersSticky.Contains(action))
+                allEventListenersSticky.Remove(action);
         }
 
         public static void Remove(WVR_EventType eventType, Handler action)
         {
             List<Handler> handlerList = null;
+            List<Handler> handlerListSticky = null;
+
             listeners.TryGetValue(eventType, out handlerList);
-            if (handlerList == null)
-                return;
-            if (!handlerList.Contains(action))
+            listenersSticky.TryGetValue(eventType, out handlerListSticky);
+
+            bool exist = handlerList == null ? false : handlerList.Contains(action);
+            bool existSticky = handlerListSticky == null ? false : handlerListSticky.Contains(action);
+
+            if (!exist && !existSticky)
                 return;
 
-            handlerList.Remove(action);
+            if (exist)
+                handlerList.Remove(action);
+            if (existSticky)
+                handlerListSticky.Remove(action);
         }
 
         public static void Send(WVR_Event_t wvrEvent)
         {
             List<Handler> handlerList = null;
             listeners.TryGetValue(wvrEvent.common.type, out handlerList);
+            int N = 0;
             if (handlerList != null)
             {
-                int N = handlerList.Count;
+                N = handlerList.Count;
                 for (int i = N - 1; i >= 0; i--)
                 {
                     Handler single = handlerList[i];
@@ -100,8 +126,43 @@ namespace Wave.Essence.Events
                 }
             }
 
-            foreach (var listener in allEventListeners)
+            handlerList = null;
+            listenersSticky.TryGetValue(wvrEvent.common.type, out handlerList);
+            if (handlerList != null)
             {
+                N = handlerList.Count;
+                for (int i = N - 1; i >= 0; i--)
+                {
+                    Handler single = handlerList[i];
+                    try
+                    {
+                        single(wvrEvent);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.e("Event", e.ToString(), true);
+                    }
+                }
+            }
+
+            N = allEventListenersSticky.Count;
+            for (int i = N - 1; i >= 0; i--)
+            {
+                var listener = allEventListenersSticky[i];
+                try
+                {
+                    listener(wvrEvent);
+                }
+                catch (Exception e)
+                {
+                    Log.e("Event", e.ToString(), true);
+                }
+            }
+
+            N = allEventListeners.Count;
+            for (int i = N - 1; i >= 0; i--)
+            {
+                var listener = allEventListeners[i];
                 try
                 {
                     listener(wvrEvent);
@@ -116,7 +177,9 @@ namespace Wave.Essence.Events
         }
 
         private static Dictionary<WVR_EventType, List<Handler>> listeners = new Dictionary<WVR_EventType, List<Handler>>();
+        private static Dictionary<WVR_EventType, List<Handler>> listenersSticky = new Dictionary<WVR_EventType, List<Handler>>();
         private static List<Handler> allEventListeners = new List<Handler>();
+        private static List<Handler> allEventListenersSticky = new List<Handler>();
         // Start is called before the first frame update
     }
 

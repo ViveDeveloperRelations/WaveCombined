@@ -1,10 +1,10 @@
 
 {
 
-    "commit": "ba7196f358be097784dd0f9179cad2596c170507",
+    "commit": "9aadee356ee82de9e36854b0ea8054e0969a2bc4",
 
-    "abbreviated_commit": "ba7196f3",
+    "abbreviated_commit": "9aadee35",
 
-    "refs": "HEAD"
+    "refs": "HEAD, tag: 4.2.0-u10, origin/SDK4.0.0"
 
 }

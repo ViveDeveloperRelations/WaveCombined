@@ -267,9 +267,6 @@ namespace Wave.Essence.Editor
 		#region MonoBehaviour overrides
 		void Awake()
 		{
-			if (WaveEditor.Instance != null)
-				INFO("Awake() WaveEditor is initialized.");
-
 			UpdateOptionValues();
 			m_HmdOptionValue = m_HmdOptions.optionValue;
 			m_DominantOptionValue = m_DominantOptions.optionValue;
