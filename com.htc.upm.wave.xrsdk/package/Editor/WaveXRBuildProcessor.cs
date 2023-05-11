@@ -1,12 +1,14 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using UnityEditor;
 using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-
+using UnityEditor.PackageManager;
+using UnityEngine;
 using Wave.XR.Settings;
 
 namespace Wave.XR
@@ -32,8 +34,10 @@ namespace Wave.XR
     /// </summary>
     public class WaveXRBuildProcessor : IPostGenerateGradleAndroidProject, IPreprocessBuildWithReport, IPostprocessBuildWithReport
     {
-        /// <summary>Override of <see cref="IPreprocessBuildWithReport"/> and <see cref="IPostprocessBuildWithReport"/></summary>
-        public int callbackOrder
+		private const string FAKE_VERSION = "0.0.0";
+
+		/// <summary>Override of <see cref="IPreprocessBuildWithReport"/> and <see cref="IPostprocessBuildWithReport"/></summary>
+		public int callbackOrder
         {
             get { return 0; }
         }
@@ -149,8 +153,10 @@ namespace Wave.XR
 
                 addSceneMesh = waveXRSettings.EnableScenePerception && waveXRSettings.EnableSceneMesh && !checkWavePermission(_manifestFilePath, ManifestAttributeStringDefinition.PermissionName.SceneMesh);
                 androidManifest.AddWavePermissions(appendSceneMeshPermission: addSceneMesh);
+				androidManifest.AddViveSDKVersion();
+				androidManifest.AddUnityVersion();
 
-                addHandTracking = waveXRSettings.EnableNaturalHand && !checkWaveFeature(_manifestFilePath, ManifestAttributeStringDefinition.FeatureName.HandTracking);
+				addHandTracking = waveXRSettings.EnableNaturalHand && !checkWaveFeature(_manifestFilePath, ManifestAttributeStringDefinition.FeatureName.HandTracking);
                 addTracker = waveXRSettings.EnableTracker && !checkWaveFeature(_manifestFilePath, ManifestAttributeStringDefinition.FeatureName.Tracker);
                 addEyeTracking = waveXRSettings.EnableEyeTracking && !checkWaveFeature(_manifestFilePath, ManifestAttributeStringDefinition.FeatureName.EyeTracking);
                 addLipExpression = waveXRSettings.EnableLipExpression && !checkWaveFeature(_manifestFilePath, ManifestAttributeStringDefinition.FeatureName.LipExpression);
@@ -170,7 +176,9 @@ namespace Wave.XR
             {
                 androidManifest.AddWaveMetaData(appendSupportedFPS: addSupportedFPS);
                 androidManifest.AddWavePermissions(appendSceneMeshPermission: addSceneMesh);
-                androidManifest.AddWaveFeatures(
+				androidManifest.AddViveSDKVersion();
+				androidManifest.AddUnityVersion();
+				androidManifest.AddWaveFeatures(
                     appendHandTracking: addHandTracking,
                     appendTracker: addTracker,
                     appendSimultaneousInteraction: addSimultaneousInteraction,
@@ -317,7 +325,53 @@ namespace Wave.XR
                 return attr;
             }
 
-            internal void AddWavePermissions(bool appendSceneMeshPermission = false)
+			private static string SearchPackageVersion(string packageName)
+			{
+				var listRequest = Client.List(true);
+				do
+				{
+					if (listRequest.IsCompleted)
+					{
+						if (listRequest.Result == null)
+						{
+							Debug.Log("List result: is empty");
+							return FAKE_VERSION;
+						}
+
+						foreach (var pi in listRequest.Result)
+						{
+							//Debug.Log("List has: " + pi.name + " == " + packageName);
+							if (pi.name == packageName)
+							{
+								Debug.Log("Found " + packageName);
+
+								return pi.version;
+							}
+						}
+						break;
+					}
+					Thread.Sleep(100);
+				} while (true);
+				return FAKE_VERSION;
+			}
+
+			internal void AddViveSDKVersion()
+			{
+				var newUsesFeature = CreateElement("meta-data");
+				newUsesFeature.Attributes.Append(CreateAndroidAttribute("name", "com.htc.ViveWaveAndroid.SdkVersion"));
+				newUsesFeature.Attributes.Append(CreateAndroidAttribute("value", SearchPackageVersion("com.htc.upm.wave.xrsdk")));
+				ApplicationElement.AppendChild(newUsesFeature);
+			}
+
+			internal void AddUnityVersion()
+			{
+				var newUsesFeature = CreateElement("meta-data");
+				newUsesFeature.Attributes.Append(CreateAndroidAttribute("name", "com.htc.vr.content.UnityVersion"));
+				newUsesFeature.Attributes.Append(CreateAndroidAttribute("value", Application.unityVersion));
+				ApplicationElement.AppendChild(newUsesFeature);
+			}
+
+			internal void AddWavePermissions(bool appendSceneMeshPermission = false)
             {
                 if (appendSceneMeshPermission)
                 {

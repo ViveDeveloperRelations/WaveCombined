@@ -11,6 +11,7 @@
 using UnityEngine;
 using UnityEngine.XR;
 using Wave.Native;
+using Wave.OpenXR;
 
 namespace Wave.Essence
 {
@@ -200,6 +201,13 @@ namespace Wave.Essence
 			}
 
 			return WVR_InputId.WVR_InputId_Max;
+		}
+
+		public static InputDeviceCharacteristics InputDevice(this XR_Device device)
+		{
+			if (device == XR_Device.Right) { return InputDeviceControl.kControllerRightCharacteristics; }
+			if (device == XR_Device.Left) { return InputDeviceControl.kControllerLeftCharacteristics; }
+			return InputDeviceControl.kHMDCharacteristics;
 		}
 	}
 }

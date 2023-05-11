@@ -508,6 +508,7 @@ namespace Wave.Essence.Hand
 				return;
 
 			SetHandGestureStatus(GestureStatus.Starting);
+			DEBUG("StartHandGestureLock() " + m_GestureOptionValue);
 			WVR_Result result = Interop.WVR_StartHandGesture(m_GestureOptionValue);
 			switch(result)
 			{

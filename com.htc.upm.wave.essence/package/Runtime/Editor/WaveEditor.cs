@@ -1,4 +1,4 @@
-﻿// "Wave SDK 
+// "Wave SDK 
 // © 2020 HTC Corporation. All Rights Reserved.
 //
 // Unless otherwise required by copyright law and practice,
@@ -8,6 +8,7 @@
 // conditions signed by you and all SDK and API requirements,
 // specifications, and documentation provided by HTC to You."
 
+using UnityEditor;
 using UnityEngine;
 using Wave.Essence.Events;
 using Wave.Native;
@@ -53,8 +54,12 @@ namespace Wave.Essence.Editor
 		private WVR_Event_t wvrEvent = new WVR_Event_t();
 		void Update()
 		{
-			if (Interop.WVR_PollEventQueue(ref wvrEvent))
-				SystemEvent.Send(wvrEvent);
+			bool EnableDirectPreview = EditorPrefs.GetBool("Wave/DirectPreview/EnableDirectPreview", false);
+			if (!EnableDirectPreview)
+			{
+				if (Interop.WVR_PollEventQueue(ref wvrEvent))
+					SystemEvent.Send(wvrEvent);
+			}
 		}
 	}
 }

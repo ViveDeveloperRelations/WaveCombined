@@ -335,8 +335,9 @@ namespace Wave.Native
 
 	public enum WVR_TextureTarget
 	{
-		WVR_TextureTarget_2D,
-		WVR_TextureTarget_2D_ARRAY
+		WVR_TextureTarget_2D = 0,
+		WVR_TextureTarget_2D_ARRAY = 1,
+		WVR_TextureTarget_2D_EXTERNAL = 2,
 	}
 
 	public enum WVR_TextureFormat
@@ -2492,6 +2493,17 @@ namespace Wave.Native
 			return WVR_Base.Instance.GetMaxCompositionLayerCount();
 		}
 
+		public static IntPtr WVR_CreateAndroidSurface(int width, int height, bool isProtected, [In, Out] WVR_TextureParams_t[] param)
+		{
+			return WVR_Base.Instance.CreateAndroidSurface(width, height, isProtected, param);
+		}
+
+		public static void WVR_DeleteAndroidSurface()
+		{
+			WVR_Base.Instance.DeleteAndroidSurface();
+		}
+
+
 		public static WVR_SubmitError WVR_SubmitFrame(WVR_Eye eye, [In, Out] WVR_TextureParams_t[] param, [In, Out] WVR_PoseState_t[] pose, WVR_SubmitExtend extendMethod)
 		{
 			return WVR_Base.Instance.SubmitFrame(eye, param, pose, extendMethod);
@@ -3575,6 +3587,15 @@ namespace Wave.Native
             {
                 return 0;
             }
+
+			public virtual IntPtr CreateAndroidSurface(int width, int height, bool isProtected, [In, Out] WVR_TextureParams_t[] param)
+			{
+				return new IntPtr();
+			}
+
+			public virtual void DeleteAndroidSurface()
+			{
+			}
 
 			public virtual WVR_SubmitError SubmitFrame(WVR_Eye eye, [In, Out] WVR_TextureParams_t[] param, [In, Out] WVR_PoseState_t[] pose, WVR_SubmitExtend extendMethod)
 			{

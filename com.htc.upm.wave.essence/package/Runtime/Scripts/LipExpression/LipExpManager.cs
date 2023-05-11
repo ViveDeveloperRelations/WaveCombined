@@ -289,8 +289,8 @@ namespace Wave.Essence.LipExpression
 		public void StartLipExp()
 		{
 			//string caller = new StackFrame(1, true).GetMethod().Name;
+			Log.i(LOG_TAG, "StartLipExp(" + m_LipExpRefCount + ")", true);
 			m_LipExpRefCount++;
-			//Log.i(LOG_TAG, "StartLipExp(" + m_LipExpRefCount + ") from " + caller, true);
 
 			if (UseXRData())
 			{
@@ -313,8 +313,8 @@ namespace Wave.Essence.LipExpression
 		public void StopLipExp()
 		{
 			//string caller = new StackFrame(1, true).GetMethod().Name;
-			m_LipExpRefCount--;
-			//Log.i(LOG_TAG, "StopLipExp(" + m_LipExpRefCount + ") from " + caller, true);
+			Log.i(LOG_TAG, "StopLipExp(" + m_LipExpRefCount + ")", true);
+			if (m_LipExpRefCount > 0) { m_LipExpRefCount--; }
 			if (m_LipExpRefCount > 0) { return; }
 
 			if (UseXRData())

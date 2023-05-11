@@ -257,6 +257,27 @@ namespace Wave.OpenXR
 			return false;
 		}
 
+		public static bool GetTrackingState(TrackerId trackerId, out InputTrackingState state)
+		{
+			state = InputTrackingState.None;
+
+			InputDevices.GetDevices(s_InputDevices);
+			for (int i = 0; i < s_InputDevices.Count; i++)
+			{
+				if (!s_InputDevices[i].isValid) { continue; }
+
+				if (!IsTrackerDevice(s_InputDevices[i], trackerId)) { continue; }
+
+				if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.trackingState, out InputTrackingState value))
+				{
+					state = value;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		public static bool GetPosition(TrackerId trackerId, out Vector3 position)
 		{
 			position = Vector3.zero;
@@ -283,6 +304,36 @@ namespace Wave.OpenXR
 				if (!IsTrackerDevice(s_InputDevices[i], trackerId)) { continue; }
 
 				return s_InputDevices[i].TryGetFeatureValue(CommonUsages.deviceRotation, out rotation);
+			}
+
+			return false;
+		}
+		public static bool GetVelocity(TrackerId trackerId, out Vector3 velocity)
+		{
+			velocity = Vector3.zero;
+
+			for (int i = 0; i < s_InputDevices.Count; i++)
+			{
+				if (!s_InputDevices[i].isValid) { continue; }
+
+				if (!IsTrackerDevice(s_InputDevices[i], trackerId)) { continue; }
+
+				return s_InputDevices[i].TryGetFeatureValue(CommonUsages.deviceVelocity, out velocity);
+			}
+
+			return false;
+		}
+		public static bool GetAngularVelocity(TrackerId trackerId, out Vector3 angularVelocity)
+		{
+			angularVelocity = Vector3.zero;
+
+			for (int i = 0; i < s_InputDevices.Count; i++)
+			{
+				if (!s_InputDevices[i].isValid) { continue; }
+
+				if (!IsTrackerDevice(s_InputDevices[i], trackerId)) { continue; }
+
+				return s_InputDevices[i].TryGetFeatureValue(CommonUsages.deviceAngularVelocity, out angularVelocity);
 			}
 
 			return false;

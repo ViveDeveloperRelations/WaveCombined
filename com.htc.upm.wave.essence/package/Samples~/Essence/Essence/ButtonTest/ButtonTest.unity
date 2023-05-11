@@ -389,7 +389,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: 31}
+  m_AnchoredPosition: {x: 40, y: 48}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &18675156
@@ -585,6 +585,98 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 31315287}
   m_CullTransparentMesh: 0
+--- !u!1 &60700481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 60700482}
+  - component: {fileID: 60700485}
+  - component: {fileID: 60700484}
+  - component: {fileID: 60700483}
+  m_Layer: 5
+  m_Name: Text_TrackingState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &60700482
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60700481}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1653623876}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -39, y: -80}
+  m_SizeDelta: {x: 400, y: 30}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &60700483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60700481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d93cdfb9a9e22439dae40da5e43580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackingDevice: 2
+--- !u!114 &60700484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60700481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.95686275, g: 0.6696432, b: 0.06274508, a: 1}
+  m_RaycastTarget: 0
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 20
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 1
+    m_MaxSize: 40
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 'Tracking:'
+--- !u!222 &60700485
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60700481}
+  m_CullTransparentMesh: 0
 --- !u!1 &93618843
 GameObject:
   m_ObjectHideFlags: 0
@@ -707,7 +799,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0.07214546, y: -0.6134603}
-  m_SizeDelta: {x: 500, y: 180}
+  m_SizeDelta: {x: 500, y: 220}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &97175371
 GameObject:
@@ -759,9 +851,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 1
-  inputId: 14
   usageName: Back Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 2005408170}
   imageComponent: {fileID: 543789207}
 --- !u!1 &110133126
@@ -782,7 +873,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &110133127
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1220,9 +1311,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 18
   usageName: Thumbstick Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 209991999}
   imageComponent: {fileID: 506027884}
 --- !u!1 &159176092
@@ -1259,7 +1349,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: -38.99996}
+  m_AnchoredPosition: {x: 40, y: -17.000006}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &159176094
@@ -1335,8 +1425,8 @@ RectTransform:
   m_Father: {fileID: 995101427}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1411,7 +1501,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 63.999958}
+  m_AnchoredPosition: {x: 0, y: 80}
   m_SizeDelta: {x: 320, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &163555059
@@ -1489,7 +1579,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: 27.000021}
+  m_AnchoredPosition: {x: -200, y: 49}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &181485355
@@ -1775,7 +1865,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &233490960
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1809,9 +1899,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 17
   usageName: Trigger Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 720446252}
   imageComponent: {fileID: 682833588}
 --- !u!1 &236731790
@@ -1922,7 +2011,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: -35.000042}
+  m_AnchoredPosition: {x: 40, y: -16}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &241505132
@@ -1996,7 +2085,7 @@ RectTransform:
   m_LocalScale: {x: 0.9999999, y: 1, z: 0.9999999}
   m_Children: []
   m_Father: {fileID: 1653623876}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2165,7 +2254,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &248309953
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2347,9 +2436,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 13
   usageName: Y Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 1582663749}
   imageComponent: {fileID: 960559946}
 --- !u!1 &298321073
@@ -2402,9 +2490,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 17
   usageName: Trigger Button
+  m_PressButton: {fileID: 6986180202050166755, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 1852286067}
   imageComponent: {fileID: 1658874575}
 --- !u!1001 &299529504
@@ -2714,7 +2802,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 916804486}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2812,9 +2900,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 19
   usageName: Parking Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 424614408}
   imageComponent: {fileID: 881240149}
 --- !u!1 &337956022
@@ -2847,7 +2934,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 916804486}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3255,7 +3342,7 @@ RectTransform:
   m_LocalScale: {x: 0.9999999, y: 1, z: 0.9999999}
   m_Children: []
   m_Father: {fileID: 1653623876}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3337,7 +3424,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 65.00003}
+  m_AnchoredPosition: {x: 0, y: 86.999985}
   m_SizeDelta: {x: 280, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &424436475
@@ -3661,9 +3748,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 15
   usageName: Enter Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 991382700}
   imageComponent: {fileID: 1544859356}
 --- !u!1 &459606535
@@ -3869,9 +3955,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 12
   usageName: X Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 2085508935}
   imageComponent: {fileID: 681837680}
 --- !u!1 &486765752
@@ -4083,7 +4168,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &499379608
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4401,7 +4486,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &524608169
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4435,9 +4520,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 17
   usageName: Trigger Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 1068646529}
   imageComponent: {fileID: 1004238332}
 --- !u!1 &526861089
@@ -4474,7 +4558,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: -5}
+  m_AnchoredPosition: {x: 40, y: 16}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &526861091
@@ -4700,7 +4784,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: -35.000046}
+  m_AnchoredPosition: {x: -200, y: -16}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &540639148
@@ -5057,9 +5141,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e8e2baa4c61ad34eb252a41f8c3d286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 17
   usageName: Trigger Axis
+  m_AxisButton: {fileID: 2526168894431210536, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 509065708}
   sliderComponent: {fileID: 120200277}
   valueTextComponent: {fileID: 1108014018}
@@ -5113,9 +5197,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 12
   usageName: X Touch
+  m_TouchButton: {fileID: 3791933405598543491, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 891059743}
   imageComponent: {fileID: 1907578314}
 --- !u!1 &583834429
@@ -5241,9 +5325,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 18
   usageName: Thumbstick Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 920653441}
   imageComponent: {fileID: 1839784233}
 --- !u!1 &631549767
@@ -5296,9 +5379,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 1
-  inputId: 15
   usageName: Enter Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 1671292744}
   imageComponent: {fileID: 1746905566}
 --- !u!1 &634224396
@@ -5335,7 +5417,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: -38.99996}
+  m_AnchoredPosition: {x: -200, y: -17.000006}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &634224398
@@ -5491,7 +5573,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: 27.000034}
+  m_AnchoredPosition: {x: 40, y: 48.999992}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &655523973
@@ -5565,7 +5647,7 @@ RectTransform:
   m_LocalScale: {x: 0.9999999, y: 1, z: 0.9999999}
   m_Children: []
   m_Father: {fileID: 1653623876}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -6398,9 +6480,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85229a233b1d4584688c7cbfe29a0166, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 18
   usageName: Thumbstick Axis
+  m_StickButton: {fileID: 0}
   textComponent: {fileID: 551369847}
   horizontalSliderComponent: {fileID: 2137959816}
   verticalSliderComponent: {fileID: 906871201}
@@ -6455,9 +6536,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 12
   usageName: X Button
+  m_PressButton: {fileID: 5113088590926889233, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 689891708}
   imageComponent: {fileID: 1916596286}
 --- !u!1 &757040879
@@ -6494,7 +6575,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: -38.00006}
+  m_AnchoredPosition: {x: -200, y: -16}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &757040881
@@ -6624,9 +6705,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 9
   usageName: Bumper Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 1423366647}
   imageComponent: {fileID: 559122945}
 --- !u!1 &789370973
@@ -6751,7 +6831,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: -0.72785455, y: -2.3254604}
-  m_SizeDelta: {x: 500, y: 180}
+  m_SizeDelta: {x: 500, y: 220}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &790527490
 GameObject:
@@ -7280,7 +7360,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: -38.00006}
+  m_AnchoredPosition: {x: 40, y: -16}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &891059741
@@ -7395,7 +7475,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: -5.00006}
+  m_AnchoredPosition: {x: -200, y: 16}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &893617439
@@ -7578,9 +7658,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 10
   usageName: A Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 1938969371}
   imageComponent: {fileID: 1945112997}
 --- !u!1 &916804485
@@ -7622,6 +7701,7 @@ RectTransform:
   - {fileID: 757040880}
   - {fileID: 889569482}
   - {fileID: 1012058778}
+  - {fileID: 1310462660}
   - {fileID: 1306031883}
   - {fileID: 2141930806}
   - {fileID: 2102939411}
@@ -7709,7 +7789,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: -5.9999638}
+  m_AnchoredPosition: {x: -200, y: 15.999992}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &918697103
@@ -7882,9 +7962,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e8e2baa4c61ad34eb252a41f8c3d286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 9
   usageName: Bumper Axis
+  m_AxisButton: {fileID: 0}
   textComponent: {fileID: 1694927800}
   sliderComponent: {fileID: 2094271323}
   valueTextComponent: {fileID: 1399754746}
@@ -7974,9 +8053,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 19
   usageName: Parking Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 118782936}
   imageComponent: {fileID: 1876536508}
 --- !u!1 &958984702
@@ -8192,9 +8270,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 13
   usageName: Y Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 1688830725}
   imageComponent: {fileID: 2066897574}
 --- !u!1 &991382698
@@ -8310,7 +8387,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -139, y: -72}
+  m_AnchoredPosition: {x: -139, y: -50.00005}
   m_SizeDelta: {x: 200, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &994784812
@@ -8748,7 +8825,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -124, y: -71}
+  m_AnchoredPosition: {x: -140, y: -48}
   m_SizeDelta: {x: 200, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1012058779
@@ -8838,7 +8915,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -8929,9 +9006,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 10
   usageName: A Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 28556617}
   imageComponent: {fileID: 31315289}
 --- !u!1 &1041615103
@@ -8951,7 +9027,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1041615104
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9042,7 +9118,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9361,7 +9437,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9436,7 +9512,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: 27.999939}
+  m_AnchoredPosition: {x: 40, y: 48}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1074972602
@@ -9588,7 +9664,7 @@ RectTransform:
   m_LocalScale: {x: 0.9999999, y: 1, z: 0.9999999}
   m_Children: []
   m_Father: {fileID: 1653623876}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -9937,7 +10013,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -124, y: -68}
+  m_AnchoredPosition: {x: -140, y: -48}
   m_SizeDelta: {x: 200, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1110420719
@@ -10298,6 +10374,7 @@ GameObject:
   - component: {fileID: 1168449814}
   - component: {fileID: 1168449817}
   - component: {fileID: 1168449813}
+  - component: {fileID: 1168449818}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -10401,6 +10478,20 @@ MonoBehaviour:
   m_TrackingType: 0
   m_UpdateType: 0
   m_UseRelativeTransform: 0
+--- !u!114 &1168449818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1168449812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b90eaae8ee7f6bf46be1c8ad060bd48d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ActionAsset: {fileID: -944628639613478452, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
 --- !u!1 &1173300639
 GameObject:
   m_ObjectHideFlags: 0
@@ -10431,7 +10522,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 916804486}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -10565,9 +10656,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 16
-  usageName: Touchpad Touch
+  usageName: Primary2D Touch
+  m_TouchButton: {fileID: 4360133727445611998, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 1437742392}
   imageComponent: {fileID: 459606537}
 --- !u!1 &1223092266
@@ -10676,7 +10767,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: 30.999958}
+  m_AnchoredPosition: {x: -200, y: 48}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1235340530
@@ -10917,8 +11008,8 @@ RectTransform:
   m_Father: {fileID: 545680916}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -11009,9 +11100,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 11
   usageName: B Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 1337554093}
   imageComponent: {fileID: 132514531}
 --- !u!1 &1286244742
@@ -11169,9 +11259,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 15
   usageName: Enter Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 884621170}
   imageComponent: {fileID: 538374269}
 --- !u!1 &1306031882
@@ -11204,7 +11293,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 916804486}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -11302,11 +11391,103 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 1
   usageName: Menu Button
+  m_PressButton: {fileID: 4335090648579581189, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 2121216574}
   imageComponent: {fileID: 1009032315}
+--- !u!1 &1310462659
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1310462660}
+  - component: {fileID: 1310462663}
+  - component: {fileID: 1310462662}
+  - component: {fileID: 1310462661}
+  m_Layer: 5
+  m_Name: Text_TrackingState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1310462660
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310462659}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 916804486}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -39, y: -80}
+  m_SizeDelta: {x: 400, y: 30}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1310462661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310462659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d93cdfb9a9e22439dae40da5e43580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackingDevice: 3
+--- !u!114 &1310462662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310462659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.95686275, g: 0.6696432, b: 0.06274508, a: 1}
+  m_RaycastTarget: 0
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 20
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 1
+    m_MaxSize: 40
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 'Tracking:'
+--- !u!222 &1310462663
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310462659}
+  m_CullTransparentMesh: 0
 --- !u!1 &1313445646
 GameObject:
   m_ObjectHideFlags: 0
@@ -11434,9 +11615,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85229a233b1d4584688c7cbfe29a0166, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 16
-  usageName: Touchpad Axis
+  usageName: Primary2D Axis
+  m_StickButton: {fileID: 7596212294181904713, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 1078719394}
   horizontalSliderComponent: {fileID: 1405574949}
   verticalSliderComponent: {fileID: 958984704}
@@ -12156,7 +12337,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: -2.000043}
+  m_AnchoredPosition: {x: -200, y: 16}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1433707824
@@ -12360,9 +12541,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 9
   usageName: Bumper Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 638325142}
   imageComponent: {fileID: 712923659}
 --- !u!1 &1437742390
@@ -12729,6 +12909,7 @@ RectTransform:
   - {fileID: 634224397}
   - {fileID: 159176093}
   - {fileID: 994784811}
+  - {fileID: 2099889053}
   m_Father: {fileID: 93618849}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12826,9 +13007,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 13
   usageName: Y Button
+  m_PressButton: {fileID: -631344258065148156, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 1885280910}
   imageComponent: {fileID: 1662613894}
 --- !u!1 &1498654430
@@ -12942,7 +13123,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -13165,7 +13346,7 @@ RectTransform:
   m_LocalScale: {x: 0.9999999, y: 1, z: 0.9999999}
   m_Children: []
   m_Father: {fileID: 1653623876}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -13384,7 +13565,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1545740717
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13418,9 +13599,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 2
   usageName: Grip Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 1510033949}
   imageComponent: {fileID: 338391529}
 --- !u!1 &1546733710
@@ -13456,7 +13636,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -13530,7 +13710,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -13621,9 +13801,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 16
-  usageName: Touchpad Button
+  usageName: Primary2D Button
+  m_PressButton: {fileID: -149401235567842990, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 1700613984}
   imageComponent: {fileID: 1713006464}
 --- !u!1 &1582663747
@@ -13754,9 +13934,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 2
   usageName: Grip Button
+  m_PressButton: {fileID: -2169729131751125950, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 12831538}
   imageComponent: {fileID: 273023502}
 --- !u!1 &1626584390
@@ -13772,7 +13952,7 @@ GameObject:
   - component: {fileID: 1626584393}
   - component: {fileID: 1626584392}
   m_Layer: 5
-  m_Name: TouchpadPanel
+  m_Name: Primary2DAxisPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13925,6 +14105,7 @@ RectTransform:
   - {fileID: 540639147}
   - {fileID: 241505131}
   - {fileID: 1110420718}
+  - {fileID: 60700482}
   - {fileID: 659829894}
   - {fileID: 1536432616}
   - {fileID: 242861306}
@@ -14222,7 +14403,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1670479981
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14325,7 +14506,7 @@ RectTransform:
   m_LocalScale: {x: 0.9999999, y: 1, z: 0.9999999}
   m_Children: []
   m_Father: {fileID: 1653623876}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -14464,12 +14645,12 @@ GameObject:
   - component: {fileID: 1677270615}
   - component: {fileID: 1677270614}
   m_Layer: 5
-  m_Name: ThumbstickPanel
+  m_Name: Secondary2DAxisPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1677270613
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14738,7 +14919,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: -5.9999638}
+  m_AnchoredPosition: {x: 40, y: 15.999992}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1694002741
@@ -15135,7 +15316,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1735844495
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15169,9 +15350,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 2
   usageName: Grip Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 1658177894}
   imageComponent: {fileID: 880435762}
 --- !u!1 &1742510447
@@ -15208,7 +15388,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 64.99994}
+  m_AnchoredPosition: {x: 0, y: 80}
   m_SizeDelta: {x: 300, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1742510449
@@ -15451,9 +15631,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e8e2baa4c61ad34eb252a41f8c3d286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 2
   usageName: Grip Axis
+  m_AxisButton: {fileID: -1289947363739713011, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 301788345}
   sliderComponent: {fileID: 1072666770}
   valueTextComponent: {fileID: 13018460}
@@ -15508,9 +15688,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e8e2baa4c61ad34eb252a41f8c3d286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 9
   usageName: Bumper Axis
+  m_AxisButton: {fileID: 0}
   textComponent: {fileID: 431645398}
   sliderComponent: {fileID: 1981924165}
   valueTextComponent: {fileID: 1407404812}
@@ -15638,9 +15817,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 12
   usageName: X Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 889022456}
   imageComponent: {fileID: 1124696774}
 --- !u!1 &1852286065
@@ -16108,9 +16286,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 13
   usageName: Y Touch
+  m_TouchButton: {fileID: -5405649100492650258, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 1069589763}
   imageComponent: {fileID: 442528028}
 --- !u!1 &1900842057
@@ -16163,9 +16341,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 18
   usageName: Thumbstick Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 8660006}
   imageComponent: {fileID: 840183535}
 --- !u!1 &1907578312
@@ -16350,7 +16527,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: -2.000043}
+  m_AnchoredPosition: {x: 40, y: 16}
   m_SizeDelta: {x: 360, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1934735415
@@ -16444,9 +16621,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 9
   usageName: Bumper Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 1463095225}
   imageComponent: {fileID: 1437135936}
 --- !u!1 &1938969369
@@ -16630,7 +16806,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0.8721455, y: -2.3254604}
-  m_SizeDelta: {x: 500, y: 180}
+  m_SizeDelta: {x: 500, y: 220}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1941339406
 MonoBehaviour:
@@ -16701,9 +16877,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 18
   usageName: Thumbstick Button
+  m_PressButton: {fileID: 0}
   textComponent: {fileID: 1861777292}
   imageComponent: {fileID: 533371794}
 --- !u!1 &1945112995
@@ -17162,9 +17337,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 9
   usageName: Bumper Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 2070210949}
   imageComponent: {fileID: 690192857}
 --- !u!1 &2058077057
@@ -17217,9 +17391,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 3
-  inputId: 11
   usageName: B Touch
+  m_TouchButton: {fileID: 0}
   textComponent: {fileID: 2142677681}
   imageComponent: {fileID: 790527492}
 --- !u!1 &2066897572
@@ -17408,7 +17581,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200, y: 27.999939}
+  m_AnchoredPosition: {x: -200, y: 48}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2084859354
@@ -17672,7 +17845,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2096255300
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17730,6 +17903,98 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2096255299}
   m_CullTransparentMesh: 0
+--- !u!1 &2099889052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2099889053}
+  - component: {fileID: 2099889056}
+  - component: {fileID: 2099889055}
+  - component: {fileID: 2099889054}
+  m_Layer: 5
+  m_Name: Text_TrackingState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2099889053
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099889052}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1463245764}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -40, y: -80.00005}
+  m_SizeDelta: {x: 400, y: 30}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2099889054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099889052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d93cdfb9a9e22439dae40da5e43580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackingDevice: 1
+--- !u!114 &2099889055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099889052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.95686275, g: 0.6696432, b: 0.06274508, a: 1}
+  m_RaycastTarget: 0
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 20
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 1
+    m_MaxSize: 40
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 'Tracking:'
+--- !u!222 &2099889056
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099889052}
+  m_CullTransparentMesh: 0
 --- !u!1 &2102939410
 GameObject:
   m_ObjectHideFlags: 0
@@ -17760,7 +18025,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 916804486}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -17825,7 +18090,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2121116990
 RectTransform:
   m_ObjectHideFlags: 0
@@ -18082,7 +18347,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 916804486}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -19107,12 +19372,12 @@ GameObject:
   - component: {fileID: 6854479646483222431}
   - component: {fileID: 6854479646483222429}
   m_Layer: 5
-  m_Name: ThumbstickPanel
+  m_Name: Secondary2DAxisPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &6854479646483222429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19228,9 +19493,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 1
   usageName: Menu Button
+  m_PressButton: {fileID: -1529377759134130044, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479648319531923}
   imageComponent: {fileID: 6854479648127309861}
 --- !u!224 &6854479646626098007
@@ -19304,9 +19569,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 10
   usageName: A Button
+  m_PressButton: {fileID: 11711766586467970, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479647902558106}
   imageComponent: {fileID: 6854479646785842313}
 --- !u!1 &6854479646711845828
@@ -19928,9 +20193,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 11
   usageName: B Button
+  m_PressButton: {fileID: -1644001223835636349, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479648340215287}
   imageComponent: {fileID: 6854479648392046523}
 --- !u!224 &6854479646926953451
@@ -20175,9 +20440,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85229a233b1d4584688c7cbfe29a0166, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 18
   usageName: Thumbstick Axis
+  m_StickButton: {fileID: 0}
   textComponent: {fileID: 6854479648041347393}
   horizontalSliderComponent: {fileID: 6854479648558799861}
   verticalSliderComponent: {fileID: 6854479646711845834}
@@ -20389,8 +20653,8 @@ RectTransform:
   m_Father: {fileID: 6854479647130650723}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -20555,9 +20819,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e8e2baa4c61ad34eb252a41f8c3d286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 17
   usageName: Trigger Axis
+  m_AxisButton: {fileID: -5684558904543120851, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479647271969118}
   sliderComponent: {fileID: 6854479647486377318}
   valueTextComponent: {fileID: 6854479648563704674}
@@ -20752,9 +21016,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e8e2baa4c61ad34eb252a41f8c3d286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 2
   usageName: Grip Axis
+  m_AxisButton: {fileID: -5194266436686895582, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479647000904749}
   sliderComponent: {fileID: 6854479647486383594}
   valueTextComponent: {fileID: 6854479647559841322}
@@ -20852,7 +21116,7 @@ GameObject:
   - component: {fileID: 6854479647375584933}
   - component: {fileID: 6854479647375584939}
   m_Layer: 5
-  m_Name: TouchpadPanel
+  m_Name: Primary2DAxisPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21365,9 +21629,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 16
-  usageName: Touchpad Button
+  usageName: Primary2D Button
+  m_PressButton: {fileID: -3683315366864426127, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479648464428426}
   imageComponent: {fileID: 6854479648436940110}
 --- !u!114 &6854479647556322612
@@ -21838,9 +22102,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 2
   usageName: Grip Button
+  m_PressButton: {fileID: -8514278639596572500, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479646971593020}
   imageComponent: {fileID: 6854479647713682395}
 --- !u!224 &6854479647713682388
@@ -22227,8 +22491,8 @@ RectTransform:
   m_Father: {fileID: 6854479647847989589}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -22410,9 +22674,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85229a233b1d4584688c7cbfe29a0166, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 16
-  usageName: Touchpad Axis
+  usageName: Primary2D Axis
+  m_StickButton: {fileID: 3396702884570900202, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479647556322612}
   horizontalSliderComponent: {fileID: 6854479647749277831}
   verticalSliderComponent: {fileID: 6854479648042470021}
@@ -22584,7 +22848,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -23121,7 +23385,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -23193,9 +23457,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 11
   usageName: B Touch
+  m_TouchButton: {fileID: -489211225168818177, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479647377815574}
   imageComponent: {fileID: 6854479648344356137}
 --- !u!222 &6854479648281455458
@@ -24173,9 +24437,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4ce880bc9e7ee44a0576e33d30cd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 17
   usageName: Trigger Button
+  m_PressButton: {fileID: 6454596279149084813, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479647533012421}
   imageComponent: {fileID: 6854479646720230834}
 --- !u!1 &6854479648464428420
@@ -24285,9 +24549,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 10
   usageName: A Touch
+  m_TouchButton: {fileID: -4964576040970502374, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479646845465389}
   imageComponent: {fileID: 6854479648289142458}
 --- !u!224 &6854479648478334479
@@ -24868,8 +25132,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7bfc2f47f22c8d40b138093f318bd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deviceType: 2
-  inputId: 16
-  usageName: Touchpad Touch
+  usageName: Primary2D Touch
+  m_TouchButton: {fileID: 3873870584620388549, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   textComponent: {fileID: 6854479648487248012}
   imageComponent: {fileID: 6854479647623021096}

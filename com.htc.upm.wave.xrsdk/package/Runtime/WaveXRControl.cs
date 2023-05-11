@@ -62,10 +62,13 @@ namespace Wave.OpenXR
 		public static bool IsConnected(InputDeviceCharacteristics device)
 		{
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				if (id.characteristics.Equals(device))
-					return true;
+				for (int i = 0; i < m_InputDevices.Count; i++)
+				{
+					if (m_InputDevices[i].characteristics.Equals(device))
+						return true;
+				}
 			}
 
 			return false;
@@ -77,13 +80,16 @@ namespace Wave.OpenXR
 			bool isTracked = false;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetFeatureValue(CommonUsages.isTracked, out bool value))
-						isTracked = value;
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
+					{
+						if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.isTracked, out bool value))
+							isTracked = value;
+					}
 				}
 			}
 
@@ -97,13 +103,16 @@ namespace Wave.OpenXR
 			bool isDown = false;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetFeatureValue(button, out bool value))
-						isDown = value;
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
+					{
+						if (m_InputDevices[i].TryGetFeatureValue(button, out bool value))
+							isDown = value;
+					}
 				}
 			}
 
@@ -115,15 +124,18 @@ namespace Wave.OpenXR
 			axis1d = 0;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetFeatureValue(button, out float value))
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
 					{
-						axis1d = value;
-						return true;
+						if (m_InputDevices[i].TryGetFeatureValue(button, out float value))
+						{
+							axis1d = value;
+							return true;
+						}
 					}
 				}
 			}
@@ -136,15 +148,18 @@ namespace Wave.OpenXR
 			axis2d = Vector2.zero;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetFeatureValue(button, out Vector2 value))
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
 					{
-						axis2d = value;
-						return true;
+						if (m_InputDevices[i].TryGetFeatureValue(button, out Vector2 value))
+						{
+							axis2d = value;
+							return true;
+						}
 					}
 				}
 			}
@@ -160,15 +175,18 @@ namespace Wave.OpenXR
 			hapticCaps = emptyHapticCapabilities;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetHapticCapabilities(out HapticCapabilities value))
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
 					{
-						hapticCaps = value;
-						return true;
+						if (m_InputDevices[i].TryGetHapticCapabilities(out HapticCapabilities value))
+						{
+							hapticCaps = value;
+							return true;
+						}
 					}
 				}
 			}
@@ -179,17 +197,20 @@ namespace Wave.OpenXR
 		public static bool SendHapticImpulse(InputDeviceCharacteristics device, float amplitude, float duration)
 		{
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetHapticCapabilities(out HapticCapabilities value))
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
 					{
-						if (value.supportsImpulse)
+						if (m_InputDevices[i].TryGetHapticCapabilities(out HapticCapabilities value))
 						{
-							amplitude = Mathf.Clamp(amplitude, 0, 1);
-							return id.SendHapticImpulse(0, amplitude, duration);
+							if (value.supportsImpulse)
+							{
+								amplitude = Mathf.Clamp(amplitude, 0, 1);
+								return m_InputDevices[i].SendHapticImpulse(0, amplitude, duration);
+							}
 						}
 					}
 				}
@@ -205,17 +226,20 @@ namespace Wave.OpenXR
 			position = Vector3.zero;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetFeatureValue(CommonUsages.isTracked, out bool tracked))
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
 					{
-						if (id.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 value))
+						if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.isTracked, out bool tracked))
 						{
-							position = value;
-							return true;
+							if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 value))
+							{
+								position = value;
+								return true;
+							}
 						}
 					}
 				}
@@ -229,17 +253,20 @@ namespace Wave.OpenXR
 			rotation = Quaternion.identity;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetFeatureValue(CommonUsages.isTracked, out bool tracked))
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
 					{
-						if (id.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion value))
+						if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.isTracked, out bool tracked))
 						{
-							rotation = value;
-							return true;
+							if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion value))
+							{
+								rotation = value;
+								return true;
+							}
 						}
 					}
 				}
@@ -248,6 +275,60 @@ namespace Wave.OpenXR
 			return false;
 		}
 		public static bool GetRotation(ControlDevice device, out Quaternion rotation) { return GetRotation(device.characteristic(), out rotation); }
+		public static bool GetVelocity(InputDeviceCharacteristics device, out Vector3 velocity)
+		{
+			velocity = Vector3.zero;
+
+			InputDevices.GetDevices(m_InputDevices);
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
+			{
+				for (int i = 0; i < m_InputDevices.Count; i++)
+				{
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
+					{
+						if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.isTracked, out bool tracked))
+						{
+							if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.deviceVelocity, out Vector3 value))
+							{
+								velocity = value;
+								return true;
+							}
+						}
+					}
+				}
+			}
+
+			return false;
+		}
+		public static bool GetVelocity(ControlDevice device, out Vector3 velocity) { return GetVelocity(device.characteristic(), out velocity); }
+		public static bool GetAngularVelocity(InputDeviceCharacteristics device, out Vector3 angularVelocity)
+		{
+			angularVelocity = Vector3.zero;
+
+			InputDevices.GetDevices(m_InputDevices);
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
+			{
+				for (int i = 0; i < m_InputDevices.Count; i++)
+				{
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
+					{
+						if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.isTracked, out bool tracked))
+						{
+							if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.deviceAngularVelocity, out Vector3 value))
+							{
+								angularVelocity = value;
+								return true;
+							}
+						}
+					}
+				}
+			}
+
+			return false;
+		}
+		public static bool GetAngularVelocity(ControlDevice device, out Vector3 angularVelocity) { return GetAngularVelocity(device.characteristic(), out angularVelocity); }
 
 		/// Battery
 		public static float GetBatteryLevel(InputDeviceCharacteristics device)
@@ -255,13 +336,16 @@ namespace Wave.OpenXR
 			float level = 0;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(device))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetFeatureValue(CommonUsages.batteryLevel, out float value))
-						level = value;
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(device))
+					{
+						if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.batteryLevel, out float value))
+							level = value;
+					}
 				}
 			}
 
@@ -274,17 +358,40 @@ namespace Wave.OpenXR
 			bool userPresence = false;
 
 			InputDevices.GetDevices(m_InputDevices);
-			foreach (InputDevice id in m_InputDevices)
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
 			{
-				// The device is connected.
-				if (id.characteristics.Equals(kHMDCharacteristics))
+				for (int i = 0; i < m_InputDevices.Count; i++)
 				{
-					if (id.TryGetFeatureValue(CommonUsages.userPresence, out bool value))
-						userPresence = value;
+					// The device is connected.
+					if (m_InputDevices[i].characteristics.Equals(kHMDCharacteristics))
+					{
+						if (m_InputDevices[i].TryGetFeatureValue(CommonUsages.userPresence, out bool value))
+							userPresence = value;
+					}
 				}
 			}
 
 			return userPresence;
+		}
+
+		public static bool Name(ControlDevice device, out string name)
+		{
+			name = "";
+
+			InputDevices.GetDevices(m_InputDevices);
+			if (m_InputDevices != null && m_InputDevices.Count > 0)
+			{
+				for (int i = 0; i < m_InputDevices.Count; i++)
+				{
+					if (m_InputDevices[i].characteristics.Equals(device.characteristic()))
+					{
+						name = m_InputDevices[i].name;
+						return true;
+					}
+				}
+			}
+
+			return false;
 		}
 	}
 }

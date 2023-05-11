@@ -40,17 +40,22 @@ namespace Wave.Essence.Hand.StaticGesture
 			if (!rightCondition.CheckHandMatch(CustomGestureProvider.Current.RightHand, CustomGestureProvider.Current.RightHandState))
 				return;
 
-			foreach (var condition in CrossHandFingerTipDistance)
+			if (CrossHandFingerTipDistance != null && CrossHandFingerTipDistance.Count > 0)
 			{
-				if (condition.node1 < 0 || condition.node1 >= WXRGestureHand.s_GesturePoints.Length ||
-					condition.node2 < 0 || condition.node2 >= WXRGestureHand.s_GesturePoints.Length)
+				for (int i = 0; i < CrossHandFingerTipDistance.Count; i++)
 				{
-					return;
-				}
+					if (CrossHandFingerTipDistance[i].node1 < 0 || CrossHandFingerTipDistance[i].node1 >= WXRGestureHand.s_GesturePoints.Length ||
+						CrossHandFingerTipDistance[i].node2 < 0 || CrossHandFingerTipDistance[i].node2 >= WXRGestureHand.s_GesturePoints.Length)
+					{
+						return;
+					}
 
-				var distance = Vector3.Distance(CustomGestureProvider.Current.LeftHand.points[condition.node1],
-												CustomGestureProvider.Current.RightHand.points[condition.node2]);
-				if (!condition.distance.IsMatch(distance, false)) return;
+					var distance = Vector3.Distance(
+						CustomGestureProvider.Current.LeftHand.points[CrossHandFingerTipDistance[i].node1],
+						CustomGestureProvider.Current.RightHand.points[CrossHandFingerTipDistance[i].node2]
+					);
+					if (!CrossHandFingerTipDistance[i].distance.IsMatch(distance, false)) return;
+				}
 			}
 
 			IsMatch = true;

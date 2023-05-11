@@ -508,12 +508,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2021567153}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4.4, y: 172}
-  m_SizeDelta: {x: 580, y: 60}
+  m_AnchoredPosition: {x: -4.4, y: 170}
+  m_SizeDelta: {x: 580, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &146694644
 MonoBehaviour:
@@ -568,8 +568,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a777818bc56522140a5eef7049279a12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsLeft: 1
+  m_IsLeft: 1
+  m_UseInputAction: 1
+  m_IsTracked: {fileID: 3087748982605046796, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_TrackingState: {fileID: -2466279121073861429, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   m_Position: {fileID: -5811054736486988652, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_Rotation: {fileID: -7440025202574135159, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
 --- !u!114 &226473050
 MonoBehaviour:
@@ -583,8 +590,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20e49cce4b183e449a86a4daa814f3a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: -7440025202574135159, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  Controller: 3
   _text: {fileID: 840219952}
 --- !u!114 &226473051
 MonoBehaviour:
@@ -1350,8 +1359,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 4150019624855575819, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 1
   _target: {fileID: 5433409083939323978}
 --- !u!114 &705693524
 MonoBehaviour:
@@ -1365,8 +1376,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 7596212294181904713, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 1
   _target: {fileID: 856535977}
 --- !u!114 &705693525
 MonoBehaviour:
@@ -1380,8 +1393,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 4335090648579581189, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 1
   _target: {fileID: 5433409084379284748}
 --- !u!114 &705693526
 MonoBehaviour:
@@ -1395,8 +1410,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: -631344258065148156, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 1
   _target: {fileID: 5433409084777658869}
 --- !u!114 &705693527
 MonoBehaviour:
@@ -1410,8 +1427,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 5113088590926889233, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 1
   _target: {fileID: 5433409083862223602}
 --- !u!114 &705693528
 MonoBehaviour:
@@ -1425,8 +1444,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: -1289947363739713011, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 1
   _target: {fileID: 5433409084611573186}
 --- !u!114 &705693529
 MonoBehaviour:
@@ -1440,8 +1461,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 2526168894431210536, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 1
   _target: {fileID: 5433409084651933607}
 --- !u!1 &725964750
 GameObject:
@@ -1489,9 +1512,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63da2ac4abc1dc64594aa5c751083a11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   action: {fileID: 6986180202050166755, guid: e0ca4504471ca124088e1e2cfe6804ae, type: 3}
   hapticAction: {fileID: 7519938360818096305, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  isLeft: 1
+  hapticButton: 8
   _amplitude: 1
   _duration: 0.5
   _frequency: 0
@@ -1507,8 +1533,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: -5811054736486988652, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 1
   _target: {fileID: 629553924}
 --- !u!1 &743603317
 GameObject:
@@ -1723,18 +1751,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 775708279}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 5}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2021567153}
   m_Father: {fileID: 1588199579}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.562, y: 0.38}
-  m_SizeDelta: {x: 600, y: 420}
+  m_AnchoredPosition: {x: -6, y: -1.241}
+  m_SizeDelta: {x: 600, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &775708281
 MonoBehaviour:
@@ -2368,8 +2396,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f66c89eea32a9d4e853d2a3130ba2c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   m_IsTracked: {fileID: -6750724637190771277, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 0
   m_ObjectToHide: {fileID: 1837306848}
 --- !u!114 &1060976103
 MonoBehaviour:
@@ -2437,7 +2467,7 @@ Transform:
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_Children: []
   m_Father: {fileID: 1454962056}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1105825501
 MonoBehaviour:
@@ -2589,11 +2619,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2021567153}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4.4, y: -144.00003}
+  m_AnchoredPosition: {x: -4.4, y: -180}
   m_SizeDelta: {x: 580, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1236894761
@@ -2707,6 +2737,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1454962056}
+  - component: {fileID: 1454962057}
+  - component: {fileID: 1454962058}
   m_Layer: 0
   m_Name: Tracker
   m_TagString: Untagged
@@ -2725,11 +2757,45 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1105825500}
   - {fileID: 2022631623}
+  - {fileID: 1105825500}
   m_Father: {fileID: 1060976101}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1454962057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454962055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f66c89eea32a9d4e853d2a3130ba2c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UseInputAction: 1
+  m_IsTracked: {fileID: -4603319573897937137, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_ObjectType: 10
+  m_ObjectToHide: {fileID: 2022631622}
+--- !u!114 &1454962058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454962055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f66c89eea32a9d4e853d2a3130ba2c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UseInputAction: 1
+  m_IsTracked: {fileID: 71408540557651526, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_ObjectType: 11
+  m_ObjectToHide: {fileID: 1105825499}
 --- !u!1 &1497070795
 GameObject:
   m_ObjectHideFlags: 0
@@ -3095,12 +3161,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: 6986180202050166755, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 1942025780}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 8
 --- !u!1 &1588199578
 GameObject:
   m_ObjectHideFlags: 0
@@ -3165,12 +3234,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2021567153}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4.4, y: 111.99997}
-  m_SizeDelta: {x: 580, y: 60}
+  m_AnchoredPosition: {x: -4.4, y: 90}
+  m_SizeDelta: {x: 580, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1599267495
 MonoBehaviour:
@@ -3184,8 +3253,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a777818bc56522140a5eef7049279a12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsLeft: 0
+  m_IsLeft: 0
+  m_UseInputAction: 1
+  m_IsTracked: {fileID: 892124000040382134, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_TrackingState: {fileID: -2908631039456959884, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
   m_Position: {fileID: 173761250214713829, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_Rotation: {fileID: 967343632835644457, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
 --- !u!114 &1599267496
 MonoBehaviour:
@@ -3378,12 +3454,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: 6454596279149084813, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 1500186003}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 8
 --- !u!1 &1732395585
 GameObject:
   m_ObjectHideFlags: 0
@@ -3586,11 +3665,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2021567153}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4.4, y: -44.00003}
+  m_AnchoredPosition: {x: -4.4, y: -80}
   m_SizeDelta: {x: 580, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1755158042
@@ -3780,6 +3859,106 @@ MonoBehaviour:
       m_Flags: 0
     m_Flags: 0
   m_HasMigratedActions: 1
+--- !u!1 &1874104441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1874104442}
+  - component: {fileID: 1874104445}
+  - component: {fileID: 1874104444}
+  - component: {fileID: 1874104443}
+  m_Layer: 0
+  m_Name: TextHmdPose
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1874104442
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874104441}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2021567153}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -4.4, y: 250}
+  m_SizeDelta: {x: 580, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1874104443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874104441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e13b9b867e97334987a3a4905d19acd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UseInputAction: 1
+  m_IsTracked: {fileID: 3988844631367809609, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_TrackingState: {fileID: 6831445464655345303, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_Position: {fileID: -8330880175803813698, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+  m_Rotation: {fileID: 3113219943245244623, guid: e0ca4504471ca124088e1e2cfe6804ae,
+    type: 3}
+--- !u!114 &1874104444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874104441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_RaycastTarget: 1
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 14
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 'Head:'
+--- !u!222 &1874104445
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874104441}
+  m_CullTransparentMesh: 0
 --- !u!1 &1904435356
 GameObject:
   m_ObjectHideFlags: 0
@@ -3811,12 +3990,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2021567153}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4.4, y: 41.99997}
-  m_SizeDelta: {x: 580, y: 70}
+  m_AnchoredPosition: {x: -4.4, y: 10}
+  m_SizeDelta: {x: 580, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1904435358
 MonoBehaviour:
@@ -4138,6 +4317,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_Children:
+  - {fileID: 1874104442}
   - {fileID: 146694643}
   - {fileID: 1599267494}
   - {fileID: 1904435357}
@@ -4220,7 +4400,7 @@ Transform:
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_Children: []
   m_Father: {fileID: 1454962056}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2022631624
 MonoBehaviour:
@@ -5100,10 +5280,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fafe7132773ee4c459df58c5ef9bba92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 4988039972909362401}
+  m_UseInputAction: 1
   _actionReference: {fileID: 5748190851293166289, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 4988039972909362401}
   _handle: {fileID: 6469218801657084335}
+  isLeft: 0
+  axisButton: 1
 --- !u!114 &272850239399224097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5116,10 +5299,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fafe7132773ee4c459df58c5ef9bba92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 1035347614447312642}
+  m_UseInputAction: 1
   _actionReference: {fileID: 3396702884570900202, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 1035347614447312642}
   _handle: {fileID: 6469218802021051668}
+  isLeft: 0
+  axisButton: 0
 --- !u!224 &272850239399224098
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5853,10 +6039,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38137e6c2a95274448387b2203e288e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 4988039971507839756}
+  m_UseInputAction: 1
   _actionReference: {fileID: -5684558904543120851, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 4988039971507839756}
   _slider: {fileID: 1062974504045547358}
+  isLeft: 0
+  floatButton: 0
 --- !u!1 &1062974503171189094
 GameObject:
   m_ObjectHideFlags: 0
@@ -6180,10 +6369,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38137e6c2a95274448387b2203e288e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 4988039971698153833}
+  m_UseInputAction: 1
   _actionReference: {fileID: -5194266436686895582, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 4988039971698153833}
   _slider: {fileID: 1062974502596445321}
+  isLeft: 0
+  floatButton: 1
 --- !u!1 &1062974504143157378
 GameObject:
   m_ObjectHideFlags: 0
@@ -8368,12 +8560,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -7428500947354388255, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 2454468597567399913}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 9
 --- !u!224 &2454468597417493156
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8647,12 +8842,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -1925900790126126306, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 2643658087170574522}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 10
 --- !u!1 &2643658087857450486
 GameObject:
   m_ObjectHideFlags: 0
@@ -9295,12 +9493,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 4988039972861683289}
+  m_UseInputAction: 1
   _actionReference: {fileID: 11711766586467970, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 4988039972861683289}
   _image: {fileID: 4044859924542596669}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 2
 --- !u!1 &4044859923854418516
 GameObject:
   m_ObjectHideFlags: 0
@@ -9425,12 +9626,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: 3873870584620388549, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 4044859924327685829}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 7
 --- !u!1 &4044859923911718146
 GameObject:
   m_ObjectHideFlags: 0
@@ -9481,12 +9685,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -8514278639596572500, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 4044859924294422606}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 1
 --- !u!224 &4044859923925435914
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9537,12 +9744,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -272995603575202759, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 4044859924280959815}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 8
 --- !u!224 &4044859924280959812
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9817,12 +10027,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 4988039971868693854}
+  m_UseInputAction: 1
   _actionReference: {fileID: -1644001223835636349, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 4988039971868693854}
   _image: {fileID: 4044859923854418518}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 4
 --- !u!222 &4044859924542596668
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9947,12 +10160,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: 6454596279149084813, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 4044859923605129620}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 8
 --- !u!114 &4044859924782079291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9965,12 +10181,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -4964576040970502374, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 4044859925705898097}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 3
 --- !u!224 &4044859924782079292
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10021,12 +10240,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -489211225168818177, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 4044859925478946240}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 5
 --- !u!1 &4044859924857114764
 GameObject:
   m_ObjectHideFlags: 0
@@ -10151,12 +10373,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 4988039971201706407}
+  m_UseInputAction: 1
   _actionReference: {fileID: -1529377759134130044, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 4988039971201706407}
   _image: {fileID: 4044859925413819274}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 0
 --- !u!1 &4044859925064586950
 GameObject:
   m_ObjectHideFlags: 0
@@ -10319,12 +10544,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -3683315366864426127, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 4044859925051157583}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 6
 --- !u!114 &4044859925478946240
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10487,9 +10715,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63da2ac4abc1dc64594aa5c751083a11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   action: {fileID: -8514278639596572500, guid: e0ca4504471ca124088e1e2cfe6804ae, type: 3}
   hapticAction: {fileID: 2975796035989916654, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  isLeft: 0
+  hapticButton: 1
   _amplitude: 1
   _duration: 0.5
   _frequency: 50
@@ -13666,8 +13897,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20e49cce4b183e449a86a4daa814f3a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 967343632835644457, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  Controller: 2
   _text: {fileID: 6169362949625620274}
 --- !u!114 &6169362948596641369
 MonoBehaviour:
@@ -13947,8 +14180,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 5748190851293166289, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 2
   _target: {fileID: 2232274877113768520}
 --- !u!224 &6169362949222735186
 RectTransform:
@@ -14014,8 +14249,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: -1644001223835636349, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 2
   _target: {fileID: 2232274876209423351}
 --- !u!114 &6169362949222735189
 MonoBehaviour:
@@ -14029,8 +14266,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 11711766586467970, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 2
   _target: {fileID: 2232274877158363376}
 --- !u!114 &6169362949222735190
 MonoBehaviour:
@@ -14044,8 +14283,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 3396702884570900202, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 2
   _target: {fileID: 6169362949644036523}
 --- !u!114 &6169362949222735191
 MonoBehaviour:
@@ -14054,13 +14295,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6169362949222735181}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: -1529377759134130044, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 2
   _target: {fileID: 2232274875534171918}
 --- !u!114 &6169362949222735194
 MonoBehaviour:
@@ -14074,8 +14317,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: -5194266436686895582, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 2
   _target: {fileID: 2232274875904929728}
 --- !u!114 &6169362949222735195
 MonoBehaviour:
@@ -14089,8 +14334,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: -5684558904543120851, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 2
   _target: {fileID: 2232274875832047013}
 --- !u!1 &6169362949236706764
 GameObject:
@@ -14138,9 +14385,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63da2ac4abc1dc64594aa5c751083a11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   action: {fileID: 6454596279149084813, guid: e0ca4504471ca124088e1e2cfe6804ae, type: 3}
   hapticAction: {fileID: 2975796035989916654, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  isLeft: 0
+  hapticButton: 8
   _amplitude: 1
   _duration: 0.5
   _frequency: 0
@@ -14156,8 +14406,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00af11ffcda1ca346ba8d727adb83ec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   _actionReference: {fileID: 173761250214713829, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  m_ObjectType: 2
   _target: {fileID: 6169362949266120966}
 --- !u!1 &6169362949266120966
 GameObject:
@@ -14420,10 +14672,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fafe7132773ee4c459df58c5ef9bba92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 1199339618039150307}
+  m_UseInputAction: 1
   _actionReference: {fileID: 4150019624855575819, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 1199339618039150307}
   _handle: {fileID: 890220499089286061}
+  isLeft: 1
+  axisButton: 1
 --- !u!1 &6220774223758470554
 GameObject:
   m_ObjectHideFlags: 0
@@ -14512,10 +14767,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fafe7132773ee4c459df58c5ef9bba92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 6612324121317377280}
+  m_UseInputAction: 1
   _actionReference: {fileID: 7596212294181904713, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 6612324121317377280}
   _handle: {fileID: 890220499161757462}
+  isLeft: 1
+  axisButton: 0
 --- !u!23 &6248042256310837375
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14848,10 +15106,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38137e6c2a95274448387b2203e288e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 1199339618713207659}
+  m_UseInputAction: 1
   _actionReference: {fileID: -1289947363739713011, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 1199339618713207659}
   _slider: {fileID: 6583571371312258699}
+  isLeft: 1
+  floatButton: 1
 --- !u!222 &6583571370346969924
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -15322,10 +15583,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38137e6c2a95274448387b2203e288e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 1199339618938140942}
+  m_UseInputAction: 1
   _actionReference: {fileID: 2526168894431210536, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 1199339618938140942}
   _slider: {fileID: 6583571370467005788}
+  isLeft: 1
+  floatButton: 0
 --- !u!224 &6583571371206306134
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16848,9 +17112,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63da2ac4abc1dc64594aa5c751083a11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_UseInputAction: 1
   action: {fileID: -2169729131751125950, guid: e0ca4504471ca124088e1e2cfe6804ae, type: 3}
   hapticAction: {fileID: 7519938360818096305, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
+  isLeft: 1
+  hapticButton: 1
   _amplitude: 1
   _duration: 0.5
   _frequency: 50
@@ -16866,12 +17133,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -5405649100492650258, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 7908250859254984642}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 5
 --- !u!1 &7908250858366880398
 GameObject:
   m_ObjectHideFlags: 0
@@ -16922,12 +17192,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: 3791933405598543491, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 7908250859062502003}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 3
 --- !u!224 &7908250858409281342
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17052,12 +17325,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 1199339618606904229}
+  m_UseInputAction: 1
   _actionReference: {fileID: 4335090648579581189, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 1199339618606904229}
   _image: {fileID: 7908250858783009160}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 0
 --- !u!1 &7908250858695986372
 GameObject:
   m_ObjectHideFlags: 0
@@ -17220,12 +17496,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -149401235567842990, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 7908250858676270669}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 6
 --- !u!224 &7908250859062502000
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17574,12 +17853,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 1199339618121432155}
+  m_UseInputAction: 1
   _actionReference: {fileID: 5113088590926889233, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 1199339618121432155}
   _image: {fileID: 7908250860191464511}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 2
 --- !u!224 &7908250859782513034
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17630,12 +17912,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: 4360133727445611998, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 7908250859970184391}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 7
 --- !u!1 &7908250859816365824
 GameObject:
   m_ObjectHideFlags: 0
@@ -17686,12 +17971,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -2169729131751125950, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 7908250859936991820}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 1
 --- !u!224 &7908250859836447752
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17742,12 +18030,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -366822794963246136, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 7908250859917179205}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 8
 --- !u!222 &7908250859917179204
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -18096,12 +18387,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: 6986180202050166755, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 7908250859518170006}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 8
 --- !u!1 &7908250860257156376
 GameObject:
   m_ObjectHideFlags: 0
@@ -18152,12 +18446,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 1199339619013775196}
+  m_UseInputAction: 1
   _actionReference: {fileID: -631344258065148156, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 1199339619013775196}
   _image: {fileID: 7908250859371165780}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 4
 --- !u!114 &7946210665843944748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18265,12 +18562,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -1091252228470322465, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 8155407511970943672}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 1
+  binaryButton: 10
 --- !u!1 &8155407512928286708
 GameObject:
   m_ObjectHideFlags: 0
@@ -18595,12 +18895,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d563bef222bbc74ab2244cbbd138dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 0}
+  m_UseInputAction: 1
   _actionReference: {fileID: -3947085769738995516, guid: e0ca4504471ca124088e1e2cfe6804ae,
     type: 3}
-  _text: {fileID: 0}
   _image: {fileID: 8614819585984282091}
   _normalColor: {r: 1, g: 0.27044016, b: 0.27044016, a: 1}
   _pressedColor: {r: 0.32704395, g: 1, b: 0.43455204, a: 1}
+  isLeft: 0
+  binaryButton: 9
 --- !u!224 &8614819585563777190
 RectTransform:
   m_ObjectHideFlags: 0

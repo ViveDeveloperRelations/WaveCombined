@@ -394,16 +394,19 @@ namespace Wave.Essence.Hand.StaticGesture
 			// 2. Check finger distance.
 			if (FingerTipDistance != null)
 			{
-				foreach (var condition in FingerTipDistance)
+				if (FingerTipDistance != null && FingerTipDistance.Count > 0)
 				{
-					if (condition.node1 < 0 || condition.node1 >= WXRGestureHand.s_GesturePoints.Length ||
-						condition.node2 < 0 || condition.node2 >= WXRGestureHand.s_GesturePoints.Length)
+					for (int i = 0; i < FingerTipDistance.Count; i++)
 					{
-						return false;
-					}
+						if (FingerTipDistance[i].node1 < 0 || FingerTipDistance[i].node1 >= WXRGestureHand.s_GesturePoints.Length ||
+							FingerTipDistance[i].node2 < 0 || FingerTipDistance[i].node2 >= WXRGestureHand.s_GesturePoints.Length)
+						{
+							return false;
+						}
 
-					var distance = Vector3.Distance(hand.points[condition.node1], hand.points[condition.node2]);
-					if (!condition.distance.IsMatch(distance)) return false;
+						var distance = Vector3.Distance(hand.points[FingerTipDistance[i].node1], hand.points[FingerTipDistance[i].node2]);
+						if (!FingerTipDistance[i].distance.IsMatch(distance)) return false;
+					}
 				}
 			}
 
