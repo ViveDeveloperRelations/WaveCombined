@@ -96,7 +96,6 @@ namespace Wave.Generic.Sample
 				new SceneData(NotEntry, NoTitle, "AQDR_Loading"),
 				new SceneData(Entry, "210 FadeOut Test", "FadeOut_Test", NoHelp, NotForPC),
 				new SceneData(Entry, "211 FSE Test", "FSE_Test", NoHelp, NotForPC),
-				new SceneData(Entry, "212 PassThroughOverlay Test", "PassThroughOverlay", NoHelp, NotForPC),
 
 				new SceneData(Entry, "304 WaveControllerTest", "WaveControllerTest"),
 
@@ -126,9 +125,6 @@ namespace Wave.Generic.Sample
 				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_UICanvasOverlay", NoHelp, NotForPC),
 				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_UICanvasUnderlay", NoHelp, NotForPC),
 
-				new SceneData(Entry, "316 Hand Model Test", "HandModelTest", NoHelp, NotForPC),
-				new SceneData(Entry, "317 Battery Test", "Battery_Test", NoHelp, NotForPC),
-
 				new SceneData(Entry, "318 Mirror Test", "MirrorTest", NoHelp, NotForPC),
 
 				new SceneData(Entry, "501 IME Test", "IMETest", NoHelp, NotForPC),
@@ -137,8 +133,8 @@ namespace Wave.Generic.Sample
 				new SceneData(Entry, "320 Hand Gesture", "HandGesture"),
 				new SceneData(Entry, "321 Role Change", "RoleChange"),
 				new SceneData(Entry, "322 Pass Through", "PassThrough"),
-				new SceneData(Entry, "323 Bracelet", "Bracelet"),
-				new SceneData(Entry, "324 Lip Expression", "LipExp"),
+				new SceneData(Entry, "323 Bracelet", "Trackers"),
+				new SceneData(Entry, "324 Facial Expression", "FaceSample_v2"),
 				new SceneData(Entry, "325 Eye Tracking", "RaycastEyeTracking"),
 			};
 		}

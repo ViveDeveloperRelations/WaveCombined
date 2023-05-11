@@ -49,9 +49,9 @@ namespace Wave.XR.Settings
                 config |= (1 << 5);
 
             if (appSettings.enableFSE)
-			{
+            {
                 config |= (1 << 8);
-			}
+            }
 
             uint highBytes = (uint)((config >> 32) & 0xFFFFFFFF);
             uint lowBytes = (uint)(config & 0xFFFFFFFF);
@@ -90,14 +90,14 @@ namespace Wave.XR.Settings
             CheckSinglePass();
 
             SetBool("sRGB", QualitySettings.activeColorSpace == ColorSpace.Linear);
-            SetInt("qsMSAA", (uint) QualitySettings.antiAliasing);
+            SetInt("qsMSAA", (uint)QualitySettings.antiAliasing);
             SetBool("useDoubleWidth", appSettings.useDoubleWidth);
             SetBool(NameUseRenderMask, appSettings.useRenderMask);
-			SetInt(NameEnableTimeWarpStabilizedMode, (uint)appSettings.enableTimeWarpStabilizedMode);
+            SetInt(NameEnableTimeWarpStabilizedMode, (uint)appSettings.enableTimeWarpStabilizedMode);
 
-			SetBool(NameUseAdaptiveQuality, appSettings.adaptiveQualityMode != WaveXRSettings.AdaptiveQualityMode.Disabled);
-			SetInt(NameAdaptiveQualityMode, (uint)appSettings.adaptiveQualityMode);
-			SetBool("AQ_AutoFoveation", appSettings.AQ_AutoFoveation);
+            SetBool(NameUseAdaptiveQuality, appSettings.adaptiveQualityMode != WaveXRSettings.AdaptiveQualityMode.Disabled);
+            SetInt(NameAdaptiveQualityMode, (uint)appSettings.adaptiveQualityMode);
+            SetBool("AQ_AutoFoveation", appSettings.AQ_AutoFoveation);
             SetBool("AQ_SendQualityEvent", appSettings.AQ_SendQualityEvent);
             SetBool("useAQDynamicResolution", appSettings.useAQDynamicResolution);
 
@@ -123,25 +123,33 @@ namespace Wave.XR.Settings
                 SetInt("displayGamutPreference" + i, (uint)gamut);
             }
 
-			#endregion rendering
+            #endregion rendering
 
-			#region Tracker
-			SetBool(WaveXRSettings.EnableTrackerText, appSettings.EnableTracker);
-			#endregion
+            #region Tracker
+            SetBool(WaveXRSettings.EnableTrackerText, appSettings.EnableTracker);
+            #endregion
 
-			#region Hand
-			SetBool(WaveXRSettings.EnableNaturalHandText, appSettings.EnableNaturalHand);
-			SetBool(WaveXRSettings.EnableElectronicHandText, appSettings.EnableElectronicHand);
-			#endregion
-		}
+            #region Hand
+            SetBool(WaveXRSettings.EnableNaturalHandText, appSettings.EnableNaturalHand);
+            SetBool(WaveXRSettings.EnableElectronicHandText, appSettings.EnableElectronicHand);
+            #endregion
 
-		public const string NameSRGB = "sRGB";
+            #region Eye Expression
+            SetBool(WaveXRSettings.EnableEyeExpressionText, appSettings.EnableEyeExpression);
+            #endregion
+
+            #region Lip Expression
+            SetBool(WaveXRSettings.EnableLipExpressionText, appSettings.EnableLipExpression);
+            #endregion
+        }
+
+        public const string NameSRGB = "sRGB";
         public const string NameUseRenderMask = "useRenderMask";
-		public const string NameEnableTimeWarpStabilizedMode = "enableTimeWarpStabilizedMode";
-		public const string NameUseAdaptiveQuality = "useAdaptiveQuality";
-		public const string NameAdaptiveQualityMode = "adaptiveQualityMode";
+        public const string NameEnableTimeWarpStabilizedMode = "enableTimeWarpStabilizedMode";
+        public const string NameUseAdaptiveQuality = "useAdaptiveQuality";
+        public const string NameAdaptiveQualityMode = "adaptiveQualityMode";
 
-		public const string NameFoveationMode = "foveationMode";
+        public const string NameFoveationMode = "foveationMode";
         public const string NameLeftClearVisionFOV = "leftClearVisionFOV";
         public const string NameRightClearVisionFOV = "rightClearVisionFOV";
         public const string NameLeftPeripheralQuality = "leftPeripheralQuality";
@@ -150,7 +158,7 @@ namespace Wave.XR.Settings
         public const string NameOverridePixelDensity = "overridePixelDensity";
         public const string NamePixelDensity = "pixelDensity";
         public const string NameResolutionScale = "resolutionScale";
-               
+
         public const string NameDebugLogFlagForNative = "debugLogFlagForNative";
         public const string NameDebugLogFlagForUnity = "debugLogFlagForUnity";
         public const string NameUseCMPChecker = "useCMPChecker";
@@ -174,7 +182,8 @@ namespace Wave.XR.Settings
 
         [DllImport("wvrunityxr", EntryPoint = "SettingsSetString")]
         internal static extern ErrorCode SetString(string name, System.IntPtr value, uint length);
-        public static ErrorCode SetString(string name, string value) {
+        public static ErrorCode SetString(string name, string value)
+        {
             System.IntPtr ptrValue = Marshal.StringToHGlobalAnsi(value);
             ErrorCode ret = SetString(name, ptrValue, (uint)value.Length);
             Marshal.FreeHGlobal(ptrValue);
@@ -192,10 +201,10 @@ namespace Wave.XR.Settings
         public static extern ErrorCode GetFloat(string name, ref float value);
 
         [DllImport("wvrunityxr", EntryPoint = "SettingsGetFloatArray")]
-        internal static extern ErrorCode GetFloatArray(string name, ref float [] array, uint bufferSize);
+        internal static extern ErrorCode GetFloatArray(string name, ref float[] array, uint bufferSize);
         public static ErrorCode GetFloatArray(string name, ref float[] array)
         {
-            uint length = (uint) array.Length;
+            uint length = (uint)array.Length;
             if (length > 0xFFFF)
                 return ErrorCode.OutOfRange;
             return GetFloatArray(name, ref array, length);  // Native can handle length validation

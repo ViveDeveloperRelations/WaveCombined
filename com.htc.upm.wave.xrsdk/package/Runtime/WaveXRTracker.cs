@@ -37,11 +37,21 @@ namespace Wave.OpenXR
 		const string kTracker1Name = "Wave Tracker1";
 		const string kTracker2Name = "Wave Tracker2";
 		const string kTracker3Name = "Wave Tracker3";
+		const string kTracker4Name = "Wave Tracker4";
+		const string kTracker5Name = "Wave Tracker5";
+		const string kTracker6Name = "Wave Tracker6";
+		const string kTracker7Name = "Wave Tracker7";
+		const string kTracker8Name = "Wave Tracker8";
 
 		const string kTracker0SN = "HTC-211012-Tracker0";
 		const string kTracker1SN = "HTC-211012-Tracker1";
 		const string kTracker2SN = "HTC-211012-Tracker2";
 		const string kTracker3SN = "HTC-211012-Tracker3";
+		const string kTracker4SN = "HTC-220801-Tracker4";
+		const string kTracker5SN = "HTC-220801-Tracker5";
+		const string kTracker6SN = "HTC-220801-Tracker6";
+		const string kTracker7SN = "HTC-220801-Tracker7";
+		const string kTracker8SN = "HTC-220801-Tracker8";
 
 		/// <summary> Standalone Tracker Characteristics </summary>
 		public const InputDeviceCharacteristics kAloneTrackerCharacteristics = (
@@ -65,6 +75,11 @@ namespace Wave.OpenXR
 			Tracker1 = 1,
 			Tracker2 = 2,
 			Tracker3 = 3,
+			Tracker4 = 4,
+			Tracker5 = 5,
+			Tracker6 = 6,
+			Tracker7 = 7,
+			Tracker8 = 8,
 		}
 
 		public static string Name(this TrackerId trackerId)
@@ -73,6 +88,11 @@ namespace Wave.OpenXR
 			if (trackerId == TrackerId.Tracker1) { return kTracker1Name; }
 			if (trackerId == TrackerId.Tracker2) { return kTracker2Name; }
 			if (trackerId == TrackerId.Tracker3) { return kTracker3Name; }
+			if (trackerId == TrackerId.Tracker4) { return kTracker4Name; }
+			if (trackerId == TrackerId.Tracker5) { return kTracker5Name; }
+			if (trackerId == TrackerId.Tracker6) { return kTracker6Name; }
+			if (trackerId == TrackerId.Tracker7) { return kTracker7Name; }
+			if (trackerId == TrackerId.Tracker8) { return kTracker8Name; }
 			return kTracker0Name;
 		}
 		public static string SerialNumber(this TrackerId trackerId)
@@ -81,6 +101,11 @@ namespace Wave.OpenXR
 			if (trackerId == TrackerId.Tracker1) { return kTracker1SN; }
 			if (trackerId == TrackerId.Tracker2) { return kTracker2SN; }
 			if (trackerId == TrackerId.Tracker3) { return kTracker3SN; }
+			if (trackerId == TrackerId.Tracker4) { return kTracker4SN; }
+			if (trackerId == TrackerId.Tracker5) { return kTracker5SN; }
+			if (trackerId == TrackerId.Tracker6) { return kTracker6SN; }
+			if (trackerId == TrackerId.Tracker7) { return kTracker7SN; }
+			if (trackerId == TrackerId.Tracker8) { return kTracker8SN; }
 			return kTracker0SN;
 		}
 
@@ -112,7 +137,13 @@ namespace Wave.OpenXR
 				if (IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker0) ||
 					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker1) ||
 					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker2) ||
-					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker3))
+					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker3) ||
+					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker4) ||
+					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker5) ||
+					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker6) ||
+					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker7) ||
+					IsTrackerDevice(s_InputDevices[i], TrackerId.Tracker8)
+					)
 				{
 					return true;
 				}

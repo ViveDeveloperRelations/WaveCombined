@@ -244,9 +244,9 @@ namespace Wave.Essence.Hand
 		private TrackerOption m_TrackerOptions = new TrackerOption();
 		public TrackerOption TrackerOptions { get { return m_TrackerOptions; } set { m_TrackerOptions = value; } }
 
-		[SerializeField]
 		[Tooltip("Retrieves the Hand Tracking data from UnityEngine.XR.InputDevice.")]
-		public bool m_UseXRDevice = false;
+		[SerializeField]
+		private bool m_UseXRDevice = true;
 		public bool UseXRDevice { get { return m_UseXRDevice; } set { m_UseXRDevice = value; } }
 		#endregion
 

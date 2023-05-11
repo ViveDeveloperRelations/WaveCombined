@@ -1,9 +1,9 @@
 {
   "name": "com.htc.upm.wave.essence",
   "displayName": "VIVE Wave XR Plugin - Essence",
-  "version": "5.0.2-preview.0",
+  "version": "5.0.3-preview.0",
   "unity": "2019.4",
-  "description": "Provides features offered by the VIVE Wave SDK.\nFor Wave Runtime version 5.0.2.",
+  "description": "Provides features offered by the VIVE Wave SDK.\nFor Wave Runtime version 5.0.3.",
   "keywords": [
     "vr",
     "xr",
@@ -15,8 +15,8 @@
     "url": "https://www.htc.com"
   },
   "dependencies": {
-    "com.htc.upm.wave.xrsdk": "5.0.2-preview.0",
-    "com.htc.upm.wave.native": "5.0.2-preview.0"
+    "com.htc.upm.wave.xrsdk": "5.0.3-preview.0",
+    "com.htc.upm.wave.native": "5.0.3-preview.0"
   },
   "samples": [
     {

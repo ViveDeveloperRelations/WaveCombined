@@ -13,6 +13,7 @@ using System.Threading;
 using UnityEngine;
 using Wave.Native;
 using Wave.OpenXR;
+using Wave.XR.Settings;
 
 namespace Wave.Essence.LipExpression
 {
@@ -48,12 +49,20 @@ namespace Wave.Essence.LipExpression
 		private bool m_InitialStart = false;
 		public bool InitialStart { get { return m_InitialStart; } set { m_InitialStart = value; } }
 
-		[SerializeField]
-		private bool m_UseXRDevice = false;
+		[Tooltip("Retrieves the Lip Expression data from UnityEngine.XR.InputDevice.")]
+		private bool m_UseXRDevice = true;
 		public bool UseXRDevice { get { return m_UseXRDevice; } set { m_UseXRDevice = value; } }
+
+		WaveXRSettings m_WaveXRSettings = null;
 		private bool UseXRData()
 		{
-			return m_UseXRDevice && !Application.isEditor;
+			// Lip Expression is already enabled in WaveXRSettings.
+			bool XRAlreadyEnabled = (m_WaveXRSettings != null ? m_WaveXRSettings.EnableLipExpression : false);
+
+			return (
+				(XRAlreadyEnabled || m_UseXRDevice)
+				&& (!Application.isEditor)
+				);
 		}
 		#endregion
 
@@ -64,6 +73,8 @@ namespace Wave.Essence.LipExpression
 		private void Awake()
 		{
 			m_Instance = this;
+
+			m_WaveXRSettings = WaveXRSettings.GetInstance();
 
 			var supportedFeature = Interop.WVR_GetSupportedFeatures();
 			INFO("Awake() supportedFeature: " + supportedFeature);
@@ -144,12 +155,6 @@ namespace Wave.Essence.LipExpression
 		private event LipExpResultDelegate lipExpResultCB = null;
 		private void StartLipExpLock()
 		{
-			if (UseXRData())
-			{
-				InputDeviceLip.ActivateLipExp(true);
-				return;
-			}
-
 			if (!CanStartLipExp()) { return; }
 
 			SetLipExpStatus(LipExpStatus.Starting);
@@ -187,12 +192,6 @@ namespace Wave.Essence.LipExpression
 
 		private void StopLipExpLock()
 		{
-			if (UseXRData())
-			{
-				InputDeviceLip.ActivateLipExp(false);
-				return;
-			}
-
 			if (!CanStopLipExp()) { return; }
 
 			SetLipExpStatus(LipExpStatus.Stopping);
@@ -218,8 +217,19 @@ namespace Wave.Essence.LipExpression
 			var status = GetLipExpStatus();
 			if (status == LipExpStatus.Available)
 			{
-				var result = Interop.WVR_GetLipExpData(m_LipExpValues);
-				hasLipExpData = (result == WVR_Result.WVR_Success);
+				if (UseXRData())
+				{
+					hasLipExpData = InputDeviceLip.HasLipExpValue();
+					for (int i = 0; i < InputDeviceLip.s_LipExps.Length; i++)
+					{
+						m_LipExpValues[i] = hasLipExpData ? InputDeviceLip.GetLipExpValue(InputDeviceLip.s_LipExps[i]) : 0;
+					}
+				}
+				else
+				{
+					var result = Interop.WVR_GetLipExpData(m_LipExpValues);
+					hasLipExpData = (result == WVR_Result.WVR_Success);
+				}
 			}
 			else
 			{
@@ -282,6 +292,13 @@ namespace Wave.Essence.LipExpression
 			m_LipExpRefCount++;
 			//Log.i(LOG_TAG, "StartLipExp(" + m_LipExpRefCount + ") from " + caller, true);
 
+			if (UseXRData())
+			{
+				InputDeviceLip.ActivateLipExp(true);
+				if (lipExpResultCB != null) { lipExpResultCB = null; } // Don't support callback when using XR data.
+				return;
+			}
+
 			if (!CanStartLipExp())
 			{
 				DEBUG("StartLipExp() can NOT start lip expression.");
@@ -300,6 +317,12 @@ namespace Wave.Essence.LipExpression
 			//Log.i(LOG_TAG, "StopLipExp(" + m_LipExpRefCount + ") from " + caller, true);
 			if (m_LipExpRefCount > 0) { return; }
 
+			if (UseXRData())
+			{
+				InputDeviceLip.ActivateLipExp(false);
+				return;
+			}
+
 			if (!CanStopLipExp())
 			{
 				DEBUG("CanStopLipExp() can NOT stop lip expression.");
@@ -317,6 +340,10 @@ namespace Wave.Essence.LipExpression
 			return (status == LipExpStatus.Available);
 		}
 
+		public bool HasLipExpData()
+		{
+			return hasLipExpData;
+		}
 		public float GetLipExpression(LipExp lipExp)
 		{
 			if (hasLipExpData && (int)lipExp >= 0 && (int)lipExp < (int)LipExp.Max)
