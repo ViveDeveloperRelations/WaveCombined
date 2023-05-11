@@ -21,6 +21,7 @@ namespace Wave.XR.DirectPreview.Editor
 {
 	public class DirectPreviewAPK
 	{
+		
 		private static void GeneralSettings()
 		{
 			PlayerSettings.Android.bundleVersionCode = 1;
@@ -79,12 +80,12 @@ namespace Wave.XR.DirectPreview.Editor
 				UnityEngine.Debug.LogError(e);
 			}
 		}
-
         public static void InstallSimulatorInner()
 		{
 			try
 			{
-				var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/RRClient/Vive_rrClient.apk");
+				const string RRClientFolderRoot = Constants.PackagesRootFolder + "/" + Constants.SDKPackageName + "/package/Runtime/DirectPreview/Binary/RRClient";
+				var absolutePath = Path.GetFullPath(RRClientFolderRoot+"/Vive_rrClient.apk");
 				UnityEngine.Debug.Log("Install Direct Preview device APK pull path = " + absolutePath);
 
 				Process myProcess = new Process();
@@ -235,9 +236,11 @@ namespace Wave.XR.DirectPreview.Editor
 			}
 		}
 
+		public const string DirectPreviewBinaryFolder = "Packages/" + Constants.CombinedPackageName + "/package/" +
+		                                         Constants.SDKPackageName + "/Runtime/DirectPreview/Binary";
 		private static string configPath()
 		{
-			var absolutePath = Path.GetFullPath("Packages/com.htc.upm.wave.xrsdk/Runtime/DirectPreview/Binary/DirectPreviewConfig.json");
+			var absolutePath = Path.GetFullPath(DirectPreviewBinaryFolder+"/DirectPreviewConfig.json");
 			UnityEngine.Debug.Log("configPath = " + absolutePath);
 
 			return absolutePath;

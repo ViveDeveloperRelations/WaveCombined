@@ -801,19 +801,23 @@ namespace Wave.Essence.Editor
 			if (File.Exists("Assets/Wave.meta"))
 				File.Delete("Assets/Wave.meta");
 		}
-
+		
+		internal static string GetEssenceUnityPackageFolder()
+		{
+			return Constants.PackagesRootFolder + "/" + Constants.EssencePackageName+ "/package/UnityPackages~";
+		}
 		internal static void UpdateModule(string ModelPath, string packagePath)
 		{
 			DeleteFolder(ModelPath);
 			AssetDatabase.Refresh();
-			string target = Path.Combine("Packages/" + Constants.EssencePackageName + "/UnityPackages~", packagePath);
+			string target = Path.Combine(GetEssenceUnityPackageFolder(), packagePath);
 			Debug.Log("Import: " + target);
 			AssetDatabase.ImportPackage(target, false);
 		}
 
 		internal static void ImportModule(string packagePath)
 		{
-			string target = Path.Combine("Packages/" + Constants.EssencePackageName + "/UnityPackages~", packagePath);
+			string target = Path.Combine(GetEssenceUnityPackageFolder(), packagePath);
 			Debug.Log("Import: " + target);
 			AssetDatabase.ImportPackage(target, false);
 		}

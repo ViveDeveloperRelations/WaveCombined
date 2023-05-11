@@ -31,10 +31,14 @@ namespace Wave.XR.BuildCheck
 	{
 		private static string WaveXRPath = "Assets/Wave/XR";
 
+		//"Packages/" + Constants.CombinedPackageName + "/" + Constants.EssencePackageName + "/package/UnityPackages~";
+		
+		const string XRSDKPackageRoot = Constants.PackagesRootFolder + "/" + Constants.SDKPackageName + "/package";
+		
 		const string CustomAndroidManifestPathSrc = "/Platform/Android/AndroidManifest.xml";
-		const string AndroidManifestPathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/AndroidManifest.xml";
-		const string Aar2017PathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/wvr_unity_plugin_2017.aar";
-		const string Aar2022PathSrc = "Packages/" + Constants.SDKPackageName + "/Runtime/Android/wvr_unity_plugin_2022.aar";
+		const string AndroidManifestPathSrc = XRSDKPackageRoot + "/Runtime/Android/AndroidManifest.xml";
+		const string Aar2017PathSrc = XRSDKPackageRoot + "/Runtime/Android/wvr_unity_plugin_2017.aar";
+		const string Aar2022PathSrc = XRSDKPackageRoot + "/Runtime/Android/wvr_unity_plugin_2022.aar";
 		const string AndroidManifestPathDest = "Assets/Plugins/Android/AndroidManifest.xml";
 		const string AndroidManifestScriptCreatedPath = "Assets/Plugins/Android/AndroidManifest.IsCreatedByScript";
 		const string Aar2017PathDest = "Assets/Plugins/Android/wvr_unity_plugin_2017.aar";
@@ -291,7 +295,7 @@ namespace Wave.XR.BuildCheck
 			}
 			else if (File.Exists(AndroidManifestPathSrc))
 			{
-				Debug.Log("Using the Android Manifest at Packages/com.htc.upm.wave.xrsdk/Runtime/Android");
+				Debug.Log("Using the Android Manifest at " + AndroidManifestPathSrc);
 				File.Copy(AndroidManifestPathSrc, AndroidManifestPathDest, false);
 			}
 

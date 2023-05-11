@@ -14,6 +14,8 @@ namespace Wave.XR
 		public const string SDKPackageName = "com.htc.upm.wave.xrsdk";
 		public const string NativePackageName = "com.htc.upm.wave.native";
 		public const string EssencePackageName = "com.htc.upm.wave.essence";
+		public const string CombinedPackageName = "com.htc.upm.wave.nativecombined";
+		public const string PackagesRootFolder = "Packages/" + CombinedPackageName;
 
 		/// <summary>
 		/// Key we use to store and retrieve custom configuration settings from EditorBuildSettings
