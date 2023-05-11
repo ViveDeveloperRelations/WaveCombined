@@ -65,6 +65,25 @@ namespace Wave.Native
 		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_Quit_S")]
 		public static extern void WVR_Quit_S();
 
+		// Button press and touch state.
+		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_GetInputDeviceState_S")]
+		public static extern bool WVR_GetInputDeviceState_S(WVR_DeviceType type, uint inputMask, ref uint buttons, ref uint touches,
+			[In, Out] WVR_AnalogState_t[] analogArray, uint analogArrayCount);
+		public override bool GetInputDeviceState(WVR_DeviceType type, uint inputMask, ref uint buttons, ref uint touches,
+			[In, Out] WVR_AnalogState_t[] analogArray, uint analogArrayCount)
+		{
+			return WVR_GetInputDeviceState_S(type, inputMask, ref buttons, ref touches, analogArray, analogArrayCount);
+		}
+
+		// Count of specified button type.
+		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_GetInputTypeCount_S")]
+		public static extern int WVR_GetInputTypeCount_S(WVR_DeviceType type, WVR_InputType inputType);
+		public override int GetInputTypeCount(WVR_DeviceType type, WVR_InputType inputType)
+		{
+			return WVR_GetInputTypeCount_S(type, inputType);
+		}
+
+
 		[DllImport("wvr_plugins_directpreview", EntryPoint = "WVR_GetInputButtonState_S")]
 		public static extern bool WVR_GetInputButtonState_S(int WVR_DeviceType, int WVR_InputId);
 		public override bool GetInputButtonState(WVR_DeviceType type, WVR_InputId id)

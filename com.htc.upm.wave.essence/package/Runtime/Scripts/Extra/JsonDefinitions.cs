@@ -8,7 +8,10 @@
 // conditions signed by you and all SDK and API requirements,
 // specifications, and documentation provided by HTC to You."
 
+using System;
+using System.Text;
 using UnityEngine;
+using Wave.Native;
 
 namespace Wave.Essence.Extra
 {
@@ -218,14 +221,124 @@ namespace Wave.Essence.Extra
 		public string texture_name;
 	}
 
-	/*
+    /*
+    "hand_styles" : {
+      "default_style": {
+        "thickness": 0.001,
+        "contouringOpacity": 0.5,
+        "fillingOpacity": 0.5,
+        "graColorA": [ 1.0, 1.0, 1.0, 0 ]
+        "graColorB": [ 1.0, 1.0, 1.0, 0 ],
+        "conGraColorA": [ 1.0, 1.0, 1.0, 0 ],
+        "conGraColorB": [ 1.0, 1.0, 1.0, 0 ]
+      },
+      "fusion_style": {
+        "thickness": 0.002,
+        "contouringOpacity": 0.5,
+        "fillingOpacity": 0.5,
+        "graColorA": [ 1.0, 1.0, 1.0, 0 ],
+        "graColorB": [ 1.0, 1.0, 1.0, 0 ],
+        "conGraColorA": [ 1.0, 1.0, 1.0, 0 ],
+        "conGraColorB": [ 1.0, 1.0, 1.0, 0 ]
+      }
+    }
+    **/
+    [System.Serializable]
+    public class JSON_HandStyleDesc
+    {
+        public float thickness;
+        public float contouring_opacity;
+        public float filling_opacity;
+        public float[] gra_color_A;
+        public float[] gra_color_B;
+        public float[] con_gra_color_A;
+        public float[] con_gra_color_B;
+    }
+
+    [System.Serializable]
+    public class JSON_HandModelDesc
+    {
+        public JSON_HandStyleDesc default_style;
+        public JSON_HandStyleDesc fusion_style;
+    }
+
+    public class JSON_HandStyleDesc_Ext
+    {
+        public JSON_HandStyleDesc_Ext()
+        {
+        }
+
+        public JSON_HandStyleDesc_Ext(JSON_HandStyleDesc desc)
+        {
+            try
+            {
+                thickness = desc.thickness;
+                contouring_opacity = desc.contouring_opacity;
+                filling_opacity = desc.filling_opacity;
+                float[] gca = desc.gra_color_A;
+                float[] gcb = desc.gra_color_B;
+                float[] cgca = desc.con_gra_color_A;
+                float[] cgcb = desc.con_gra_color_B;
+                gra_color_A = new Color(gca[0], gca[1], gca[2], gca[3]);
+                gra_color_B = new Color(gcb[0], gcb[1], gcb[2], gcb[3]);
+                con_gra_color_A = new Color(cgca[0], cgca[1], cgca[2], cgca[3]);
+                con_gra_color_B = new Color(cgcb[0], cgcb[1], cgcb[2], cgcb[3]);
+            }
+            catch (Exception e)
+            {
+                Log.e("OEMConfig", "Please check float array size. (It may cause the exception below).");
+                throw e;
+            }
+        }
+
+        public void Dump(StringBuilder sb)
+        {
+            sb
+                .Append("CA=").Append(gra_color_A)
+                .Append(", ").Append("CB=").Append(gra_color_B)
+                .Append(", ").Append("CCA=").Append(con_gra_color_A)
+                .Append(", ").Append("CCB=").Append(con_gra_color_B)
+                .Append(", ").Append("Op=").Append(filling_opacity)
+                .Append(", ").Append("COp=").Append(contouring_opacity)
+                .Append(", ").Append("Th=").Append(thickness);
+        }
+
+        public float thickness;
+        public float contouring_opacity;
+        public float filling_opacity;
+        public Color gra_color_A;
+        public Color gra_color_B;
+        public Color con_gra_color_A;
+        public Color con_gra_color_B;
+    }
+
+    public class JSON_HandModelDesc_Ext
+    {
+        public JSON_HandModelDesc_Ext()
+        {
+            default_style = null;
+            fusion_style = null;
+        }
+
+        // Will throw exception if color array is not 4 element.
+        public JSON_HandModelDesc_Ext(JSON_HandModelDesc desc)
+        {
+            default_style = new JSON_HandStyleDesc_Ext(desc.default_style);
+            fusion_style = new JSON_HandStyleDesc_Ext(desc.fusion_style);
+        }
+        public JSON_HandStyleDesc_Ext default_style;
+        public JSON_HandStyleDesc_Ext fusion_style;
+    }
+
+
+    /*
 	 "controller_pointer":{
 	 "color":[1.0,1.0,1.0,1.0],
 	 "size":1.0 
 	 }
 	not used
 	**/
-	[System.Serializable]
+    [System.Serializable]
 	public class JSON_ControllerPointerDesc
 	{
 		public Color32 color;

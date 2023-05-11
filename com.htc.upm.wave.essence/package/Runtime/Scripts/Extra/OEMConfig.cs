@@ -22,7 +22,10 @@ namespace Wave.Essence.Extra
 		public static JSON_ControllerDesc jcd = null;
 		private static bool hasControllerDesc = false;
 
-		public static JSON_BatteryPolicy batteryPolicy = null;
+        public static JSON_HandModelDesc jhd = null;
+        private static bool hasHandDesc = false;
+
+        public static JSON_BatteryPolicy batteryPolicy = null;
 		private static bool hasBatteryPolicy = false;
 
 		public static JSON_BeamPolicy beamPolicy = null;
@@ -60,6 +63,7 @@ namespace Wave.Essence.Extra
 			hasControllerDesc = false;
 			hasBatteryPolicy = false;
 			hasBeamPolicy = false;
+            hasHandDesc = false;
 
 			json_string = Interop.WVR_GetOEMConfigByKey("controller_property");
 
@@ -84,7 +88,15 @@ namespace Wave.Essence.Extra
 				beamPolicy = JsonUtility.FromJson<JSON_BeamPolicy>(json_string);
 				hasBeamPolicy = true;
 			}
-		}
+
+            json_string = Interop.WVR_GetOEMConfigByKey("hand_styles");
+
+            if (!json_string.Equals(""))
+            {
+                jhd = JsonUtility.FromJson<JSON_HandModelDesc>(json_string);
+                hasHandDesc = true;
+            }
+        }
 
 		public static JSON_BatteryPolicy getBatteryPolicy()
 		{
@@ -115,5 +127,11 @@ namespace Wave.Essence.Extra
 			initOEMConfig();
 			return (hasControllerDesc ? jcd.model : null);
 		}
-	}
+
+        public static JSON_HandModelDesc getHandModelDesc()
+        {
+            initOEMConfig();
+            return (hasHandDesc ? jhd : null);
+        }
+    }
 }

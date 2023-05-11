@@ -68,6 +68,11 @@ namespace Wave.XR.Settings
 			#region Tracker
 			SetBool(WaveXRSettings.EnableTrackerText, appSettings.EnableTracker);
 			#endregion
+
+			#region Hand
+			SetBool(WaveXRSettings.EnableNaturalHandText, appSettings.EnableNaturalHand);
+			SetBool(WaveXRSettings.EnableElectronicHandText, appSettings.EnableElectronicHand);
+			#endregion
 		}
 
 		public const string NameSRGB = "sRGB";

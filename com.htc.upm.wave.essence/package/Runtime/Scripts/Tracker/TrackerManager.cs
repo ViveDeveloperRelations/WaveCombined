@@ -9,14 +9,16 @@
 // specifications, and documentation provided by HTC to You."
 
 using UnityEngine;
-using Wave.Native;
 using Wave.Essence.Events;
+using Wave.Native;
+using Wave.OpenXR;
 using Wave.XR.Settings;
 using System.Collections.Generic;
 using System;
 using System.Threading;
 using System.Diagnostics;
 using UnityEngine.XR;
+using System.Runtime.InteropServices;
 
 namespace Wave.Essence.Tracker
 {
@@ -36,7 +38,7 @@ namespace Wave.Essence.Tracker
 		public enum TrackerStatus
 		{
 			// Initial, can call Start API in this state.
-			NotStart,
+			NotStart = 0,
 			StartFailure,
 
 			// Processing, should NOT call API in this state.
@@ -64,6 +66,10 @@ namespace Wave.Essence.Tracker
 			TrackerId.Tracker2,
 			TrackerId.Tracker3,
 		};
+
+		#region Wave XR Constants
+		const string kTrackerComponentStatus = "TrackerComponentStatus";
+		#endregion
 
 		#region Monobehaviour overrides
 		private void Awake()
@@ -98,14 +104,14 @@ namespace Wave.Essence.Tracker
 
 				s_TrackerButtonStates.Add(s_TrackerIds[i], new TrackerButtonStates());
 
-				s_ButtonAxisType.Add(s_TrackerIds[i], new AxisType[(int)WVR_InputId.WVR_InputId_Max]);
+				s_ButtonAxisType.Add(s_TrackerIds[i], new AxisType[kButtonCount]);
 
-				ss_TrackerPress.Add(s_TrackerIds[i], new bool[(int)WVR_InputId.WVR_InputId_Max]);
-				ss_TrackerPressEx.Add(s_TrackerIds[i], new bool[(int)WVR_InputId.WVR_InputId_Max]);
-				ss_TrackerTouch.Add(s_TrackerIds[i], new bool[(int)WVR_InputId.WVR_InputId_Max]);
-				ss_TrackerTouchEx.Add(s_TrackerIds[i], new bool[(int)WVR_InputId.WVR_InputId_Max]);
+				ss_TrackerPress.Add(s_TrackerIds[i], new bool[kButtonCount]);
+				ss_TrackerPressEx.Add(s_TrackerIds[i], new bool[kButtonCount]);
+				ss_TrackerTouch.Add(s_TrackerIds[i], new bool[kButtonCount]);
+				ss_TrackerTouchEx.Add(s_TrackerIds[i], new bool[kButtonCount]);
 
-				for (int id = 0; id < (int)WVR_InputId.WVR_InputId_Max; id++)
+				for (int id = 0; id < kButtonCount; id++)
 				{
 					s_ButtonAxisType[s_TrackerIds[i]][id] = AxisType.None;
 
@@ -116,6 +122,7 @@ namespace Wave.Essence.Tracker
 				}
 
 				s_TrackerBattery.Add(s_TrackerIds[i], 0);
+				s_TrackerExtData.Add(s_TrackerIds[i], new Int32[12]);
 			}
 		}
 
@@ -145,22 +152,16 @@ namespace Wave.Essence.Tracker
 		static List<InputDevice> s_InputDevices = new List<InputDevice>();
 		private void Update()
 		{
-			if (m_UseXRDevice && !Application.isEditor)
-			{
-				InputDevices.GetDevices(s_InputDevices);
-				for (int i = 0; i < s_TrackerIds.Length; i++)
-				{
-					CheckXRDeviceTrackerConnection(s_TrackerIds[i]);
-					CheckXRDeviceTrackerButtons(s_TrackerIds[i]);
-				}
-			}
+			UpdateTrackerExtData();
+
+			if (m_UseXRDevice && !Application.isEditor) { return; }
+
 			CheckAllTrackerPoseStates();
 		}
 
 		private void OnApplicationPause(bool pause)
 		{
 			DEBUG("OnApplicationPause() " + pause);
-			if (m_UseXRDevice && !Application.isEditor) { return; }
 			if (GetTrackerStatus() != TrackerStatus.Available) { return; }
 			if (!pause)
 			{
@@ -192,7 +193,6 @@ namespace Wave.Essence.Tracker
 
 		private void Start()
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
 			if (GetTrackerStatus() != TrackerStatus.Available) { return; }
 			for (int i = 0; i < s_TrackerIds.Length; i++)
 			{
@@ -272,15 +272,8 @@ namespace Wave.Essence.Tracker
 		{
 			if (m_UseXRDevice && !Application.isEditor)
 			{
-				WaveXRSettings settings = WaveXRSettings.GetInstance();
-				if (settings != null && settings.EnableTracker == false)
-				{
-					DEBUG("StartTrackerLock() Activate WaveXRSettings.EnableTracker.");
-					settings.EnableTracker = true;
-					SettingsHelper.SetBool(WaveXRSettings.EnableTrackerText, true);
-					SetTrackerStatus((settings.EnableTracker ? TrackerStatus.Available : TrackerStatus.NotStart));
-					return;
-				}
+				InputDeviceTracker.ActivateTracker(true);
+				return;
 			}
 
 			if (!CanStartTracker()) { return; }
@@ -302,8 +295,10 @@ namespace Wave.Essence.Tracker
 			DEBUG("StartTrackerLock() result: " + result);
 			if (result == WVR_Result.WVR_Success)
 			{
+				// Check all states anyway when starting the tracker successfully
+				// because the tracker may be connected before starting the tracker.
 				for (int i = 0; i < s_TrackerIds.Length; i++)
-					CheckTrackerConnection(s_TrackerIds[i]);
+					CheckStatusWhenConnectionChanges(s_TrackerIds[i]);
 			}
 
 			if (trackerResultCB != null)
@@ -357,15 +352,8 @@ namespace Wave.Essence.Tracker
 		{
 			if (m_UseXRDevice && !Application.isEditor)
 			{
-				WaveXRSettings settings = WaveXRSettings.GetInstance();
-				if (settings != null && settings.EnableTracker == true)
-				{
-					DEBUG("StopTrackerLock() Deactivate WaveXRSettings.EnableTracker.");
-					settings.EnableTracker = false;
-					SettingsHelper.SetBool(WaveXRSettings.EnableTrackerText, false);
-					SetTrackerStatus((settings.EnableTracker ? TrackerStatus.Available : TrackerStatus.NotStart));
-					return;
-				}
+				InputDeviceTracker.ActivateTracker(false);
+				return;
 			}
 
 			if (!CanStopTracker()) { return; }
@@ -428,22 +416,12 @@ namespace Wave.Essence.Tracker
 			InputDeviceCharacteristics.TrackedDevice |
 			InputDeviceCharacteristics.Left
 		);
-
-		public static bool IsTrackerDevice(InputDevice input, TrackerId trackerId)
-		{
-			if (input.name.Equals(trackerId.Name()) && input.serialNumber.Equals(trackerId.SerialNumber()))
-				return true;
-
-			return false;
-		}
 		#endregion
 
 		#region Connection
 		Dictionary<TrackerId, bool> s_TrackerConnection = new Dictionary<TrackerId, bool>();
 		private void CheckTrackerConnection(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
-
 			bool connected = Interop.WVR_IsTrackerConnected(trackerId.Id());
 			if (s_TrackerConnection[trackerId] != connected)
 			{
@@ -463,8 +441,6 @@ namespace Wave.Essence.Tracker
 		}
 		private void OnTrackerConnected(WVR_Event_t systemEvent)
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
-
 			TrackerId trackerId = systemEvent.tracker.trackerId.Id();
 			DEBUG("OnTrackerConnected() " + trackerId);
 
@@ -476,8 +452,6 @@ namespace Wave.Essence.Tracker
 		}
 		private void OnTrackerDisconnected(WVR_Event_t systemEvent)
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
-
 			TrackerId trackerId = systemEvent.tracker.trackerId.Id();
 			DEBUG("OnTrackerDisconnected() " + trackerId);
 
@@ -487,66 +461,13 @@ namespace Wave.Essence.Tracker
 				CheckStatusWhenConnectionChanges(trackerId);
 			}
 		}
-		private void CheckXRDeviceTrackerConnection(TrackerId trackerId)
-		{
-			if (m_UseXRDevice && !Application.isEditor)
-			{
-				bool foundTracker = false;
-				for (int i = 0; i < s_InputDevices.Count; i++)
-				{
-					if (!s_InputDevices[i].isValid) { continue; }
-
-					if (IsTrackerDevice(s_InputDevices[i], trackerId))
-					{
-						foundTracker = true;
-						break;
-					}
-				}
-
-				if (s_TrackerConnection[trackerId] != foundTracker)
-				{
-					s_TrackerConnection[trackerId] = foundTracker;
-					DEBUG("CheckXRDeviceTrackerConnection() " + trackerId + " is " + (s_TrackerConnection[trackerId] ? "connected." : "disconnected."));
-					CheckStatusWhenConnectionChanges(trackerId);
-				}
-			}
-		}
 		#endregion
 
 		#region Role
 		Dictionary<TrackerId, TrackerRole> s_TrackerRole = new Dictionary<TrackerId, TrackerRole>();
 		private void CheckTrackerRole(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
-			{
-				// Default value.
-				s_TrackerRole[trackerId] = TrackerRole.Undefined;
-
-				for (int i = 0; i < s_InputDevices.Count; i++)
-				{
-					if (!s_InputDevices[i].isValid) { continue; }
-
-					// Found the tracker.
-					if (IsTrackerDevice(s_InputDevices[i], trackerId))
-					{
-						DEBUG("CheckTrackerRole() characteristics: " + s_InputDevices[i].characteristics);
-						if (s_InputDevices[i].characteristics.Equals(kLeftTrackerCharacteristics))
-							s_TrackerRole[trackerId] = TrackerRole.Pair1_Left;
-						else if (s_InputDevices[i].characteristics.Equals(kRightTrackerCharacteristics))
-							s_TrackerRole[trackerId] = TrackerRole.Pair1_Right;
-						else
-							s_TrackerRole[trackerId] = TrackerRole.Standalone;
-					}
-				}
-
-				DEBUG("CheckTrackerRole() " + trackerId
-					+ "[" + trackerId.Name() + "]"
-					+ "[" + trackerId.SerialNumber() + "]"
-					+ ": " + s_TrackerRole[trackerId]);
-				return;
-			}
-
-			if (s_TrackerConnection[trackerId])
+			if (IsTrackerConnected(trackerId))
 			{
 				s_TrackerRole[trackerId] = (Interop.WVR_GetTrackerRole(trackerId.Id())).Id();
 				DEBUG("CheckTrackerRole() " + trackerId + " role: " + s_TrackerRole[trackerId]);
@@ -571,7 +492,7 @@ namespace Wave.Essence.Tracker
 		}
 		private void CheckTrackerCapbility(TrackerId trackerId)
 		{
-			if (s_TrackerConnection[trackerId])
+			if (IsTrackerConnected(trackerId))
 			{
 				WVR_Result result = Interop.WVR_GetTrackerCapabilities(trackerId.Id(), ref s_TrackerCaps[trackerId.Num()]);
 				if (result != WVR_Result.WVR_Success) { ResetTrackerCapability(trackerId); }
@@ -602,46 +523,18 @@ namespace Wave.Essence.Tracker
 				rigid = RigidTransform.identity;
 			}
 		}
+		WVR_PoseOriginModel originModel = WVR_PoseOriginModel.WVR_PoseOriginModel_OriginOnHead;
 		Dictionary<TrackerId, TrackerPose> s_TrackerPoses = new Dictionary<TrackerId, TrackerPose>();
 		private void CheckTrackerPoseState(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
-			{
-				// Default value.
-				s_TrackerPoses[trackerId].valid = false;
-				s_TrackerPoses[trackerId].rigid = RigidTransform.identity;
+			ClientInterface.GetOrigin(ref originModel);
 
-				for (int i = 0; i < s_InputDevices.Count; i++)
-				{
-					if (!s_InputDevices[i].isValid) { continue; }
-
-					// Found the tracker.
-					if (IsTrackerDevice(s_InputDevices[i], trackerId))
-					{
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.isTracked, out bool validPose))
-						{
-							s_TrackerPoses[trackerId].valid = validPose;
-						}
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position))
-						{
-							s_TrackerPoses[trackerId].rigid.pos = position;
-						}
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rotation))
-						{
-							s_TrackerPoses[trackerId].rigid.rot = rotation;
-						}
-					}
-				}
-
-				return;
-			}
-
-			if (s_TrackerConnection[trackerId] && s_TrackerCaps[trackerId.Num()].supportsOrientationTracking)
+			if (IsTrackerConnected(trackerId) && s_TrackerCaps[trackerId.Num()].supportsOrientationTracking)
 			{
 				WVR_PoseOriginModel origin = WVR_PoseOriginModel.WVR_PoseOriginModel_OriginOnHead_3DoF;
 				if (s_TrackerCaps[trackerId.Num()].supportsPositionTracking)
 				{
-					origin = WVR_PoseOriginModel.WVR_PoseOriginModel_OriginOnHead;
+					origin = originModel;
 				}
 
 				WVR_PoseState_t pose = new WVR_PoseState_t();
@@ -672,17 +565,17 @@ namespace Wave.Essence.Tracker
 		Dictionary<TrackerId, Int32> s_TrackerAnalogBits = new Dictionary<TrackerId, Int32>();
 		private void CheckTrackerInputs(TrackerId trackerId)
 		{
-			s_TrackerButtonBits[trackerId] = s_TrackerConnection[trackerId] ?
+			s_TrackerButtonBits[trackerId] = IsTrackerConnected(trackerId) ?
 				(s_TrackerCaps[trackerId.Num()].supportsInputDevice ?
 					Interop.WVR_GetTrackerInputDeviceCapability(trackerId.Id(), WVR_InputType.WVR_InputType_Button) : 0
 				) : 0;
 
-			s_TrackerTouchBits[trackerId] = s_TrackerConnection[trackerId] ?
+			s_TrackerTouchBits[trackerId] = IsTrackerConnected(trackerId) ?
 				(s_TrackerCaps[trackerId.Num()].supportsInputDevice ?
 					Interop.WVR_GetTrackerInputDeviceCapability(trackerId.Id(), WVR_InputType.WVR_InputType_Touch) : 0
 				) : 0;
 
-			s_TrackerAnalogBits[trackerId] = s_TrackerConnection[trackerId] ?
+			s_TrackerAnalogBits[trackerId] = IsTrackerConnected(trackerId) ?
 				(s_TrackerCaps[trackerId.Num()].supportsInputDevice ?
 					Interop.WVR_GetTrackerInputDeviceCapability(trackerId.Id(), WVR_InputType.WVR_InputType_Analog) : 0
 				) : 0;
@@ -720,30 +613,33 @@ namespace Wave.Essence.Tracker
 		Dictionary<TrackerId, AxisType[]> s_ButtonAxisType = new Dictionary<TrackerId, AxisType[]>();
 		private void CheckTrackerButtonAnalog(TrackerId trackerId)
 		{
-			for (uint id = 0; id < (uint)WVR_InputId.WVR_InputId_Max; id++)
+			for (uint id = 0; id < kButtonCount; id++)
 			{
-				s_ButtonAxisType[trackerId][id] = s_TrackerConnection[trackerId] ?
+				if (!id.ValidWVRInputId()) { continue; }
+
+				s_ButtonAxisType[trackerId][id] = IsTrackerConnected(trackerId) ?
 					(IsTrackerInputAvailable(trackerId, WVR_InputType.WVR_InputType_Analog, id) ?
 						(Interop.WVR_GetTrackerInputDeviceAnalogType(trackerId.Id(), (WVR_InputId)id)).Id() : AxisType.None
 					) : AxisType.None;
 			}
 			DEBUG("CheckTrackerButtonAnalog() " + trackerId
-				+ ", system: " + s_ButtonAxisType[trackerId][WVR_InputId.WVR_InputId_Alias1_System.Num()]
-				+ ", menu: " + s_ButtonAxisType[trackerId][WVR_InputId.WVR_InputId_Alias1_Menu.Num()]
-				+ ", A: " + s_ButtonAxisType[trackerId][WVR_InputId.WVR_InputId_Alias1_A.Num()]
-				+ ", B: " + s_ButtonAxisType[trackerId][WVR_InputId.WVR_InputId_Alias1_B.Num()]);
+				+ ", system: " + s_ButtonAxisType[trackerId][WVR_InputId.WVR_InputId_Alias1_System.ArrayIndex()]
+				+ ", menu: " + s_ButtonAxisType[trackerId][WVR_InputId.WVR_InputId_Alias1_Menu.ArrayIndex()]
+				+ ", A: " + s_ButtonAxisType[trackerId][WVR_InputId.WVR_InputId_Alias1_A.ArrayIndex()]
+				+ ", B: " + s_ButtonAxisType[trackerId][WVR_InputId.WVR_InputId_Alias1_B.ArrayIndex()]);
 		}
 		#endregion
 
 		#region Button State
+		const uint kButtonCount = (uint)WVR_InputId.WVR_InputId_Max;
 		class TrackerButtonStates
 		{
-			public bool[] s_ButtonPress = new bool[(int)WVR_InputId.WVR_InputId_Max];
-			public int[] s_ButtonPressFrame = new int[(int)WVR_InputId.WVR_InputId_Max];
-			public bool[] s_ButtonTouch = new bool[(int)WVR_InputId.WVR_InputId_Max];
-			public int[] s_ButtonTouchFrame = new int[(int)WVR_InputId.WVR_InputId_Max];
-			public Vector2[] s_ButtonAxis = new Vector2[(int)WVR_InputId.WVR_InputId_Max];
-			public int[] s_ButtonAxisFrame = new int[(int)WVR_InputId.WVR_InputId_Max];
+			public bool[] s_ButtonPress = new bool[kButtonCount];
+			public int[] s_ButtonPressFrame = new int[kButtonCount];
+			public bool[] s_ButtonTouch = new bool[kButtonCount];
+			public int[] s_ButtonTouchFrame = new int[kButtonCount];
+			public Vector2[] s_ButtonAxis = new Vector2[kButtonCount];
+			public int[] s_ButtonAxisFrame = new int[kButtonCount];
 
 			public TrackerButtonStates()
 			{
@@ -763,7 +659,7 @@ namespace Wave.Essence.Tracker
 		/// <summary> Checks all buttons' states of a TrackerId. Do NOT call this function every frame. </summary>
 		private void CheckAllTrackerButtons(TrackerId trackerId)
 		{
-			if (!s_TrackerConnection[trackerId]) { return; }
+			if (!IsTrackerConnected(trackerId)) { return; }
 
 			CheckAllTrackerButton(trackerId, WVR_InputType.WVR_InputType_Button);
 			CheckAllTrackerButton(trackerId, WVR_InputType.WVR_InputType_Touch);
@@ -772,30 +668,26 @@ namespace Wave.Essence.Tracker
 		/// <summary> Checks all buttons' states of a TrackerId and WVR_InputType. Do NOT call this function every frame. </summary>
 		private void CheckAllTrackerButton(TrackerId trackerId, WVR_InputType cap)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
+			for (uint id = 0; id < kButtonCount; id++)
 			{
-				DEBUG("CheckAllTrackerButton() " + trackerId + " is not updated.");
-				return;
-			}
+				if (!id.ValidWVRInputId()) { continue; }
 
-			for (uint id = 0; id < (uint)WVR_InputId.WVR_InputId_Max; id++)
-			{
 				switch (cap)
 				{
 					case WVR_InputType.WVR_InputType_Button:
-						s_TrackerButtonStates[trackerId].s_ButtonPress[id] = s_TrackerConnection[trackerId] ?
+						s_TrackerButtonStates[trackerId].s_ButtonPress[id] = IsTrackerConnected(trackerId) ?
 							(IsTrackerInputAvailable(trackerId, cap, id) ?
 								Interop.WVR_GetTrackerInputButtonState(trackerId.Id(), (WVR_InputId)id) : false
 							) : false;
 						break;
 					case WVR_InputType.WVR_InputType_Touch:
-						s_TrackerButtonStates[trackerId].s_ButtonTouch[id] = s_TrackerConnection[trackerId] ?
+						s_TrackerButtonStates[trackerId].s_ButtonTouch[id] = IsTrackerConnected(trackerId) ?
 							(IsTrackerInputAvailable(trackerId, cap, id) ?
 								Interop.WVR_GetTrackerInputTouchState(trackerId.Id(), (WVR_InputId)id) : false
 							) : false;
 						break;
 					case WVR_InputType.WVR_InputType_Analog:
-						if (s_TrackerConnection[trackerId] && IsTrackerInputAvailable(trackerId, cap, id))
+						if (IsTrackerConnected(trackerId) && IsTrackerInputAvailable(trackerId, cap, id))
 						{
 							WVR_Axis_t axis = Interop.WVR_GetTrackerInputAnalogAxis(trackerId.Id(), (WVR_InputId)id);
 							s_TrackerButtonStates[trackerId].s_ButtonAxis[id].x = axis.x;
@@ -811,170 +703,45 @@ namespace Wave.Essence.Tracker
 				}
 			}
 		}
-		private void CheckXRDeviceTrackerButtons(TrackerId trackerId)
-		{
-			if (m_UseXRDevice && !Application.isEditor)
-			{
-				// Default value.
-				for (uint id = 0; id < (uint)WVR_InputId.WVR_InputId_Max; id++)
-				{
-					s_TrackerButtonStates[trackerId].s_ButtonPress[id] = false;
-					s_TrackerButtonStates[trackerId].s_ButtonTouch[id] = false;
-				}
-
-				for (int i = 0; i < s_InputDevices.Count; i++)
-				{
-					if (!s_InputDevices[i].isValid) { continue; }
-					if (!IsTrackerDevice(s_InputDevices[i], trackerId)) { continue; }
-
-					/**
-					 * Button press
-					 **/
-					{
-						// ------------------------ A or X ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.primaryButton, out bool pressAX))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_A.Num()] = pressAX;
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_X.Num()] = pressAX;
-						}
-						// ------------------------ B or Y ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.secondaryButton, out bool pressBY))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_B.Num()] = pressBY;
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_Y.Num()] = pressBY;
-						}
-						// ------------------------ Grip ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.gripButton, out bool pressGrip))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_Grip.Num()] = pressGrip;
-						}
-						// ------------------------ Trigger ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.triggerButton, out bool pressTrigger))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_Trigger.Num()] = pressTrigger;
-						}
-						// ------------------------ Menu ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.menuButton, out bool pressMenu))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_Menu.Num()] = pressMenu;
-						}
-						// ------------------------ Touchpad ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool pressTouchpad))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_Touchpad.Num()] = pressTouchpad;
-						}
-						// ------------------------ Thumbstick ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.secondary2DAxisClick, out bool pressThumbstick))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonPress[WVR_InputId.WVR_InputId_Alias1_Thumbstick.Num()] = pressThumbstick;
-						}
-					}
-
-					/**
-					 * Button touch
-					 **/
-					{
-						// ------------------------ A or X ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.primaryTouch, out bool touchAX))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonTouch[WVR_InputId.WVR_InputId_Alias1_A.Num()] = touchAX;
-							s_TrackerButtonStates[trackerId].s_ButtonTouch[WVR_InputId.WVR_InputId_Alias1_X.Num()] = touchAX;
-						}
-						// ------------------------ B or Y ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.secondaryTouch, out bool touchBY))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonTouch[WVR_InputId.WVR_InputId_Alias1_B.Num()] = touchBY;
-							s_TrackerButtonStates[trackerId].s_ButtonTouch[WVR_InputId.WVR_InputId_Alias1_Y.Num()] = touchBY;
-						}
-						// ------------------------ Touchpad ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.primary2DAxisTouch, out bool touchTouchpad))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonTouch[WVR_InputId.WVR_InputId_Alias1_Touchpad.Num()] = touchTouchpad;
-						}
-						// ------------------------ Thumbstick ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.secondary2DAxisTouch, out bool touchThumbstick))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonTouch[WVR_InputId.WVR_InputId_Alias1_Thumbstick.Num()] = touchThumbstick;
-						}
-					}
-
-					/**
-					 * Button axis
-					 **/
-					{
-						// ------------------------ Trigger ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.trigger, out float axisTrigger))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonAxis[WVR_InputId.WVR_InputId_Alias1_Trigger.Num()].x = axisTrigger;
-							s_TrackerButtonStates[trackerId].s_ButtonAxis[WVR_InputId.WVR_InputId_Alias1_Trigger.Num()].y = 0;
-						}
-						// ------------------------ Grip ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.grip, out float axisGrip))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonAxis[WVR_InputId.WVR_InputId_Alias1_Grip.Num()].x = axisGrip;
-							s_TrackerButtonStates[trackerId].s_ButtonAxis[WVR_InputId.WVR_InputId_Alias1_Grip.Num()].y = 0;
-						}
-						// ------------------------ Touchpad ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 axisTouchpad))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonAxis[WVR_InputId.WVR_InputId_Alias1_Touchpad.Num()] = axisTouchpad;
-						}
-						// ------------------------ Thumbstick ------------------------
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.secondary2DAxis, out Vector2 axisThumbstick))
-						{
-							s_TrackerButtonStates[trackerId].s_ButtonAxis[WVR_InputId.WVR_InputId_Alias1_Thumbstick.Num()] = axisThumbstick;
-						}
-					}
-				}
-			}
-		}
 
 		private void OnTrackerButtonPressed(WVR_Event_t systemEvent)
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
-
 			TrackerId trackerId = systemEvent.trackerInput.tracker.trackerId.Id();
 			WVR_InputId id = systemEvent.trackerInput.inputId;
 			DEBUG("OnTrackerButtonPressed() " + trackerId + ", " + id);
 
-			s_TrackerButtonStates[trackerId].s_ButtonPress[id.Num()] = true;
+			s_TrackerButtonStates[trackerId].s_ButtonPress[id.ArrayIndex()] = true;
 		}
 		private void OnTrackerButtonUnpressed(WVR_Event_t systemEvent)
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
-
 			TrackerId trackerId = systemEvent.trackerInput.tracker.trackerId.Id();
 			WVR_InputId id = systemEvent.trackerInput.inputId;
 			DEBUG("OnTrackerButtonUnpressed() " + trackerId + ", " + id);
 
-			s_TrackerButtonStates[trackerId].s_ButtonPress[id.Num()] = false;
+			s_TrackerButtonStates[trackerId].s_ButtonPress[id.ArrayIndex()] = false;
 		}
 		private void OnTrackerTouchTapped(WVR_Event_t systemEvent)
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
-
 			TrackerId trackerId = systemEvent.trackerInput.tracker.trackerId.Id();
 			WVR_InputId id = systemEvent.trackerInput.inputId;
 			DEBUG("OnTrackerTouchTapped() " + trackerId + ", " + id);
 
-			s_TrackerButtonStates[trackerId].s_ButtonTouch[id.Num()] = true;
+			s_TrackerButtonStates[trackerId].s_ButtonTouch[id.ArrayIndex()] = true;
 		}
 		private void OnTrackerTouchUntapped(WVR_Event_t systemEvent)
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
-
 			TrackerId trackerId = systemEvent.trackerInput.tracker.trackerId.Id();
 			WVR_InputId id = systemEvent.trackerInput.inputId;
 			DEBUG("OnTrackerTouchUntapped() " + trackerId + ", " + id);
 
-			s_TrackerButtonStates[trackerId].s_ButtonTouch[id.Num()] = false;
+			s_TrackerButtonStates[trackerId].s_ButtonTouch[id.ArrayIndex()] = false;
 		}
 
 		bool AllowUpdateTrackerButton(TrackerId trackerId, WVR_InputId id)
 		{
-			if (s_TrackerButtonStates[trackerId].s_ButtonPressFrame[id.Num()] != Time.frameCount)
+			if (s_TrackerButtonStates[trackerId].s_ButtonPressFrame[id.ArrayIndex()] != Time.frameCount)
 			{
-				s_TrackerButtonStates[trackerId].s_ButtonPressFrame[id.Num()] = Time.frameCount;
+				s_TrackerButtonStates[trackerId].s_ButtonPressFrame[id.ArrayIndex()] = Time.frameCount;
 				return true;
 			}
 			return false;
@@ -985,16 +752,16 @@ namespace Wave.Essence.Tracker
 		{
 			if (AllowUpdateTrackerButton(trackerId, id))
 			{
-				ss_TrackerPressEx[trackerId][id.Num()] = ss_TrackerPress[trackerId][id.Num()];
-				ss_TrackerPress[trackerId][id.Num()] = s_TrackerButtonStates[trackerId].s_ButtonPress[id.Num()];
+				ss_TrackerPressEx[trackerId][id.ArrayIndex()] = ss_TrackerPress[trackerId][id.ArrayIndex()];
+				ss_TrackerPress[trackerId][id.ArrayIndex()] = s_TrackerButtonStates[trackerId].s_ButtonPress[id.ArrayIndex()];
 			}
 		}
 
 		bool AllowUpdateTrackerTouch(TrackerId trackerid, WVR_InputId id)
 		{
-			if (s_TrackerButtonStates[trackerid].s_ButtonTouchFrame[id.Num()] != Time.frameCount)
+			if (s_TrackerButtonStates[trackerid].s_ButtonTouchFrame[id.ArrayIndex()] != Time.frameCount)
 			{
-				s_TrackerButtonStates[trackerid].s_ButtonTouchFrame[id.Num()] = Time.frameCount;
+				s_TrackerButtonStates[trackerid].s_ButtonTouchFrame[id.ArrayIndex()] = Time.frameCount;
 				return true;
 			}
 			return false;
@@ -1005,16 +772,16 @@ namespace Wave.Essence.Tracker
 		{
 			if (AllowUpdateTrackerTouch(trackerId, id))
 			{
-				ss_TrackerTouchEx[trackerId][id.Num()] = ss_TrackerTouch[trackerId][id.Num()];
-				ss_TrackerTouch[trackerId][id.Num()] = s_TrackerButtonStates[trackerId].s_ButtonTouch[id.Num()];
+				ss_TrackerTouchEx[trackerId][id.ArrayIndex()] = ss_TrackerTouch[trackerId][id.ArrayIndex()];
+				ss_TrackerTouch[trackerId][id.ArrayIndex()] = s_TrackerButtonStates[trackerId].s_ButtonTouch[id.ArrayIndex()];
 			}
 		}
 
 		bool AllowUpdateTrackerAxis(TrackerId trackerId, WVR_InputId id)
 		{
-			if (s_TrackerButtonStates[trackerId].s_ButtonAxisFrame[id.Num()] != Time.frameCount)
+			if (s_TrackerButtonStates[trackerId].s_ButtonAxisFrame[id.ArrayIndex()] != Time.frameCount)
 			{
-				s_TrackerButtonStates[trackerId].s_ButtonAxisFrame[id.Num()] = Time.frameCount;
+				s_TrackerButtonStates[trackerId].s_ButtonAxisFrame[id.ArrayIndex()] = Time.frameCount;
 				return true;
 			}
 
@@ -1022,20 +789,18 @@ namespace Wave.Essence.Tracker
 		}
 		private void UpdateTrackerAxis(TrackerId trackerId, WVR_InputId id)
 		{
-			if (m_UseXRDevice && !Application.isEditor) { return; }
-
 			if (IsTrackerInputAvailable(trackerId, WVR_InputType.WVR_InputType_Analog, (uint)id))
 			{
 				if (AllowUpdateTrackerAxis(trackerId, id))
 				{
 					WVR_Axis_t axis = Interop.WVR_GetTrackerInputAnalogAxis(trackerId.Id(), id);
-					s_TrackerButtonStates[trackerId].s_ButtonAxis[id.Num()].x = axis.x;
-					s_TrackerButtonStates[trackerId].s_ButtonAxis[id.Num()].y = axis.y;
+					s_TrackerButtonStates[trackerId].s_ButtonAxis[id.ArrayIndex()].x = axis.x;
+					s_TrackerButtonStates[trackerId].s_ButtonAxis[id.ArrayIndex()].y = axis.y;
 				}
 			}
 			else
 			{
-				s_TrackerButtonStates[trackerId].s_ButtonAxis[id.Num()] = Vector2.zero;
+				s_TrackerButtonStates[trackerId].s_ButtonAxis[id.ArrayIndex()] = Vector2.zero;
 			}
 		}
 		#endregion
@@ -1044,33 +809,7 @@ namespace Wave.Essence.Tracker
 		Dictionary<TrackerId, float> s_TrackerBattery = new Dictionary<TrackerId, float>();
 		private void CheckTrackerBattery(TrackerId trackerId)
 		{
-			if (m_UseXRDevice && !Application.isEditor)
-			{
-				// Default value.
-				s_TrackerBattery[trackerId] = 0;
-
-				for (int i = 0; i < s_InputDevices.Count; i++)
-				{
-					if (!s_InputDevices[i].isValid) { continue; }
-
-					// Found the tracker.
-					if (IsTrackerDevice(s_InputDevices[i], trackerId))
-					{
-						if (s_InputDevices[i].TryGetFeatureValue(CommonUsages.batteryLevel, out float batteryLife))
-						{
-							s_TrackerBattery[trackerId] = batteryLife;
-						}
-					}
-				}
-
-				DEBUG("CheckTrackerBattery() " + trackerId
-					+ "[" + trackerId.Name() + "]"
-					+ "[" + trackerId.SerialNumber() + "]"
-					+ ": " + s_TrackerBattery[trackerId]);
-				return;
-			}
-
-			s_TrackerBattery[trackerId] = s_TrackerConnection[trackerId] ?
+			s_TrackerBattery[trackerId] = IsTrackerConnected(trackerId) ?
 				(s_TrackerCaps[trackerId.Num()].supportsBatteryLevel
 					? Interop.WVR_GetTrackerBatteryLevel(trackerId.Id()) : 0
 				) : 0;
@@ -1092,28 +831,10 @@ namespace Wave.Essence.Tracker
 
 			if (m_UseXRDevice && !Application.isEditor)
 			{
-				// Default value.
-				s_TrackerBattery[trackerId] = 0;
-
-				for (int i = 0; i < s_InputDevices.Count; i++)
-				{
-					if (!s_InputDevices[i].isValid) { continue; }
-
-					// Found the tracker.
-					if (IsTrackerDevice(s_InputDevices[i], trackerId))
-					{
-						DEBUG("CheckTrackerRole() " + trackerId
-							+ "[" + trackerId.Name() + "]"
-							+ "[" + trackerId.SerialNumber() + "]"
-							+ ": " + durationSec.ToString() + ", " + amplitude);
-						return s_InputDevices[i].SendHapticImpulse(0, amplitude, durationSec);
-					}
-				}
-
-				return false;
+				return InputDeviceTracker.HapticPulse(trackerId.InputDevice(), durationMicroSec, frequency, amplitude);
 			}
 
-			if (s_TrackerConnection[trackerId] && s_TrackerCaps[trackerId.Num()].supportsHapticVibration)
+			if (IsTrackerConnected(trackerId) && s_TrackerCaps[trackerId.Num()].supportsHapticVibration)
 			{
 				WVR_Result result = Interop.WVR_TriggerTrackerVibration(trackerId.Id(), durationMicroSec, frequency, amplitude);
 				DEBUG("TriggerTrackerVibration() " + trackerId);
@@ -1125,9 +846,50 @@ namespace Wave.Essence.Tracker
 		}
 		#endregion
 
+		#region Extended Data
+		const int kTrackerExtDataTypeSize = 4;
+		private Dictionary<TrackerId, Int32[]> s_TrackerExtData = new Dictionary<TrackerId, Int32[]>();
+		private void UpdateTrackerExtData()
+		{
+			for (int i = 0; i < s_TrackerIds.Length; i++)
+			{
+				if (!IsTrackerConnected(s_TrackerIds[i])) { continue; }
+
+				Int32 exDataSize = 0;
+				IntPtr exData = Interop.WVR_GetTrackerExtendedData(s_TrackerIds[i].Id(), ref exDataSize);
+
+				if (exDataSize > 0)
+				{
+					s_TrackerExtData[s_TrackerIds[i]] = new Int32[exDataSize];
+					for (int d = 0; d < exDataSize; d++)
+					{
+						s_TrackerExtData[s_TrackerIds[i]][d] = Marshal.ReadInt32(exData, d * kTrackerExtDataTypeSize);
+					}
+				}
+			}
+		}
+		#endregion
+
 		#region Public Interface
 		public TrackerStatus GetTrackerStatus()
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				TrackerStatus status = TrackerStatus.NotStart;
+				uint statusId = (uint)status;
+
+				SettingsHelper.GetInt(kTrackerComponentStatus, ref statusId);
+
+				if (statusId == 0) { status = TrackerStatus.NotStart; }
+				if (statusId == 1) { status = TrackerStatus.StartFailure; }
+				if (statusId == 2) { status = TrackerStatus.Starting; }
+				if (statusId == 3) { status = TrackerStatus.Stopping; }
+				if (statusId == 4) { status = TrackerStatus.Available; }
+				if (statusId == 5) { status = TrackerStatus.NoSupport; }
+
+				return status;
+			}
+
 			try
 			{
 				m_TrackerStatusRWLock.TryEnterReadLock(2000);
@@ -1146,30 +908,74 @@ namespace Wave.Essence.Tracker
 
 		public bool IsTrackerConnected(TrackerId trackerId)
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				return InputDeviceTracker.IsAvailable(trackerId.InputDevice());
+			}
+
 			return s_TrackerConnection[trackerId];
 		}
 
 		public TrackerRole GetTrackerRole(TrackerId trackerId)
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				return InputDeviceTracker.GetRole(trackerId.InputDevice()).Role();
+			}
+
 			return s_TrackerRole[trackerId];
 		}
 
 		public bool GetTrackerPosition(TrackerId trackerId, out Vector3 position)
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				return InputDeviceTracker.GetPosition(trackerId.InputDevice(), out position);
+			}
+
 			position = s_TrackerPoses[trackerId].rigid.pos;
 			return s_TrackerPoses[trackerId].valid;
 		}
 		public Vector3 GetTrackerPosition(TrackerId trackerId)
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				if (GetTrackerPosition(trackerId, out Vector3 value))
+				{
+					return value;
+				}
+				else
+				{
+					return Vector3.zero;
+				}
+			}
+
 			return s_TrackerPoses[trackerId].rigid.pos;
 		}
 		public bool GetTrackerRotation(TrackerId trackerId, out Quaternion rotation)
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				return InputDeviceTracker.GetRotation(trackerId.InputDevice(), out rotation);
+			}
+
 			rotation = s_TrackerPoses[trackerId].rigid.rot;
 			return s_TrackerPoses[trackerId].valid;
 		}
 		public Quaternion GetTrackerRotation(TrackerId trackerId)
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				if (GetTrackerRotation(trackerId, out Quaternion value))
+				{
+					return value;
+				}
+				else
+				{
+					return Quaternion.identity;
+				}
+			}
+
 			return s_TrackerPoses[trackerId].rigid.rot;
 		}
 
@@ -1210,13 +1016,39 @@ namespace Wave.Essence.Tracker
 		}
 		public Vector2 TrackerButtonAxis(TrackerId trackerId, TrackerButton id)
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				if (id == TrackerButton.Trigger)
+				{
+					Vector2 axis = Vector2.zero;
+					if (InputDeviceTracker.ButtonAxis(trackerId.InputDevice(), CommonUsages.trigger, out float value))
+					{
+						axis.x = value;
+						return axis;
+					}
+				}
+
+				return Vector2.zero;
+			}
+
 			UpdateTrackerAxis(trackerId, id.Id());
 			return s_TrackerButtonStates[trackerId].s_ButtonAxis[id.Num()];
 		}
 
 		public float GetTrackerBatteryLife(TrackerId trackerId)
 		{
+			if (m_UseXRDevice && !Application.isEditor)
+			{
+				if (InputDeviceTracker.BatteryLevel(trackerId.InputDevice(), out float value))
+					return value;
+
+				return 0;
+			}
 			return s_TrackerBattery[trackerId];
+		}
+		public Int32[] GetTrackerExtData(TrackerId trackerId)
+		{
+			return s_TrackerExtData[trackerId];
 		}
 		#endregion
 	}

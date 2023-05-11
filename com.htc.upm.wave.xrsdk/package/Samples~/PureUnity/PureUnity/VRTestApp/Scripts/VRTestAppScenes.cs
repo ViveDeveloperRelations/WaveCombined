@@ -99,16 +99,16 @@ namespace Wave.Generic.Sample
 				new SceneData(Entry, "319 Natural Hand", "NaturalHand"),
 				new SceneData(Entry, "320 Hand Gesture", "HandGesture"),
 
-				new SceneData(Entry, "307 Movie Mode (no exit)", "MovieMode", NoHelp, NotForPC, cfgD),
+				//new SceneData(Entry, "307 Movie Mode (no exit)", "MovieMode", NoHelp, NotForPC, cfgD),
 				new SceneData(Entry, "308 RenderDoc", "RenderDocSample", NoHelp, NotForPC, cfgR),
 				//new SceneData(Entry, "309 MSAA On/Off", "MSAAOnOffTest", NoHelp, NotForPC),
 				new SceneData(Entry, "310 StereoRenderMode", "StereoRenderMode"),
 				new SceneData(Entry, "311 RenderMask Test", "RenderMask_Test"),
 
-				new SceneData(Entry, "312 Balls Room", "BallsRoom", NoHelp, NotForPC),
-				new SceneData(NotEntry, NoTitle, "BallRoom"),
-				new SceneData(NotEntry, NoTitle, "BallRoomAnimation"),
-				new SceneData(NotEntry, NoTitle, "BallRoomPhysical"),
+				new SceneData(Entry, "312 Balls Room", "BallsRoom", NoHelp, NotForPC, cfgV),
+				new SceneData(NotEntry, NoTitle, "BallRoom", NoHelp, NotForPC, cfgV),
+				new SceneData(NotEntry, NoTitle, "BallRoomAnimation", NoHelp, NotForPC, cfgV),
+				new SceneData(NotEntry, NoTitle, "BallRoomPhysical", NoHelp, NotForPC, cfgV),
 
 				new SceneData(Entry, "313 AMC Test", "AMCTest", NoHelp, NotForPC),
 
@@ -119,6 +119,8 @@ namespace Wave.Generic.Sample
 				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_Quad_Underlay", NoHelp, NotForPC),
 				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_Cylinder_Overlay", NoHelp, NotForPC),
 				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_Cylinder_Underlay", NoHelp, NotForPC),
+				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_UICanvasOverlay", NoHelp, NotForPC),
+				new SceneData(NotEntry, NoTitle, "CompositorLayerTest_UICanvasUnderlay", NoHelp, NotForPC),
 
 				new SceneData(Entry, "316 Hand Model Test", "HandModelTest", NoHelp, NotForPC),
 				new SceneData(Entry, "317 Battery Test", "Battery_Test", NoHelp, NotForPC),

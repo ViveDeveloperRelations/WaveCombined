@@ -48,15 +48,15 @@ namespace Wave.Essence.Tracker.Editor
 
 			GUILayout.Space(5);
 			EditorGUILayout.HelpBox(
-				"Retrieve the Tracker data from UnityEngine.XR.InputDevice.",
-				MessageType.Info);
-			EditorGUILayout.PropertyField(m_UseXRDevice);
-
-			GUILayout.Space(5);
-			EditorGUILayout.HelpBox(
 				"Activate the Tracker interface when AP starts.",
 				MessageType.Info);
 			EditorGUILayout.PropertyField(m_InitialStartTracker);
+
+			GUILayout.Space(5);
+			EditorGUILayout.HelpBox(
+				"Retrieve the Tracker data from UnityEngine.XR.InputDevice.",
+				MessageType.Info);
+			EditorGUILayout.PropertyField(m_UseXRDevice);
 
 			serializedObject.ApplyModifiedProperties();
 

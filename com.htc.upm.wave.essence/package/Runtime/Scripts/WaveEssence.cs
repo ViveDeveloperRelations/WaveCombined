@@ -398,6 +398,7 @@ namespace Wave.Essence
 		}
 		uint inputTypeLeft = (uint)(WVR_InputType.WVR_InputType_Button | WVR_InputType.WVR_InputType_Touch | WVR_InputType.WVR_InputType_Analog);
 		uint inputTypeRight = (uint)(WVR_InputType.WVR_InputType_Button | WVR_InputType.WVR_InputType_Touch | WVR_InputType.WVR_InputType_Analog);
+		WVR_AnalogState_t[] analogState = new WVR_AnalogState_t[(int)WVR_InputId.WVR_InputId_Max];
 		private void UpdateEventButtonsController(WVR_DeviceType dev)
 		{
 			if (!m_Connected[dev]) return;
@@ -419,7 +420,10 @@ namespace Wave.Essence
 
 			if (analogCount > 0)
 			{
-				WVR_AnalogState_t[] analogState = new WVR_AnalogState_t[analogCount];
+				if (analogState == null || analogState.Length < analogCount)
+				{
+					analogState = new WVR_AnalogState_t[analogCount];
+				}
 
 				if (Interop.WVR_GetInputDeviceState(dev, inputType, ref buttons, ref touches, analogState, (uint)analogCount))
 				{
@@ -431,14 +435,14 @@ namespace Wave.Essence
 						if (s_EventPress[(uint)dev, id] != pressed)
 						{
 							s_EventPress[(uint)dev, id] = pressed;
-							DEBUG("UpdateEventButtonsController() " + dev + " button " + id + " is " + (pressed ? "pressed." : "released."));
+							DEBUG("UpdateEventButtonsController() " + dev + ", analogCount: " + analogCount + ", button " + id + " is " + (pressed ? "pressed." : "released."));
 						}
 						/// Touch
 						bool touched = ((touches & input) == input);
 						if (s_EventTouch[(uint)dev, id] != touched)
 						{
 							s_EventTouch[(uint)dev, id] = touched;
-							DEBUG("UpdateEventButtonsController() " + dev + " button " + id + " is " + (touched ? "touched." : "untouched."));
+							DEBUG("UpdateEventButtonsController() " + dev + ", analogCount: " + analogCount + ", button " + id + " is " + (touched ? "touched." : "untouched."));
 						}
 						/// Axis
 						if (s_EventTouch[(uint)dev, id])

@@ -310,6 +310,13 @@ namespace Wave.Native
 		{
 			return WVR_TriggerTrackerVibration(trackerId, durationMicroSec, frequency, amplitude);
 		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetTrackerExtendedData", CallingConvention = CallingConvention.Cdecl)]
+		public static extern IntPtr WVR_GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize);
+		public override IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize)
+		{
+			return WVR_GetTrackerExtendedData(trackerId, ref exDataSize);
+		}
 		#endregion
 
 		#region wvr_arena.h
@@ -500,6 +507,20 @@ namespace Wave.Native
 		public override bool ControllerSupportElectronicHand()
 		{
 			return WVR_ControllerSupportElectronicHand();
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_EnhanceHandStable", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void WVR_EnhanceHandStable(bool wear);
+		public override void EnhanceHandStable(bool wear)
+		{
+			WVR_EnhanceHandStable(wear);
+		}
+
+		[DllImportAttribute("wvr_api", EntryPoint = "WVR_IsEnhanceHandStable", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool WVR_IsEnhanceHandStable();
+		public override bool IsEnhanceHandStable()
+		{
+			return WVR_IsEnhanceHandStable();
 		}
 		#endregion
 
@@ -714,10 +735,10 @@ namespace Wave.Native
 		}
 
 		[DllImportAttribute("wvr_api", EntryPoint = "WVR_GetDeviceErrorState", CallingConvention = CallingConvention.Cdecl)]
-		public static extern bool WVR_GetDeviceErrorState_Android(WVR_DeviceType dev_type, WVR_DeviceErrorState error_state);
-		public override bool GetDeviceErrorState(WVR_DeviceType dev_type, WVR_DeviceErrorState error_state)
+		public static extern bool WVR_GetDeviceErrorState_Android(WVR_DeviceType dev_type, WVR_DeviceErrorStatus error_type);
+		public override bool GetDeviceErrorState(WVR_DeviceType dev_type, WVR_DeviceErrorStatus error_type)
 		{
-			return WVR_GetDeviceErrorState_Android(dev_type, error_state);
+			return WVR_GetDeviceErrorState_Android(dev_type, error_type);
 		}
 
 		// TODO

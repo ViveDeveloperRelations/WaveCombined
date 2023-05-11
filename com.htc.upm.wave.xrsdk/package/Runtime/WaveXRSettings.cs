@@ -167,6 +167,13 @@ namespace Wave.XR.Settings
 		public const string EnableTrackerText = "EnableTracker";
 		#endregion
 
+		#region Hand
+		public bool EnableNaturalHand = false;
+		public const string EnableNaturalHandText = "EnableNaturalHand";
+		public bool EnableElectronicHand = false;
+		public const string EnableElectronicHandText = "EnableElectronicHand";
+		#endregion
+
 		public bool enableAutoFallbackForMultiLayerProperty
         {
             get

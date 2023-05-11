@@ -224,6 +224,8 @@ namespace Wave.Native
 			return system.GetHandTrackingData(trackerType, modelType, originModel, ref handTrackerData, ref pose);
 		}
 		public override bool ControllerSupportElectronicHand() { return system.ControllerSupportElectronicHand(); }
+		public override void EnhanceHandStable(bool wear) { system.EnhanceHandStable(wear); }
+		public override bool IsEnhanceHandStable() { return system.IsEnhanceHandStable(); }
 		#endregion
 
 		#region Controller Pose Mode
@@ -293,6 +295,10 @@ namespace Wave.Native
 		public override WVR_Result TriggerTrackerVibration(WVR_TrackerId trackerId, UInt32 durationMicroSec = 65535, UInt32 frequency = 0, float amplitude = 0.0f)
 		{
 			return system.TriggerTrackerVibration(trackerId, durationMicroSec, frequency, amplitude);
+		}
+		public override IntPtr GetTrackerExtendedData(WVR_TrackerId trackerId, ref Int32 exDataSize)
+		{
+			return system.GetTrackerExtendedData(trackerId, ref exDataSize);
 		}
 		#endregion
 

@@ -50,6 +50,21 @@ namespace Wave.XR.BuildCheck
 					appendFile(WaveXRPath + CustomAndroidManifestPathSrc, true);
 		}
 
+		internal static void AddTrackerAndroidManifest()
+		{
+			WaveXRSettings settings;
+			EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out settings);
+			if (settings != null)
+				WaveXRPath = settings.waveXRFolder;
+
+			if (File.Exists(AndroidManifestPathDest))
+				if (!checkTrackerFeature(AndroidManifestPathDest))
+					appendFile(AndroidManifestPathDest, false, WaveXRSettings.SupportedFPS.HMD_Default, true);
+			if (File.Exists(WaveXRPath + CustomAndroidManifestPathSrc))
+				if (!checkTrackerFeature(WaveXRPath + CustomAndroidManifestPathSrc))
+					appendFile(WaveXRPath + CustomAndroidManifestPathSrc, false, WaveXRSettings.SupportedFPS.HMD_Default, true);
+		}
+
 		static void CopyAndroidManifest()
 		{
 			const string PluginAndroidPath = "Assets/Plugins/Android";
@@ -84,15 +99,21 @@ namespace Wave.XR.BuildCheck
 			
 			if (EditorPrefs.GetBool(CheckIfHandTrackingEnabled.MENU_NAME, false) && !checkHandtrackingFeature(AndroidManifestPathDest))
 			{
-				appendFile(AndroidManifestPathDest, true, settings.supportedFPS);
+				if (EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false) && !checkTrackerFeature(AndroidManifestPathDest))
+					appendFile(AndroidManifestPathDest, true, settings.supportedFPS, true);
+				else
+					appendFile(AndroidManifestPathDest, true, settings.supportedFPS, false);
 			}
 			else if (settings != null && settings.supportedFPS != WaveXRSettings.SupportedFPS.HMD_Default)
 			{
-				appendFile(AndroidManifestPathDest, false, settings.supportedFPS);
+				if (EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false) && !checkTrackerFeature(AndroidManifestPathDest))
+					appendFile(AndroidManifestPathDest, false, settings.supportedFPS, true);
+				else
+					appendFile(AndroidManifestPathDest, false, settings.supportedFPS, false);
 			}
 		}
 
-		static void appendFile(string filename, bool handtracking = false, WaveXRSettings.SupportedFPS supportedFPS = WaveXRSettings.SupportedFPS.HMD_Default)
+		static void appendFile(string filename, bool handtracking = false, WaveXRSettings.SupportedFPS supportedFPS = WaveXRSettings.SupportedFPS.HMD_Default, bool tracker = false)
 		{
 			string line;
 
@@ -109,6 +130,10 @@ namespace Wave.XR.BuildCheck
 				if (line.Contains("</manifest>") && handtracking)
 				{
 					file2.WriteLine("	<uses-feature android:name=\"wave.feature.handtracking\" android:required=\"true\" />");
+				}
+				if (line.Contains("</manifest>") && tracker)
+				{
+					file2.WriteLine("	<uses-feature android:name=\"wave.feature.tracker\" android:required=\"true\" />");
 				}
 				file2.WriteLine(line);
 			}
@@ -133,6 +158,26 @@ namespace Wave.XR.BuildCheck
 					string required = metadataNode.Attributes["android:required"].Value;
 
 					if (name.Equals("wave.feature.handtracking"))
+						return true;
+				}
+			}
+			return false;
+		}
+
+		static bool checkTrackerFeature(string filename)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(filename);
+			XmlNodeList metadataNodeList = doc.SelectNodes("/manifest/uses-feature");
+
+			if (metadataNodeList != null)
+			{
+				foreach (XmlNode metadataNode in metadataNodeList)
+				{
+					string name = metadataNode.Attributes["android:name"].Value;
+					string required = metadataNode.Attributes["android:required"].Value;
+
+					if (name.Equals("wave.feature.tracker"))
 						return true;
 				}
 			}
@@ -216,6 +261,7 @@ namespace Wave.XR.BuildCheck
 				{
 					//SetBuildingWave();
 					AddHandtrackingAndroidManifest();
+					AddTrackerAndroidManifest();
 					CopyAndroidManifest();
 				}
 				else if (report.summary.platform == BuildTarget.Android && CheckIsBuildingWave())
@@ -288,6 +334,52 @@ namespace Wave.XR.BuildCheck
 		public static bool ValidateEnabled()
 		{
 			Menu.SetChecked(CheckIfHandTrackingEnabled.MENU_NAME, enabled_);
+			return true;
+		}
+	}
+
+	[InitializeOnLoad]
+	public static class CheckIfTrackerEnabled
+	{
+		internal const string MENU_NAME = "Wave/Tracker/EnableTracker";
+
+		private static bool enabled_;
+		static CheckIfTrackerEnabled()
+		{
+			CheckIfTrackerEnabled.enabled_ = EditorPrefs.GetBool(CheckIfTrackerEnabled.MENU_NAME, false);
+
+			/// Delaying until first editor tick so that the menu
+			/// will be populated before setting check state, and
+			/// re-apply correct action
+			EditorApplication.delayCall += () =>
+			{
+				PerformAction(CheckIfTrackerEnabled.enabled_);
+			};
+		}
+
+		[MenuItem(CheckIfTrackerEnabled.MENU_NAME, priority = 602)]
+		private static void ToggleAction()
+		{
+			/// Toggling action
+			PerformAction(!CheckIfTrackerEnabled.enabled_);
+		}
+
+		public static void PerformAction(bool enabled)
+		{
+			/// Set checkmark on menu item
+			Menu.SetChecked(CheckIfTrackerEnabled.MENU_NAME, enabled);
+			if (enabled)
+				CustomBuildProcessor.AddTrackerAndroidManifest();
+			/// Saving editor state
+			EditorPrefs.SetBool(CheckIfTrackerEnabled.MENU_NAME, enabled);
+
+			CheckIfTrackerEnabled.enabled_ = enabled;
+		}
+
+		[MenuItem(CheckIfTrackerEnabled.MENU_NAME, validate = true, priority = 602)]
+		public static bool ValidateEnabled()
+		{
+			Menu.SetChecked(CheckIfTrackerEnabled.MENU_NAME, enabled_);
 			return true;
 		}
 	}

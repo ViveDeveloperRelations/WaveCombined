@@ -654,12 +654,13 @@ namespace Wave.Native
 		}
 
 		static string[] s_JoystickNames = new string[] { };
+		static List<string> joysticks = new List<string>();
 		public static string[] GetJoystickNames()
 		{
 #if ENABLE_LEGACY_INPUT_MANAGER
 			s_JoystickNames = Input.GetJoystickNames();
 #elif ENABLE_INPUT_SYSTEM
-			List<string> joysticks = new List<string>();
+			joysticks.Clear();
 
 			// Find all gamepads and joysticks.
 			var devices = InputSystem.devices;
