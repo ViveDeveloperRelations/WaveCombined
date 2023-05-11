@@ -804,7 +804,7 @@ namespace Wave.Essence.Editor
 		
 		internal static string GetEssenceUnityPackageFolder()
 		{
-			return Constants.PackagesRootFolder + "/" + Constants.EssencePackageName+ "/package/UnityPackages~";
+			return Constants.PackagesRootFolder + "/" + Constants.EssencePackageName+ "/UnityPackages~";
 		}
 		internal static void UpdateModule(string ModelPath, string packagePath)
 		{
